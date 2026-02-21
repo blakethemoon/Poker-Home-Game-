@@ -14,16 +14,19 @@
   --br:rgba(255,255,255,.055);--brh:rgba(200,169,110,.22);
   --r4:4px;--r6:6px;--r8:8px;--r10:10px;--r12:12px;
 }
-*,*:before,*:after{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+*,*:before,*:after{margin:0;padding:0;box-sizing:border-box}
+
+html{
+  font-size:15px;
+  -webkit-text-size-adjust:100%;
 }
 
-/* Base size + responsive scaling */
-html{
-  font-size:15px;                 /* slightly bigger baseline */
-  -webkit-text-size-adjust:100%;
+@media (min-width:1440px){
+  html{ font-size:17px; }
+}
+
+@media (min-width:1920px){
+  html{ font-size:18px; }
 }
 
 body{

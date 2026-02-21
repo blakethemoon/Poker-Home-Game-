@@ -75,7 +75,14 @@ body{
 .nvb:hover{color:var(--i2)}.nvb.on{color:var(--au);border-bottom-color:var(--au)}
 
 /* CONTENT */
-.content{flex:1;padding:16px;max-width:1200px;width:100%;margin:0 auto}
+/* CONTENT */
+.content{
+  flex:1;
+  padding:24px 32px 40px;
+  width:100%;
+  max-width:100%;      /* <-- fills the whole screen */
+  margin:0 auto;
+}
 .view{display:none}
 .view.on{display:block;animation:pageIn .16s ease both}
 @keyframes pageIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}

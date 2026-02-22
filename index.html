@@ -1290,7 +1290,7 @@ let DENOMS = JSON.parse(JSON.stringify(DEFAULT_DENOMS));
 let ROSTER_DB = (JSON.parse(localStorage.getItem('moonsRoster')||'[]')).map(r=>
   typeof r==='string' ? {name:r,lastSeen:null,nextSession:null,notes:''} : r
 );
-function saveRosterDB(){localStorage.setItem('moonsRoster',JSON.stringify(ROSTER_DB));}
+function saveRosterDB(){localStorage.setItem('moonsRoster',JSON.stringify(ROSTER_DB));scheduleCloudSave();}
 function getRosterEntry(name){return ROSTER_DB.find(r=>r.name===name);}
 function upsertRoster(name,patch={}){
   let r=getRosterEntry(name);
@@ -3236,7 +3236,7 @@ function askOracle(){
   // Save to oracle log
   oracleLog.push({hand:handStr.trim(),verdict,play,emoji:tier.emoji,time:new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})});
   if(oracleLog.length>50) oracleLog=oracleLog.slice(-50);
-  localStorage.setItem('oracleLog',JSON.stringify(oracleLog));
+  localStorage.setItem('oracleLog',JSON.stringify(oracleLog));scheduleCloudSave();
 
   // Render result — works on both oracle tab and any other context
   const result=$('ora-result');
@@ -3329,6 +3329,7 @@ function saveHistory(){
     biggestPot:G.hands.length?Math.max(...G.hands.map(h=>h.pot)):0
   });
   localStorage.setItem('moonsHistory',JSON.stringify(hist.slice(0,50)));
+  scheduleCloudSave();
   // Stamp lastSeen on each player in roster
   G.players.forEach(p=>upsertRoster(p.name,{lastSeen:dateStr}));
 }
@@ -3348,6 +3349,7 @@ function saveHistory(){
     biggestPot:G.hands.length?Math.max(...G.hands.map(h=>h.pot)):0
   });
   localStorage.setItem('moonsHistory',JSON.stringify(hist.slice(0,50)));
+  scheduleCloudSave();
   G.players.forEach(p=>upsertRoster(p.name,{lastSeen:dateStr}));
 }
 
@@ -3564,6 +3566,7 @@ function saveInvite(){
     buyin:parseFloat($('inv-buyin').value)||10,note:$('inv-note').value
   };
   localStorage.setItem('moonsInvite',JSON.stringify(INVITE));
+  scheduleCloudSave();
   renderInvite();toast('Invite saved — link ready!');
 }
 function copyInviteLink(){
@@ -3577,14 +3580,14 @@ function submitRSVP(){
   if(!name){toast('Enter your name');return;}
   RSVPS=RSVPS.filter(r=>r.name!==name);// update existing
   RSVPS.push({name,status,time:new Date().toISOString()});
-  localStorage.setItem('moonsRSVPs',JSON.stringify(RSVPS));
+  localStorage.setItem('moonsRSVPs',JSON.stringify(RSVPS));scheduleCloudSave();
   $('inv-guest-name').value='';
   renderInvite();toast(`${name} → ${status==='in'?"You're in! 🤙":status==='maybe'?'Maybe 🤔':'Noted 😢'}`);
   if(activeTab==='dash')renderDash();
 }
 function removeRSVP(name){
   RSVPS=RSVPS.filter(r=>r.name!==name);
-  localStorage.setItem('moonsRSVPs',JSON.stringify(RSVPS));
+  localStorage.setItem('moonsRSVPs',JSON.stringify(RSVPS));scheduleCloudSave();
   renderInvite();toast(`Removed ${name}`);
 }
 
@@ -3961,9 +3964,61 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelect
 let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout(()=>{if(activeTab==='table')renderTable();if(TR.multiStreet)renderTrainerTable(TR.multiStreet.heroPos,TR.multiStreet.villPos);},200)});
 
 
+/* ══ CLOUD SYNC (Vercel KV) ══ */
+let _cloudTimer=null;
+function scheduleCloudSave(){clearTimeout(_cloudTimer);_cloudTimer=setTimeout(cloudSave,1500);}
+async function cloudSave(){
+  try{
+    await fetch('/api/state',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        roster:ROSTER_DB,
+        history:JSON.parse(localStorage.getItem('moonsHistory')||'[]'),
+        invite:INVITE,
+        rsvps:RSVPS,
+        oracle:oracleLog
+      })
+    });
+  }catch(e){console.warn('Cloud save failed:',e);}
+}
+async function cloudLoad(){
+  try{
+    const r=await fetch('/api/state');
+    if(!r.ok)return;
+    const {data}=await r.json();
+    if(!data)return;
+    let changed=false;
+    if(Array.isArray(data.roster)&&data.roster.length>0){
+      ROSTER_DB=data.roster.map(r=>typeof r==='string'?{name:r,lastSeen:null,nextSession:null,notes:''}:r);
+      localStorage.setItem('moonsRoster',JSON.stringify(ROSTER_DB));changed=true;
+    }
+    if(Array.isArray(data.history)&&data.history.length>0){
+      localStorage.setItem('moonsHistory',JSON.stringify(data.history));changed=true;
+    }
+    if(data.invite&&typeof data.invite==='object'&&data.invite.id){
+      INVITE=data.invite;localStorage.setItem('moonsInvite',JSON.stringify(INVITE));changed=true;
+    }
+    if(Array.isArray(data.rsvps)){
+      RSVPS=data.rsvps;localStorage.setItem('moonsRSVPs',JSON.stringify(RSVPS));changed=true;
+    }
+    if(Array.isArray(data.oracle)){
+      oracleLog=data.oracle;localStorage.setItem('oracleLog',JSON.stringify(oracleLog));
+    }
+    if(changed){
+      renderDash();
+      if(activeTab==='players')renderPlayerPanel();
+      if(activeTab==='sessions')renderSessions();
+      if(activeTab==='invite')renderInvite();
+      toast('☁ Synced');
+    }
+  }catch(e){console.warn('Cloud load failed, using local:',e);}
+}
+
 const today=new Date().toISOString().split('T')[0];
 const dinv=$('inv-date');if(dinv&&!dinv.value)dinv.value=today;
 setTimeout(renderDash,80);
+cloudLoad();
 toast("Moon's — let's play",2000);
 </script>
 </body>

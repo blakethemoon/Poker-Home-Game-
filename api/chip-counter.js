@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
       try {
         body = JSON.parse(req.body);
       } catch (e) {
-        res.status(400).json({ error: 'Invalid JSON body' });
+        res.status(400).json({ error: 'Invalid JSON body', body: req.body });
         return;
       }
     } else {
@@ -42,7 +42,7 @@ module.exports = async (req, res) => {
         'Authorization': 'Bearer ' + OPENAI_API_KEY
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'gpt-4.1-mini',
         response_format: { type: 'json_object' },
         messages: [
           {

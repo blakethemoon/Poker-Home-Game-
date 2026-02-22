@@ -2792,8 +2792,8 @@ async function runAI(dataUrl){
 function showChipResult(r){
   $('chip-loading').style.display='none';chipVal=r;
   $('chip-total').textContent=fmt(r.total);
-  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e',white:'#e5e7eb'};
-  const idMap={red:'r',blue:'b',black:'bl',green:'g',white:'w'};
+  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e'};
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   $('chip-chips').innerHTML=r.counts?Object.entries(r.counts).filter(([,v])=>v>0).map(([col,cnt])=>{
     const d=DENOMS.find(d=>d.id===(idMap[col]||col));
     const clr=chx[col]||'#fff';
@@ -2808,7 +2808,7 @@ function adjustChip(col,delta){
   const next=Math.max(0,(chipVal.counts[col]||0)+delta);
   chipVal.counts[col]=next;
   const el=$('rchip-n-'+col);if(el)el.textContent=next;
-  const idMap={red:'r',blue:'b',black:'bl',green:'g',white:'w'};
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   let t=0;
   Object.entries(chipVal.counts).forEach(([c,cnt])=>{const d=DENOMS.find(d=>d.id===(idMap[c]||c));if(d)t+=cnt*d.value;});
   chipVal.total=parseFloat(t.toFixed(2));

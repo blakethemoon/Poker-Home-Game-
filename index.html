@@ -178,7 +178,7 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .felt-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 8px rgba(0,0,0,.5)}
 .felt-avatar.active{border-color:var(--cy);box-shadow:0 0 10px rgba(0,212,255,.4)}
 .felt-avatar.empty{background:rgba(255,255,255,.05);border-style:dashed;border-color:rgba(255,255,255,.1)}
-.felt-name{font-size:8px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);white-space:nowrap;max-width:52px;overflow:hidden;text-overflow:ellipsis;text-align:center}
+.felt-name{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);white-space:nowrap;max-width:52px;overflow:hidden;text-overflow:ellipsis;text-align:center}
 .felt-sub{font-size:7px;color:rgba(255,255,255,.55);text-align:center;white-space:nowrap}
 .bar-fill{height:100%;border-radius:3px;transition:width .45s ease}
 .bar-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--i3);min-width:30px;text-align:right}
@@ -201,7 +201,7 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .sc.big{border-color:rgba(57,255,20,.25)}.sc.big::before{background:var(--ag)}
 .sc.sht{border-color:rgba(255,69,96,.25)}.sc.sht::before{background:var(--neg)}
 .sn-num{font-size:7px;letter-spacing:.1em;color:var(--i3);margin-bottom:1px}
-.sn-name{font-size:8px;font-weight:700;color:var(--i1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;letter-spacing:.02em}
+.sn-name{font-size:9px;font-weight:700;color:var(--i1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;letter-spacing:.02em}
 .sn-stack{font-family:'DM Mono',monospace;font-size:9px;color:var(--cy)}
 .sn-stack.up{color:var(--ag)}.sn-stack.dn{color:var(--neg)}
 .sn-open{font-size:7px;color:var(--i4)}
@@ -444,82 +444,82 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <!-- SESSION STRIP — always visible, shows pre vs active state -->
   <div id="d-session-bar" style="margin-bottom:12px">
     <!-- PRE-SESSION strip -->
-    <div id="d-pre-session" style="background:var(--s1);border:1px solid var(--brc);border-radius:var(--r10);padding:12px 16px;position:relative;overflow:hidden">
-      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0,rgba(0,212,255,.06),transparent 70%);pointer-events:none"></div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+    <div id="d-pre-session" style="background:var(--s1);border:1px solid var(--brc);border-radius:var(--r10);padding:28px 24px;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0,rgba(0,212,255,.08),transparent 70%);pointer-events:none"></div>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
         <!-- Who's coming chips -->
         <div style="flex:1;min-width:0">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Quick-add players</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:12px">Quick-add players</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
             <div id="pre-roster-chips" style="display:contents"></div>
-            <span id="pre-roster-empty" style="display:none;font-size:11px;color:var(--i4)">No roster yet</span>
-            <button class="btn btn-ghost btn-xs" onclick="openAdd()">+ New</button>
+            <span id="pre-roster-empty" style="display:none;font-size:13px;color:var(--i4)">No roster yet — add your first player</span>
+            <button class="btn btn-ghost btn-sm" onclick="openAdd()">+ New</button>
           </div>
-          <div id="pre-seated-wrap" style="display:none;margin-top:7px;display:flex;flex-wrap:wrap;gap:5px;align-items:center">
-            <span style="font-size:9px;color:var(--cy);font-weight:700;letter-spacing:.1em;text-transform:uppercase">Seated:</span>
+          <div id="pre-seated-wrap" style="display:none;margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center">
+            <span style="font-size:12px;color:var(--cy);font-weight:700;letter-spacing:.06em;text-transform:uppercase">Seated:</span>
             <div id="pre-seated-list" style="display:contents"></div>
           </div>
         </div>
         <!-- Start button -->
-        <button class="btn btn-solid-cy" style="font-size:13px;padding:11px 24px;flex-shrink:0;letter-spacing:.05em" onclick="startSession()">▶ Start</button>
+        <button class="btn btn-solid-cy" style="font-size:17px;padding:18px 40px;flex-shrink:0;letter-spacing:.04em;font-weight:800" onclick="startSession()">▶ Start Game</button>
       </div>
     </div>
 
     <!-- ACTIVE SESSION strip -->
     <div id="d-active-session" style="display:none">
       <!-- Timer + stats bar -->
-      <div style="background:var(--s1);border:1px solid var(--brc);border-radius:var(--r10);padding:12px 16px;margin-bottom:8px;position:relative;overflow:hidden">
+      <div style="background:var(--s1);border:1px solid var(--brc);border-radius:var(--r10);padding:18px 22px;margin-bottom:10px;position:relative;overflow:hidden">
         <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 0 50%,rgba(0,212,255,.05),transparent 60%);pointer-events:none"></div>
-        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
-            <div class="ldot" style="width:7px;height:7px"></div>
-            <div class="mono cy" style="font-size:26px;font-weight:500;line-height:1;letter-spacing:.04em" id="d-timer">0:00</div>
+        <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            <div class="ldot" style="width:9px;height:9px"></div>
+            <div class="mono cy" style="font-size:42px;font-weight:500;line-height:1;letter-spacing:.04em" id="d-timer">0:00</div>
           </div>
-          <div style="display:flex;gap:14px;flex-wrap:wrap;flex:1">
-            <div style="text-align:center"><div class="mono cy" style="font-size:16px" id="d-players">0</div><div style="font-size:8px;color:var(--i3);letter-spacing:.1em;text-transform:uppercase">Players</div></div>
-            <div style="text-align:center"><div class="mono au" style="font-size:16px" id="d-pot">$0</div><div style="font-size:8px;color:var(--i3);letter-spacing:.1em;text-transform:uppercase">In Play</div></div>
-            <div style="text-align:center"><div class="mono" style="font-size:16px" id="d-addons">0</div><div style="font-size:8px;color:var(--i3);letter-spacing:.1em;text-transform:uppercase">Add-Ons</div></div>
-            <div style="text-align:center"><div class="mono" style="font-size:16px" id="d-hands">0</div><div style="font-size:8px;color:var(--i3);letter-spacing:.1em;text-transform:uppercase">Hands</div></div>
+          <div style="display:flex;gap:20px;flex-wrap:wrap;flex:1">
+            <div style="text-align:center"><div class="mono cy" style="font-size:22px;font-weight:500" id="d-players">0</div><div style="font-size:11px;color:var(--i3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px">Players</div></div>
+            <div style="text-align:center"><div class="mono au" style="font-size:22px;font-weight:500" id="d-pot">$0</div><div style="font-size:11px;color:var(--i3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px">In Play</div></div>
+            <div style="text-align:center"><div class="mono" style="font-size:22px;font-weight:500" id="d-addons">0</div><div style="font-size:11px;color:var(--i3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px">Add-Ons</div></div>
+            <div style="text-align:center"><div class="mono" style="font-size:22px;font-weight:500" id="d-hands">0</div><div style="font-size:11px;color:var(--i3);letter-spacing:.06em;text-transform:uppercase;margin-top:2px">Hands</div></div>
           </div>
-          <div style="display:flex;gap:6px;flex-shrink:0">
-            <button class="btn btn-neg btn-sm" onclick="openEndNight()">🏁 End</button>
+          <div style="display:flex;gap:8px;flex-shrink:0">
+            <button class="btn btn-neg" onclick="openEndNight()">🏁 End Night</button>
             <button class="btn btn-ghost btn-sm" onclick="openSettings()">⚙</button>
           </div>
         </div>
-        <div style="margin-top:7px;display:flex;align-items:center;gap:7px">
-          <span style="font-size:9px;color:var(--i3)">Blinds</span>
-          <span class="mono cy" style="font-size:11px" id="d-blinds">$0.10/$0.10</span>
-          <span style="color:var(--i4);font-size:9px">·</span>
-          <span style="font-size:9px;color:var(--i3)" id="d-game">NL HOLD'EM</span>
+        <div style="margin-top:10px;display:flex;align-items:center;gap:9px">
+          <span style="font-size:12px;color:var(--i3)">Blinds</span>
+          <span class="mono cy" style="font-size:13px" id="d-blinds">$0.10/$0.10</span>
+          <span style="color:var(--i4);font-size:12px">·</span>
+          <span style="font-size:12px;color:var(--i3)" id="d-game">NL HOLD'EM</span>
         </div>
       </div>
 
       <!-- 4-button action bar: Add · Add-On · Log Hand · Bust -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px">
-        <button class="btn btn-solid-cy" style="padding:10px 4px;font-size:10px;flex-direction:column;gap:2px;display:flex;align-items:center" onclick="openAdd()">
-          <span style="font-size:16px;line-height:1">+</span><span>Add Player</span>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+        <button class="btn btn-solid-cy" style="padding:20px 8px;font-size:14px;flex-direction:column;gap:6px;display:flex;align-items:center" onclick="openAdd()">
+          <span style="font-size:26px;line-height:1">+</span><span>Add Player</span>
         </button>
-        <button class="btn btn-au" style="padding:10px 4px;font-size:10px;flex-direction:column;gap:2px;display:flex;align-items:center" onclick="openQuickAddon()">
-          <span style="font-size:16px;line-height:1">↺</span><span>Add-On</span>
+        <button class="btn btn-au" style="padding:20px 8px;font-size:14px;flex-direction:column;gap:6px;display:flex;align-items:center" onclick="openQuickAddon()">
+          <span style="font-size:26px;line-height:1">↺</span><span>Add-On</span>
         </button>
-        <button class="btn btn-mg" style="padding:10px 4px;font-size:10px;flex-direction:column;gap:2px;display:flex;align-items:center" onclick="openLogHand()">
-          <span style="font-size:16px;line-height:1">🃏</span><span>Log Hand</span>
+        <button class="btn btn-mg" style="padding:20px 8px;font-size:14px;flex-direction:column;gap:6px;display:flex;align-items:center" onclick="openLogHand()">
+          <span style="font-size:26px;line-height:1">🃏</span><span>Log Hand</span>
         </button>
-        <button class="btn btn-sm" style="padding:10px 4px;font-size:10px;flex-direction:column;gap:2px;display:flex;align-items:center;border-color:rgba(255,69,96,.25);color:var(--neg)" onclick="openQuickBust()">
-          <span style="font-size:16px;line-height:1">💀</span><span>Bust</span>
+        <button class="btn" style="padding:20px 8px;font-size:14px;flex-direction:column;gap:6px;display:flex;align-items:center;border-color:rgba(255,69,96,.25);color:var(--neg);background:rgba(255,69,96,.06)" onclick="openQuickBust()">
+          <span style="font-size:26px;line-height:1">💀</span><span>Bust</span>
         </button>
       </div>
       <!-- Oracle shortcut -->
-      <div style="margin-bottom:8px">
-        <button class="btn btn-full btn-sm" style="border-color:rgba(168,85,247,.3);color:#a855f7;background:rgba(168,85,247,.06);font-size:11px;padding:8px" onclick="goTab('oracle',document.querySelector('.nvb[onclick*=oracle]'))">
-          🔮 Should I Play This?
+      <div style="margin-bottom:10px">
+        <button class="btn btn-full" style="border-color:rgba(168,85,247,.3);color:#a855f7;background:rgba(168,85,247,.06);font-size:14px;padding:14px" onclick="goTab('oracle',document.querySelector('.nvb[onclick*=oracle]'))">
+          🔮 Should I Play This Hand?
         </button>
       </div>
 
       <!-- Live roster quick-add -->
-      <div id="d-live-roster" style="display:none;margin-bottom:8px">
-        <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:6px">Quick-add</div>
-        <div id="d-live-roster-chips" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+      <div id="d-live-roster" style="display:none;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Quick-add</div>
+        <div id="d-live-roster-chips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
       </div>
     </div>
   </div>
@@ -531,15 +531,15 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div class="card" id="d-players-card">
         <div class="chd">
           <span class="ctitle cy">Table</span>
-          <span style="font-size:10px;color:var(--i3)" id="d-table-sub"></span>
+          <span style="font-size:12px;color:var(--i3)" id="d-table-sub"></span>
         </div>
         <div id="d-roster-empty" class="empty" style="padding:18px 0"><span class="empty-icon">♠</span><span class="empty-txt">Add players to see the table</span></div>
         <div id="d-felt-wrap" style="display:none">
           <div id="d-felt" style="position:relative;width:100%;aspect-ratio:2/1;margin:8px 0 4px">
             <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#0d3320,#061a10);border:3px solid rgba(57,255,20,.18);box-shadow:0 0 30px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.4)"></div>
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-              <div style="font-family:'Instrument Serif',serif;font-size:13px;color:rgba(255,255,255,.4);line-height:1.2" id="d-felt-game">NL HOLD'EM</div>
-              <div style="font-size:9px;color:rgba(255,255,255,.25);margin-top:2px" id="d-felt-blinds">$0.10 / $0.10</div>
+              <div style="font-family:'Instrument Serif',serif;font-size:17px;color:rgba(255,255,255,.4);line-height:1.2" id="d-felt-game">NL HOLD'EM</div>
+              <div style="font-size:12px;color:rgba(255,255,255,.25);margin-top:4px" id="d-felt-blinds">$0.10 / $0.10</div>
             </div>
             <div id="d-felt-seats"></div>
           </div>
@@ -563,8 +563,8 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <div class="dash-side">
       <!-- Committed tonight (RSVP) -->
       <div class="card card-cyan card-sm" id="d-committed" style="display:none">
-        <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--cy);text-transform:uppercase;margin-bottom:7px">Committed Tonight</div>
-        <div id="d-committed-list" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--cy);text-transform:uppercase;margin-bottom:10px">Committed Tonight</div>
+        <div id="d-committed-list" style="display:flex;flex-wrap:wrap;gap:6px"></div>
       </div>
       <!-- Live feed -->
       <div class="card" style="flex:1">
@@ -575,9 +575,9 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           </div>
           <button class="btn btn-mg btn-sm" style="font-size:11px" onclick="openLogHand()">🃏 Log Hand</button>
         </div>
-        <div id="d-pot-ticker" style="display:none;background:var(--s2);border:1px solid var(--brc);border-radius:var(--r6);padding:8px 11px;margin-bottom:10px;align-items:center;justify-content:space-between">
-          <span style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--cy);text-transform:uppercase">Total in play</span>
-          <span class="mono cy" style="font-size:17px" id="d-pot-live">$0.00</span>
+        <div id="d-pot-ticker" style="display:none;background:var(--s2);border:1px solid var(--brc);border-radius:var(--r6);padding:11px 14px;margin-bottom:12px;align-items:center;justify-content:space-between">
+          <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--cy);text-transform:uppercase">Total in play</span>
+          <span class="mono cy" style="font-size:22px" id="d-pot-live">$0.00</span>
         </div>
         <div id="d-feed-empty" class="empty" style="padding:14px 0"><span class="empty-icon">◈</span><span class="empty-txt">Activity appears here</span></div>
         <div id="d-feed" style="max-height:520px;overflow-y:auto"></div>
@@ -600,7 +600,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <button class="btn btn-cy btn-sm" style="font-size:11px" onclick="randomizeSeating()">🎲 Randomize Seats</button>
             <button class="btn btn-au btn-sm" style="font-size:11px" id="pl-dealer-btn" onclick="hostToDealer()">🃏 → Seat 1 (Dealer)</button>
             <div style="flex:1"></div>
-            <span style="font-size:9px;color:var(--i4)">Seat 1 = Dealer</span>
+            <span style="font-size:11px;color:var(--i4)">Seat 1 = Dealer</span>
           </div>
         </div>
         <div id="pl-empty" class="empty" style="padding:14px 0"><span class="empty-icon">♠</span><span class="empty-txt">No players this session</span></div>
@@ -608,7 +608,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       </div>
       <!-- All-time roster -->
       <div class="card">
-        <div class="chd"><span class="ctitle">All-Time Roster</span><span style="font-size:9px;color:var(--i3)" id="pl-roster-count"></span></div>
+        <div class="chd"><span class="ctitle">All-Time Roster</span><span style="font-size:11px;color:var(--i3)" id="pl-roster-count"></span></div>
         <div id="roster-db-list"></div>
       </div>
     </div>
@@ -628,7 +628,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <div id="co-balance-bar" style="background:var(--s1);border:1px solid var(--br);border-radius:var(--r10);padding:13px 16px;margin-bottom:12px;display:none">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="flex:1;min-width:0">
-        <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:5px">Session Balance</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:5px">Session Balance</div>
         <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:baseline">
           <span style="font-size:11px;color:var(--i3)">Total In: <span class="mono au" id="co-bal-in">$0</span></span>
           <span style="font-size:11px;color:var(--i3)">Cashed Out: <span class="mono cy" id="co-bal-out">$0</span></span>
@@ -639,7 +639,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <div id="co-bal-diff-wrap" style="display:flex;align-items:center;gap:8px">
           <div>
             <div class="mono" id="co-bal-diff" style="font-size:24px;font-weight:600">$0</div>
-            <div style="font-size:9px;color:var(--i3)" id="co-bal-status">balanced</div>
+            <div style="font-size:11px;color:var(--i3)" id="co-bal-status">balanced</div>
           </div>
         </div>
       </div>
@@ -697,13 +697,13 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
           <!-- Buy-in editor -->
           <div style="background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:12px;margin-bottom:12px">
-            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center">
               <span>Transaction Log</span>
               <button class="btn btn-ghost btn-xs" onclick="editBuyInMode()" id="co-edit-btn">✎ Edit</button>
             </div>
             <div id="co-txn-log"></div>
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
-              <span style="font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--i3);text-transform:uppercase">Total In</span>
+              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Total In</span>
               <span class="mono au" style="font-size:16px" id="co-total-in">$0.00</span>
             </div>
           </div>
@@ -717,10 +717,10 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
           <!-- Chip count -->
           <div class="card" style="background:var(--s2);margin-bottom:12px;padding:12px">
-            <div style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:9px">Count Chips Now</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:9px">Count Chips Now</div>
             <div id="co-chip-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
-              <span style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase">Chip Total</span>
+              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Chip Total</span>
               <span class="mono cy" style="font-size:17px" id="co-chip-total">$0.00</span>
             </div>
           </div>
@@ -791,7 +791,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           <div class="res-desc" id="chip-desc"></div>
         </div>
         <div id="chip-actions" style="display:none" class="mt8">
-          <div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Apply to player</div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Apply to player</div>
           <div class="pp-list mb8" id="chip-picker"></div>
           <div class="g2">
             <button class="btn btn-solid-cy btn-sm" onclick="chipApply('buyin')">+ Buy-In</button>
@@ -806,11 +806,11 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <div class="chd"><span class="ctitle">Manual Count</span></div>
         <div id="mc-grid" class="denom-grid"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:10px;margin-top:4px">
-          <span style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase">Total</span>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Total</span>
           <span class="mono cy" style="font-size:24px" id="mc-total">$0.00</span>
         </div>
         <hr>
-        <div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Apply to player</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Apply to player</div>
         <div class="pp-list mb8" id="mc-picker"></div>
         <div class="g2 mt8">
           <button class="btn btn-solid-cy btn-sm" onclick="mcApply('buyin')">+ Buy-In</button>
@@ -874,13 +874,13 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
         <!-- Board -->
         <div style="margin-bottom:13px">
-          <div style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--i3);margin-bottom:7px">Board</div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3);margin-bottom:7px">Board</div>
           <div id="tr-board" style="display:flex;gap:7px;flex-wrap:wrap"></div>
         </div>
 
         <!-- Hero hand -->
         <div style="margin-bottom:13px">
-          <div style="font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--i3);margin-bottom:7px" id="tr-hero-lbl">Your Hand</div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3);margin-bottom:7px" id="tr-hero-lbl">Your Hand</div>
           <div id="hd-cards" style="display:flex;gap:7px"></div>
         </div>
 
@@ -1145,7 +1145,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div style="height:1px;background:var(--br);margin-bottom:12px"></div>
     </div>
 
-    <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">New / Custom Seat</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">New / Custom Seat</div>
     <div class="fg">
       <label class="lbl">Name</label>
       <input class="inp" type="text" id="ap-name" placeholder="Type name…" maxlength="24" list="roster-datalist" onkeydown="if(event.key==='Enter')doAddPlayer()" oninput="ap_name_change()">
@@ -1200,7 +1200,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     </div>
 
     <!-- Hole cards -->
-    <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Hole Cards</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Hole Cards</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
       <div>
         <label class="lbl">Card 1</label>
@@ -1567,7 +1567,7 @@ function renderPreRoster(){
     seatedList.innerHTML=seated.map(p=>`
       <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:var(--ag3);border:1px solid rgba(57,255,20,.2);border-radius:20px">
         <span style="font-size:11px;font-weight:600;color:var(--ag)">${p.name}</span>
-        <span style="font-size:9px;color:var(--i3)">S${p.seat}</span>
+        <span style="font-size:11px;color:var(--i3)">S${p.seat}</span>
         <button style="background:none;border:none;color:var(--i3);cursor:pointer;font-size:11px;padding:0;margin-left:2px" onclick="removePreSeated(${p.id})">✕</button>
       </div>`).join('');
   } else if(seatedWrap){
@@ -1829,7 +1829,7 @@ function renderPlayerPanel(){
         <div style="width:36px;height:36px;border-radius:50%;background:${inSess?'rgba(57,255,20,.1)':'var(--s3)'};border:2px solid ${inSess?'rgba(57,255,20,.3)':'var(--br)'};display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:${inSess?'var(--ag)':'var(--i2)'};flex-shrink:0">${r.name.charAt(0).toUpperCase()}</div>
         <div style="flex:1;min-width:0;overflow:hidden">
           <div style="font-size:12px;font-weight:700;color:${inSess?'var(--ag)':'var(--i0)'};display:flex;align-items:center;gap:5px">${r.name} ${rsvpDot}</div>
-          <div style="font-size:9px;color:var(--i3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${inSess?`Seat ${inSess.seat} · ${fmt(inSess.currentStack)}`:lastSess?`Last: ${lastSess.date.split(',')[0]}${lastNet!=null?' · '+(lastNet>=0?'+':'')+fmt(Math.abs(lastNet)):''}`:sessions.length?`${sessions.length} sessions`:'New player'}</div>
+          <div style="font-size:11px;color:var(--i3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${inSess?`Seat ${inSess.seat} · ${fmt(inSess.currentStack)}`:lastSess?`Last: ${lastSess.date.split(',')[0]}${lastNet!=null?' · '+(lastNet>=0?'+':'')+fmt(Math.abs(lastNet)):''}`:sessions.length?`${sessions.length} sessions`:'New player'}</div>
         </div>
         ${!inSess?`<button class="btn btn-cy btn-xs" style="flex-shrink:0" onclick="event.stopPropagation();quickAddFromRoster('${nameEsc}')">+ Add</button>`:`<span style="font-size:9px;color:var(--ag);flex-shrink:0">● live</span>`}
       </div>`;
@@ -1963,14 +1963,14 @@ function _showRosterProfile(name){
 
       <div style="background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:10px 12px;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-          <span style="font-size:9px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase">Next Session</span>
+          <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Next Session</span>
           ${rsvp?`<span style="font-size:9px;padding:2px 8px;border-radius:10px;background:${rsvp.status==='in'?'var(--ag3)':'var(--au3)'};color:${rsvp.status==='in'?'var(--ag)':'var(--au)'}">${rsvp.status==='in'?'In ✓':'Maybe'}</span>`:''}
         </div>
         <div style="font-size:13px;font-weight:600;color:var(--i0)">${r.nextSession||'Not scheduled'}</div>
         ${r.lastSeen?`<div style="font-size:10px;color:var(--i3);margin-top:3px">Last seen: ${r.lastSeen}</div>`:''}
       </div>
 
-      <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Session History</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:7px">Session History</div>
       ${!sData.length?`<div class="empty" style="padding:10px 0"><span class="empty-txt">No sessions yet</span></div>`:''}
       <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:14px">
         ${sData.slice(0,8).map(s=>{
@@ -1984,7 +1984,7 @@ function _showRosterProfile(name){
       </div>
 
       ${inSess?`
-        <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;border-top:1px solid var(--br);padding-top:10px">Live Session</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;border-top:1px solid var(--br);padding-top:10px">Live Session</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
           <div class="stile" style="cursor:pointer;background:var(--s2)" onclick="openPlayerPanel(${inSess.id})">
             <div class="stile-v cy">${fmt(inSess.currentStack)}</div><div class="stile-l">Stack</div>
@@ -2040,7 +2040,7 @@ function renderPlayerDetail(p){
         <div class="pd-stat"><div class="pd-stat-v au">${fmt(tot)}</div><div class="pd-stat-l">Total In</div></div>
       </div>
 
-      <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)">Chips</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)">Chips</div>
       <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;margin-bottom:10px">
         <div><label class="lbl">Add-On ($)</label><input class="inp inp-sm" type="number" id="pd-ao-amt" value="${G.settings.defaultBuyin}" min="0.10" step="0.10" oninput="updateAOPreview()"></div>
         <button class="btn btn-au" onclick="doAddon(${p.id})" style="height:36px">Add-On</button>
@@ -2048,13 +2048,13 @@ function renderPlayerDetail(p){
       <div style="font-size:10px;color:var(--i3);margin-bottom:12px">Stack after: <span class="mono cy" id="pd-ao-preview">${fmt(p.currentStack+G.settings.defaultBuyin)}</span></div>
       <button class="btn btn-full mb12" style="border-color:rgba(255,69,96,.3);color:#ff6b6b;background:rgba(255,69,96,.06);font-weight:700" onclick="openDumbWin(${p.id})">🃏 Log Hand</button>
 
-      <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)">Transaction Log</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)">Transaction Log</div>
       <div class="addon-log mb12">
         <div class="addon-line"><span class="atag bi">BUY-IN</span><span class="addon-amt">${fmt(p.buyin)}</span><span class="addon-when">${clock(p.joinedAt)}</span></div>
         ${p.addOns.map(a=>`<div class="addon-line"><span class="atag rb">${a.type.toUpperCase()}</span><span class="addon-amt">+${fmt(a.amount)}</span><span class="addon-when">${clock(a.time)}</span></div>`).join('')}
       </div>
 
-      <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)">Update Stack</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--br)">Update Stack</div>
       <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end;margin-bottom:14px">
         <div><label class="lbl">Current Stack Size ($)</label><input class="inp inp-sm" type="number" id="pd-stk-val" value="${p.currentStack}" min="0" step="0.10" onkeydown="if(event.key==='Enter')doUpdateStack(${p.id})"></div>
         <button class="btn btn-cy" onclick="doUpdateStack(${p.id})" style="height:36px">Set</button>
@@ -2355,7 +2355,7 @@ function populateCOForm(p){
     if(p.status==='active'){
       qa.style.display='block';
       qa.innerHTML=`
-        <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--br)">Player Actions</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--br)">Player Actions</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
           <button class="btn btn-au btn-sm" onclick="coQuickAddon(${p.id})">↺ Add-On / Re-Buy</button>
           <button class="btn btn-cy btn-sm" onclick="openChipsForPlayer(${p.id})">📷 Chip Counter</button>
@@ -2607,11 +2607,11 @@ function renderPayout(){
     return `<div class="settle-row" id="sr-${p.id}" style="${done?'opacity:.5':''}">
       <div style="flex:1">
         <div class="settle-name">${p.name}</div>
-        <div style="font-size:9px;color:var(--i3);margin-top:1px">In: ${fmt(ti(p))} · Out: ${fmt(p.cashoutAmount||0)}</div>
+        <div style="font-size:11px;color:var(--i3);margin-top:2px">In: ${fmt(ti(p))} · Out: ${fmt(p.cashoutAmount||0)}</div>
       </div>
       <div style="text-align:right;margin-right:10px">
         <div class="settle-amt" style="color:${color}">${net===0?'Even':absNet>0?fmt(absNet):''}</div>
-        <div style="font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:${color};opacity:.7">${actionWord}</div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${color};opacity:.7">${actionWord}</div>
       </div>
       <div class="settle-check${done?' done':''}" id="sc-${p.id}" onclick="toggleSettle(${p.id})" title="${done?'✓ Paid':'Mark paid'}"></div>
     </div>`;
@@ -2619,11 +2619,11 @@ function renderPayout(){
 
   let html='';
   if(winners.length){
-    html+=`<div style="font-size:8px;font-weight:700;letter-spacing:.16em;color:var(--ag);text-transform:uppercase;margin-bottom:7px;padding:4px 0;border-bottom:1px solid rgba(57,255,20,.12)">💸 Pay Out — they won</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--ag);text-transform:uppercase;margin-bottom:7px;padding:4px 0;border-bottom:1px solid rgba(57,255,20,.12)">💸 Pay Out — they won</div>`;
     html+=winners.map(p=>makeRow(p,'Pay them','var(--ag)','you pay')).join('');
   }
   if(losers.length){
-    html+=`<div style="font-size:8px;font-weight:700;letter-spacing:.16em;color:var(--neg);text-transform:uppercase;margin-bottom:7px;padding:4px 0;border-bottom:1px solid rgba(255,69,96,.12);margin-top:${winners.length?12:0}px">💰 Collect Venmo — they lost</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--neg);text-transform:uppercase;margin-bottom:7px;padding:4px 0;border-bottom:1px solid rgba(255,69,96,.12);margin-top:${winners.length?12:0}px">💰 Collect Venmo — they lost</div>`;
     html+=losers.map(p=>makeRow(p,'They owe you','var(--neg)','collect')).join('');
   }
   if(evens.length){
@@ -3027,7 +3027,7 @@ function renderHands(){
         </div>
         ${h.tier?`<div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:${color};text-transform:uppercase;margin-bottom:2px">${h.tier}</div>`:''}
         ${h.note?`<div style="font-size:10px;color:var(--i3);font-style:italic">${h.note}</div>`:''}
-        <div style="font-size:9px;color:var(--i4);margin-top:3px;font-family:'DM Mono',monospace">${clock(h.time)}</div>
+        <div style="font-size:11px;color:var(--i4);margin-top:3px;font-family:'DM Mono',monospace">${clock(h.time)}</div>
       </div>
       ${h.pot>0?`<div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--ag);flex-shrink:0">${fmt(h.pot)}</div>`:''}
     </div>`;
@@ -3146,7 +3146,7 @@ function renderOracleHistory(){
         <div style="font-size:12px;font-weight:700;color:var(--i0)">${e.hand}</div>
         <div style="font-size:10px;color:var(--i3);margin-top:1px">${e.verdict}</div>
       </div>
-      <div style="font-size:9px;color:var(--i4)">${e.time}</div>
+      <div style="font-size:11px;color:var(--i4)">${e.time}</div>
     </div>`;
   }).join('');
 }
@@ -3389,7 +3389,7 @@ function renderSessions(){
     const dumbCount=(s.dumbHands||[]).length;
     return `<div style="background:${isSel?'var(--cy3)':'var(--s2)'};border:1px solid ${isSel?'var(--cy)':'var(--br)'};border-radius:var(--r8);margin-bottom:6px;padding:11px 13px;cursor:pointer;transition:all .12s" onclick="selectSession(${s.id})">
       <div style="font-size:12px;font-weight:700;color:${isSel?'var(--cy)':'var(--i0)'}">${s.date}</div>
-      <div style="font-size:9px;color:var(--i3);margin-top:2px">${s.players.length} players · ${fmt(s.totalPot)}${dur?' · '+dur:''}${dumbCount?` · 🤡 ${dumbCount}`:''}</div>
+      <div style="font-size:11px;color:var(--i3);margin-top:3px">${s.players.length} players · ${fmt(s.totalPot)}${dur?' · '+dur:''}${dumbCount?` · 🤡 ${dumbCount}`:''}</div>
       ${topW?`<div style="font-size:9px;margin-top:4px;color:var(--ag)">🏆 ${topW.name} +${fmt(topW.cashout-topW.buyin)}</div>`:''}
     </div>`;
   }).join('');
@@ -3434,7 +3434,7 @@ function selectSession(id, render=true){
       </div>
 
       <!-- Player results -->
-      <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Results</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Results</div>
       <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:14px">
         ${sorted.map((p,i)=>{
           const net=p.cashout!=null?p.cashout-p.buyin:null;
@@ -3464,7 +3464,7 @@ function selectSession(id, render=true){
               <div style="font-size:18px;font-weight:700;color:var(--neg);letter-spacing:1px">${d.card1}${suits[0]} ${d.card2}${suits[1]}</div>
               <div style="flex:1">
                 <div style="font-size:12px;font-weight:700;color:var(--i0)">${d.winner}</div>
-                <div style="font-size:9px;color:var(--i3)">${d.card1}${d.card2}${d.suited?'suited':'offsuit'}${d.note?' · '+d.note:''}</div>
+                <div style="font-size:11px;color:var(--i3)">${d.card1}${d.card2}${d.suited?'suited':'offsuit'}${d.note?' · '+d.note:''}</div>
               </div>
               <div class="mono ag" style="font-size:13px;font-weight:700">${fmt(d.pot)}</div>
             </div>`;
@@ -3475,7 +3475,7 @@ function selectSession(id, render=true){
 
     <!-- Per-player career view -->
     <div class="card">
-      <div style="font-size:8px;font-weight:700;letter-spacing:.12em;color:var(--i3);text-transform:uppercase;margin-bottom:10px">Career Stats — Players from This Session</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:10px">Career Stats — Players from This Session</div>
       <div style="display:flex;flex-direction:column;gap:8px">
         ${s.players.map(p=>{
           const pSessions=hist.filter(h=>h.players.some(pl=>pl.name===p.name));
@@ -3485,11 +3485,11 @@ function selectSession(id, render=true){
             <div style="width:32px;height:32px;border-radius:50%;background:var(--s3);border:2px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--i2);flex-shrink:0">${p.name.charAt(0)}</div>
             <div style="flex:1">
               <div style="font-size:12px;font-weight:700;color:var(--i0)">${p.name}</div>
-              <div style="font-size:9px;color:var(--i3);margin-top:1px">${pSessions.length} sessions${pDumb.length?` · 🤡 ${pDumb.length} dumb win${pDumb.length!==1?'s':''}`:''}</div>
+              <div style="font-size:11px;color:var(--i3);margin-top:2px">${pSessions.length} sessions${pDumb.length?` · 🤡 ${pDumb.length} dumb win${pDumb.length!==1?'s':''}`:''}</div>
             </div>
             <div style="text-align:right">
               <div style="font-size:13px;font-weight:700;color:${pNet>0?'var(--ag)':pNet<0?'var(--neg)':'var(--i2)'}">${pNet>0?'+':pNet<0?'-':''}${fmt(Math.abs(pNet))}</div>
-              <div style="font-size:9px;color:var(--i3)">all-time</div>
+              <div style="font-size:11px;color:var(--i3)">all-time</div>
             </div>
           </div>`;
         }).join('')}

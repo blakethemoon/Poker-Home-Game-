@@ -2725,7 +2725,7 @@ function processImg(file){
   r.readAsDataURL(file);
 }
 async function runAI(dataUrl){
-  // Send chip image to backend /api/chip-counter which uses OpenAI vision.
+  // Call backend /api/chip-counter (Vercel serverless) which uses OpenAI vision.
   var loading = document.getElementById('chip-loading');
   var result  = document.getElementById('chip-result');
   var actions = document.getElementById('chip-actions');
@@ -3837,7 +3837,7 @@ function continueHand(){
 }
 
 async function getCoach(spot, played, isCorrect, grade){
-  // Simple local coach stub so the Trainer tab works without any backend calls.
+  // Simple local coach stub; keeps Trainer tab working without extra APIs.
   return new Promise(function(resolve){
     var msg;
     if (isCorrect){

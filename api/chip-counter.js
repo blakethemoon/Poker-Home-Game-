@@ -20,12 +20,13 @@ export default async function handler(req, res) {
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4.1-mini",
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
           content:
-            "You count poker chips for a live home poker game. " +
-            "You MUST respond with ONLY JSON, no explanations."
+            "You count poker chips from an image for a live home cash game. " +
+            "You MUST respond with ONLY a single JSON object."
         },
         {
           role: "user",
@@ -51,33 +52,15 @@ export default async function handler(req, res) {
       max_tokens: 400
     });
 
-    const content = (completion.choices &&
-                     completion.choices[0] &&
-                     completion.choices[0].message &&
-                     completion.choices[0].message.content) || [];
-
-    let text = "";
-    if (Array.isArray(content)) {
-      text = content.map(p => (p && p.text) ? p.text : "").join("");
-    } else if (typeof content === "string") {
-      text = content;
-    }
-
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) {
-      return res.status(500).json({
-        error: "Model did not return JSON",
-        raw: text
-      });
-    }
-
+    const content = completion.choices[0].message.content;
+    // With response_format=json_object, content should already be JSON text.
     let parsed;
     try {
-      parsed = JSON.parse(match[0]);
-    } catch (parseErr) {
+      parsed = JSON.parse(content);
+    } catch (err) {
       return res.status(500).json({
         error: "Model output was not valid JSON",
-        raw: text
+        raw: content
       });
     }
 

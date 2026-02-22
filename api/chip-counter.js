@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 512,
-        system: 'You are an expert poker chip counter for a live home cash game. Chips are often photographed in vertical stacks/towers — when you see a stack, carefully count every chip including partially hidden ones by examining the visible edges and shadows along the side of the tower. Never undercount stacks. Respond ONLY with a single JSON object, no markdown, no extra text.',
+        system: 'You are an expert poker chip counter for a live home cash game. Chips are often photographed in vertical stacks/towers — count every chip by examining visible edges and shadows. Dark chips (black) on dark surfaces have low contrast so pay extra attention to subtle edge lines. Aim for accuracy: do not undercount OR overcount. Respond ONLY with a single JSON object, no markdown, no extra text.',
         messages: [
           {
             role: 'user',

@@ -242,10 +242,13 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .result-box{display:none;border:1px solid var(--brc);background:var(--cy3);border-radius:var(--r8);padding:15px;text-align:center;animation:fadeUp .2s ease both}
 .res-total{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;color:var(--cy);line-height:1;text-shadow:var(--glow-cy)}
 .res-lbl{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--i3);margin:5px 0 12px}
-.res-chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:10px}
-.rchip{background:var(--s3);border:1px solid var(--br);border-radius:var(--r6);padding:7px 10px;text-align:center;min-width:64px}
-.rchip-n{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;line-height:1}
-.rchip-l{font-size:8px;color:var(--i3);margin-top:2px}
+.res-chips{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
+.rchip{background:var(--s3);border:1px solid var(--br);border-radius:var(--r6);padding:7px 10px;display:flex;align-items:center;gap:8px}
+.rchip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.rchip-n{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;line-height:1;min-width:26px;text-align:center}
+.rchip-l{font-size:9px;color:var(--i3);flex:1}
+.rchip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:15px;width:24px;height:24px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
+.rchip-adj:hover{background:var(--cy3)}
 .res-desc{font-size:10px;color:var(--i3);font-style:italic}
 .pp-list{display:flex;flex-direction:column;gap:4px}
 .pp-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r6);border:1px solid var(--br);background:var(--s2);cursor:pointer;transition:all .11s}
@@ -764,8 +767,13 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <img id="chip-img" class="chip-prev-img mt8" alt="">
         <div id="chip-loading" style="display:none;padding:18px;text-align:center"><span class="spin">◌</span><div style="font-size:10px;color:var(--i3);letter-spacing:.08em">Counting…</div></div>
         <div class="result-box mt8" id="chip-result">
-          <div class="res-total" id="chip-total">$0.00</div>
-          <div class="res-lbl">Total Stack Value</div>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div class="res-total" id="chip-total">$0.00</div>
+              <div class="res-lbl">Total Stack Value</div>
+            </div>
+            <button class="btn btn-ghost btn-xs" onclick="resetChip()" style="margin-top:4px">↩ New Scan</button>
+          </div>
           <div class="res-chips" id="chip-chips"></div>
           <div class="res-desc" id="chip-desc"></div>
         </div>
@@ -777,7 +785,6 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <button class="btn btn-au btn-sm" onclick="chipApply('rebuy')">↺ Add-On</button>
             <button class="btn btn-ag btn-sm" style="grid-column:1/-1" onclick="chipApply('stack')">⟳ Set as Stack</button>
           </div>
-          <button class="btn btn-ghost btn-xs mt8" onclick="resetChip()">↩ Scan another</button>
         </div>
       </div>
     </div>
@@ -2785,15 +2792,27 @@ async function runAI(dataUrl){
 function showChipResult(r){
   $('chip-loading').style.display='none';chipVal=r;
   $('chip-total').textContent=fmt(r.total);
-  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e'};
+  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e',white:'#e5e7eb'};
+  const idMap={red:'r',blue:'b',black:'bl',green:'g',white:'w'};
   $('chip-chips').innerHTML=r.counts?Object.entries(r.counts).filter(([,v])=>v>0).map(([col,cnt])=>{
-    const id={red:'r',blue:'b',black:'bl',green:'g'}[col]||'r';
-    const d=DENOMS.find(d=>d.id===id);
-    return `<div class="rchip"><div class="rchip-n" style="color:${chx[col]||'#fff'}">${cnt}</div><div class="rchip-l">${col} · $${d?d.value.toFixed(2):'?'}</div></div>`;
+    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+    const clr=chx[col]||'#fff';
+    return `<div class="rchip"><div class="rchip-dot" style="background:${clr}"></div><span class="rchip-l">${col} · $${d?d.value.toFixed(2):'?'}</span><button class="rchip-adj" onclick="adjustChip('${col}',-1)">−</button><span class="rchip-n" id="rchip-n-${col}" style="color:${clr}">${cnt}</span><button class="rchip-adj" onclick="adjustChip('${col}',1)">+</button></div>`;
   }).join(''):'';
   $('chip-desc').textContent=r.description||'';
   $('chip-result').style.display='block';$('chip-actions').style.display='block';
   populatePickers();toast(`Counted: ${fmt(r.total)}`);
+}
+function adjustChip(col,delta){
+  if(!chipVal||!chipVal.counts)return;
+  const next=Math.max(0,(chipVal.counts[col]||0)+delta);
+  chipVal.counts[col]=next;
+  const el=$('rchip-n-'+col);if(el)el.textContent=next;
+  const idMap={red:'r',blue:'b',black:'bl',green:'g',white:'w'};
+  let t=0;
+  Object.entries(chipVal.counts).forEach(([c,cnt])=>{const d=DENOMS.find(d=>d.id===(idMap[c]||c));if(d)t+=cnt*d.value;});
+  chipVal.total=parseFloat(t.toFixed(2));
+  $('chip-total').textContent=fmt(chipVal.total);
 }
 function chipApply(action){if(!chipVal){toast('Scan chips first');return;}applyToPlayer(action,chipVal.total,'scan');}
 function mcApply(action){let t=0;DENOMS.forEach(d=>{const i=$(`mc-${d.id}`);if(i)t+=(parseFloat(i.value)||0)*d.value;});applyToPlayer(action,parseFloat(t.toFixed(2)),'manual');}

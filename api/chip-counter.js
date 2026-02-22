@@ -1,12 +1,13 @@
-import OpenAI from "openai";
+const OpenAI = require("openai");
 
-const openai = new OpenAI({
+const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    res.status(405).json({ error: "Method not allowed" });
+    return;
   }
 
   try {
@@ -15,10 +16,11 @@ export default async function handler(req, res) {
     const chipValues = body.chipValues || "";
 
     if (!imageBase64) {
-      return res.status(400).json({ error: "Missing imageBase64" });
+      res.status(400).json({ error: "Missing imageBase64" });
+      return;
     }
 
-    const completion = await openai.chat.completions.create({
+    const completion = await client.chat.completions.create({
       model: "gpt-4.1-mini",
       response_format: { type: "json_object" },
       messages: [
@@ -53,21 +55,22 @@ export default async function handler(req, res) {
     });
 
     const content = completion.choices[0].message.content;
-    // With response_format=json_object, content should already be JSON text.
+
     let parsed;
     try {
       parsed = JSON.parse(content);
     } catch (err) {
-      return res.status(500).json({
+      res.status(500).json({
         error: "Model output was not valid JSON",
         raw: content
       });
+      return;
     }
 
-    return res.status(200).json(parsed);
+    res.status(200).json(parsed);
   } catch (err) {
     console.error("chip-counter error", err);
     const msg = (err && err.message) ? err.message : "Unknown error";
-    return res.status(500).json({ error: msg });
+    res.status(500).json({ error: msg });
   }
-}
+};

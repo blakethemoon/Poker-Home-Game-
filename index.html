@@ -2725,7 +2725,6 @@ function processImg(file){
   r.readAsDataURL(file);
 }
 async function runAI(dataUrl){
-  // Call backend /api/chip-counter (Vercel serverless) which uses OpenAI vision.
   var loading = document.getElementById('chip-loading');
   var result  = document.getElementById('chip-result');
   var actions = document.getElementById('chip-actions');
@@ -2751,21 +2750,30 @@ async function runAI(dataUrl){
   })
   .then(function(resp){
     var status = resp.status;
-    return resp.json().then(function(data){
-      return { status: status, data: data };
+    return resp.text().then(function(text){
+      return { status: status, text: text };
     });
   })
   .then(function(payload){
     if (loading) loading.style.display = 'none';
 
-    if (payload.status !== 200) {
-      var msg = (payload.data && payload.data.error) ? payload.data.error : ('HTTP ' + payload.status);
+    var data;
+    try {
+      data = JSON.parse(payload.text);
+    } catch (e) {
+      var msg = "HTTP " + payload.status + ": " + payload.text;
       if (typeof toast === 'function') toast('Scan failed: ' + msg, 4000);
       else alert('Scan failed: ' + msg);
       return;
     }
 
-    var data = payload.data || {};
+    if (payload.status !== 200) {
+      var msg2 = data && data.error ? data.error : ('HTTP ' + payload.status);
+      if (typeof toast === 'function') toast('Scan failed: ' + msg2, 4000);
+      else alert('Scan failed: ' + msg2);
+      return;
+    }
+
     showChipResult(data);
   })
   .catch(function(err){
@@ -3837,7 +3845,6 @@ function continueHand(){
 }
 
 async function getCoach(spot, played, isCorrect, grade){
-  // Simple local coach stub; keeps Trainer tab working without extra APIs.
   return new Promise(function(resolve){
     var msg;
     if (isCorrect){

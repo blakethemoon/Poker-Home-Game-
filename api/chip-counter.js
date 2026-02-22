@@ -10,61 +10,49 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { imageBase64, chipValues } = req.body || {};
+    const body = req.body || {};
+    const imageBase64 = body.imageBase64;
+    const chipValues = body.chipValues || "";
 
     if (!imageBase64) {
       return res.status(400).json({ error: "Missing imageBase64" });
     }
 
-    const response = await openai.chat.completions.create({
+    const response = await openai.responses.create({
       model: "gpt-4.1-mini",
-      messages: [
-        {
-          role: "system",
-          content: `You count poker chips for a home poker game.
-
-Chip values:
-${chipValues}
-
-Return ONLY valid JSON in this exact format:
-
-{
- "counts":{"red":0,"blue":0,"black":0,"green":0},
- "total":0.00,
- "description":"short summary"
-}`
-        },
+      input: [
         {
           role: "user",
           content: [
             {
-              type: "input_image",
-              image_url: {
-                url: `data:image/jpeg;base64,${imageBase64}`
-              }
+              type: "input_text",
+              text:
+                "You are counting poker chips from an image for a home cash game. Chip values: " +
+                chipValues +
+                ". Return ONLY JSON in this exact shape: " +
+                '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"short summary"}' +
+                " Do not include any extra text."
             },
             {
-              type: "text",
-              text: "Count all visible poker chips in this image and respect the chip values provided."
+              type: "input_image",
+              image_url: "data:image/jpeg;base64," + imageBase64
             }
           ]
         }
-      ],
-      max_tokens: 300
+      ]
     });
 
-    const text = response.choices[0].message.content;
-    const match = text && text.match(/\{[\s\S]*\}/);
-
+    const text = response.output_text || "";
+    const match = text.match(/\{[\s\S]*\}/);
     if (!match) {
-      return res.status(500).json({ error: "No JSON returned by model" });
+      return res.status(500).json({ error: "Model did not return JSON", raw: text });
     }
 
     const parsed = JSON.parse(match[0]);
     return res.status(200).json(parsed);
-
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: err.message || "Unknown error" });
+    console.error("chip-counter error", err);
+    const msg = (err && err.message) ? err.message : "Unknown error";
+    return res.status(500).json({ error: msg });
   }
 }

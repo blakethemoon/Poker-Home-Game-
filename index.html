@@ -2725,7 +2725,7 @@ function processImg(file){
   r.readAsDataURL(file);
 }
 async function runAI(dataUrl){
-  // Uses backend API /api/chip-counter deployed on Vercel.
+  // Send chip image to backend /api/chip-counter which uses OpenAI vision.
   var loading = document.getElementById('chip-loading');
   var result  = document.getElementById('chip-result');
   var actions = document.getElementById('chip-actions');
@@ -2734,7 +2734,7 @@ async function runAI(dataUrl){
   if (result)  result.style.display  = 'none';
   if (actions) actions.style.display = 'none';
 
-  var parts = dataUrl.split(',');
+  var parts = (dataUrl || '').split(',');
   var base64 = parts[1] || '';
 
   var chipValues = DENOMS
@@ -2750,16 +2750,22 @@ async function runAI(dataUrl){
     })
   })
   .then(function(resp){
-    if (!resp.ok) throw new Error('HTTP ' + resp.status);
-    return resp.json();
+    var status = resp.status;
+    return resp.json().then(function(data){
+      return { status: status, data: data };
+    });
   })
-  .then(function(data){
+  .then(function(payload){
     if (loading) loading.style.display = 'none';
-    if (data && data.error){
-      if (typeof toast === 'function') toast('Scan failed: ' + data.error, 4000);
-      else alert('Scan failed: ' + data.error);
+
+    if (payload.status !== 200) {
+      var msg = (payload.data && payload.data.error) ? payload.data.error : ('HTTP ' + payload.status);
+      if (typeof toast === 'function') toast('Scan failed: ' + msg, 4000);
+      else alert('Scan failed: ' + msg);
       return;
     }
+
+    var data = payload.data || {};
     showChipResult(data);
   })
   .catch(function(err){
@@ -3832,13 +3838,12 @@ function continueHand(){
 
 async function getCoach(spot, played, isCorrect, grade){
   // Simple local coach stub so the Trainer tab works without any backend calls.
-  // Returns a Promise resolving to feedback text.
   return new Promise(function(resolve){
     var msg;
     if (isCorrect){
       msg = "Nice hand. Your line looks solid for this position and stack depth.";
     } else {
-      msg = "Think about position, SPR, and what worse hands call or better hands fold.";
+      msg = "Think about position, SPR, and which worse hands call or better hands fold.";
     }
     resolve(msg);
   });

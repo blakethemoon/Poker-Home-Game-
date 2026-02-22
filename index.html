@@ -2757,14 +2757,17 @@ async function runAI(dataUrl){
       data = JSON.parse(payload.text);
     } catch (e) {
       var msg = 'HTTP ' + payload.status + ': ' + payload.text;
-      if (typeof toast === 'function') toast('Scan failed: ' + msg, 6000);
+      if (typeof toast === 'function') toast('Scan failed: ' + msg, 8000);
       else alert('Scan failed: ' + msg);
       return;
     }
 
     if (payload.status !== 200) {
       var msg2 = data && data.error ? data.error : ('HTTP ' + payload.status);
-      if (typeof toast === 'function') toast('Scan failed: ' + msg2, 6000);
+      if (data && data.body) {
+        msg2 += ' — ' + String(data.body).slice(0, 200);
+      }
+      if (typeof toast === 'function') toast('Scan failed: ' + msg2, 8000);
       else alert('Scan failed: ' + msg2);
       return;
     }
@@ -2773,10 +2776,11 @@ async function runAI(dataUrl){
   })
   .catch(function(err){
     if (loading) loading.style.display = 'none';
-    if (typeof toast === 'function') toast('Scan failed: ' + err.message, 6000);
+    if (typeof toast === 'function') toast('Scan failed: ' + err.message, 8000);
     else alert('Scan failed: ' + err.message);
   });
 }
+
 
 function showChipResult(r){
   $('chip-loading').style.display='none';chipVal=r;

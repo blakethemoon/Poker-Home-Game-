@@ -2761,15 +2761,15 @@ async function runAI(dataUrl){
     try {
       data = JSON.parse(payload.text);
     } catch (e) {
-      var msg = "HTTP " + payload.status + ": " + payload.text;
-      if (typeof toast === 'function') toast('Scan failed: ' + msg, 4000);
+      var msg = 'HTTP ' + payload.status + ': ' + payload.text;
+      if (typeof toast === 'function') toast('Scan failed: ' + msg, 6000);
       else alert('Scan failed: ' + msg);
       return;
     }
 
     if (payload.status !== 200) {
       var msg2 = data && data.error ? data.error : ('HTTP ' + payload.status);
-      if (typeof toast === 'function') toast('Scan failed: ' + msg2, 4000);
+      if (typeof toast === 'function') toast('Scan failed: ' + msg2, 6000);
       else alert('Scan failed: ' + msg2);
       return;
     }
@@ -2778,7 +2778,7 @@ async function runAI(dataUrl){
   })
   .catch(function(err){
     if (loading) loading.style.display = 'none';
-    if (typeof toast === 'function') toast('Scan failed: ' + err.message, 4000);
+    if (typeof toast === 'function') toast('Scan failed: ' + err.message, 6000);
     else alert('Scan failed: ' + err.message);
   });
 }

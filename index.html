@@ -381,6 +381,14 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   .g4{grid-template-columns:1fr 1fr}
   .content{padding:12px}
   .topbar{padding:0 14px;height:50px}
+  /* Pre-session strip: stack vertically on mobile */
+  .pre-sess-inner{flex-direction:column!important;align-items:stretch!important;gap:14px!important}
+  .pre-sess-start{width:100%!important;text-align:center;padding:16px!important}
+  /* Action buttons: 2×2 on mobile */
+  .dash-act-grid{grid-template-columns:1fr 1fr!important}
+  /* Hide felt table and secondary cards on mobile — phone is command center */
+  #d-felt-wrap{display:none!important}
+  #d-share-card,#d-pnl-card{display:none!important}
 }
 @media(max-width:480px){
   .wm-sub{display:none}
@@ -446,7 +454,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <!-- PRE-SESSION strip -->
     <div id="d-pre-session" style="background:var(--s1);border:1px solid var(--brc);border-radius:var(--r10);padding:28px 24px;position:relative;overflow:hidden">
       <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0,rgba(0,212,255,.08),transparent 70%);pointer-events:none"></div>
-      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div class="pre-sess-inner" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
         <!-- Who's coming chips -->
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:12px">Quick-add players</div>
@@ -461,7 +469,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           </div>
         </div>
         <!-- Start button -->
-        <button class="btn btn-solid-cy" style="font-size:17px;padding:18px 40px;flex-shrink:0;letter-spacing:.04em;font-weight:800" onclick="startSession()">▶ Start Game</button>
+        <button class="btn btn-solid-cy pre-sess-start" style="font-size:17px;padding:18px 40px;flex-shrink:0;letter-spacing:.04em;font-weight:800" onclick="startSession()">▶ Start Game</button>
       </div>
     </div>
 
@@ -495,7 +503,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       </div>
 
       <!-- 4-button action bar: Add · Add-On · Log Hand · Bust -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+      <div class="dash-act-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
         <button class="btn btn-solid-cy" style="padding:20px 8px;font-size:14px;flex-direction:column;gap:6px;display:flex;align-items:center" onclick="openAdd()">
           <span style="font-size:26px;line-height:1">+</span><span>Add Player</span>
         </button>

@@ -82,6 +82,7 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .col{display:flex;flex-direction:column;gap:12px}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
 .row{display:flex;gap:10px}
 .flex{display:flex;gap:8px}
 .fc{display:flex;align-items:center;gap:8px}
@@ -376,7 +377,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
 /* ── RESPONSIVE ── */
 @media(max-width:820px){
-  .dash-grid,.co-grid,.trainer-grid{grid-template-columns:1fr}
+  .dash-grid,.co-grid,.trainer-grid,.chip-grid{grid-template-columns:1fr}
   .g4{grid-template-columns:1fr 1fr}
   .content{padding:12px}
   .topbar{padding:0 14px;height:50px}
@@ -384,8 +385,20 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 @media(max-width:480px){
   .wm-sub{display:none}
   .g3{grid-template-columns:1fr 1fr}
-  .modal{padding:16px}
+  .denom-grid{grid-template-columns:1fr}
+  .modal{padding:14px}
   table{min-width:420px}
+  .content{padding:10px}
+  .card{padding:13px}
+}
+@media(min-width:1100px){
+  .content{padding:20px 28px}
+  .chip-grid{grid-template-columns:minmax(0,640px) minmax(0,480px)}
+  .dash-grid{grid-template-columns:1fr 320px}
+  .trainer-grid{grid-template-columns:1fr 320px}
+}
+@media(min-width:1440px){
+  .content{max-width:1400px;padding:24px 36px}
 }
 </style>
 </head>
@@ -746,7 +759,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
 <!-- ══ CHIPS ══ -->
 <div class="view" id="view-chips">
-  <div class="g2" style="gap:14px">
+  <div class="chip-grid">
     <div class="col">
       <div class="card">
         <div class="chd"><span class="ctitle cy">Denominations</span><button class="btn btn-sm" onclick="resetDenoms()">Reset</button></div>

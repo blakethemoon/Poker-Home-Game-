@@ -46,7 +46,7 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
         max_tokens: 512,
-        system: 'You count poker chips from an image for a live home cash game. Respond ONLY with a single JSON object, no markdown, no extra text.',
+        system: 'You are an expert poker chip counter for a live home cash game. Chips are often photographed in vertical stacks/towers — when you see a stack, carefully count every chip including partially hidden ones by examining the visible edges and shadows along the side of the tower. Never undercount stacks. Respond ONLY with a single JSON object, no markdown, no extra text.',
         messages: [
           {
             role: 'user',
@@ -64,8 +64,8 @@ module.exports = async (req, res) => {
                 text:
                   'Chip values: ' +
                   chipValues +
-                  '. Count all visible poker chips in the image. Return ONLY a JSON object exactly in this shape: ' +
-                  '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"short summary"}'
+                  '. Count ALL poker chips in the image. If chips are stacked in a tower, count every chip in the stack by looking at the edges — chips in a tower are stacked directly on top of each other so count each visible edge as one chip. Be precise and do not undercount stacks. Return ONLY a JSON object exactly in this shape: ' +
+                  '{"counts":{"red":0,"blue":0,"black":0,"green":0,"white":0},"total":0.00,"description":"short summary"}'
               }
             ]
           }

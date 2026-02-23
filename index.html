@@ -435,15 +435,15 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
 <!-- NAV -->
 <nav class="nav">
-  <button class="nvb on"    onclick="goTab('dash',this)">Home</button>
-  <button class="nvb"       onclick="goTab('players',this)">Players</button>
-  <button class="nvb"       onclick="goTab('oracle',this)">Oracle</button>
-  <button class="nvb"       onclick="goTab('cashout',this)">Cash Out</button>
-  <button class="nvb"       onclick="goTab('chips',this)">Chips</button>
-  <button class="nvb"       onclick="goTab('hands',this)">Hands</button>
-  <button class="nvb"       onclick="goTab('trainer',this)">Train</button>
-  <button class="nvb"       onclick="goTab('invite',this)">Invite</button>
-  <button class="nvb"       onclick="goTab('sessions',this)">History</button>
+  <button id="nav-dash"     class="nvb on" onclick="goTab('dash',this)">Home</button>
+  <button id="nav-players"  class="nvb"    onclick="goTab('players',this)">Players</button>
+  <button id="nav-oracle"   class="nvb"    onclick="goTab('oracle',this)">Oracle</button>
+  <button id="nav-cashout"  class="nvb"    onclick="goTab('cashout',this)">Cash Out</button>
+  <button id="nav-chips"    class="nvb"    onclick="goTab('chips',this)">Chips</button>
+  <button id="nav-hands"    class="nvb"    onclick="goTab('hands',this)">Hands</button>
+  <button id="nav-trainer"  class="nvb"    onclick="goTab('trainer',this)">Train</button>
+  <button id="nav-invite"   class="nvb"    onclick="goTab('invite',this)">Invite</button>
+  <button id="nav-sessions" class="nvb"    onclick="goTab('sessions',this)">History</button>
 </nav>
 
 <main class="content">
@@ -537,7 +537,15 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <!-- MAIN GRID: always visible -->
   <div class="dash-grid">
     <div class="dash-main">
-      <!-- Felt table — always shown, shows empty state before session -->
+      <!-- Live scoreboard — shown during active session -->
+      <div class="card" id="d-scoreboard" style="display:none">
+        <div class="chd">
+          <span class="ctitle cy">Live Scoreboard</span>
+          <span style="font-size:12px;color:var(--i3)" id="d-score-sub"></span>
+        </div>
+        <div id="d-score-list"></div>
+      </div>
+      <!-- Felt table — shown pre-session -->
       <div class="card" id="d-players-card">
         <div class="chd">
           <span class="ctitle cy">Table</span>
@@ -727,7 +735,11 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
           <!-- Chip count -->
           <div class="card" style="background:var(--s2);margin-bottom:12px;padding:12px">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:9px">Count Chips Now</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Count Chips Now</span>
+              <button class="btn btn-cy btn-xs" onclick="coCaptureChips()" style="font-size:11px;padding:4px 10px">📷 Scan</button>
+            </div>
+            <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
             <div id="co-chip-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
               <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Chip Total</span>
@@ -1375,7 +1387,16 @@ function startSession(){
   timerInterval = setInterval(tickTimer, 1000);
   tickTimer();
   addFeed('▶','Session started','Timer running — good luck everyone 🃏');
+  updateNavState();
   refresh();
+}
+
+function updateNavState(){
+  const live = sessionActive;
+  // Show only during live session
+  ['nav-cashout','nav-hands'].forEach(id => { const el=$(id); if(el) el.style.display = live ? '' : 'none'; });
+  // Show only pre-session
+  ['nav-invite','nav-trainer'].forEach(id => { const el=$(id); if(el) el.style.display = live ? 'none' : ''; });
 }
 
 function tickTimer(){
@@ -1645,32 +1666,42 @@ function renderDash(){
     dcl.innerHTML=inRSVPs.map(r=>`<div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--ag3);border:1px solid rgba(57,255,20,.2);color:var(--ag)">${r.name}</div>`).join('');
   } else if(dc){ dc.style.display='none'; }
 
-  // Felt table — always show, even pre-session once players added
-  const allPlayers=G.players.filter(p=>p.status==='active');
-  const re=$('d-roster-empty'),fw=$('d-felt-wrap');
-  const feltGame=$('d-felt-game'),feltBlinds=$('d-felt-blinds');
-  if(feltGame) feltGame.textContent=G.settings.game;
-  if(feltBlinds) feltBlinds.textContent=`$${G.settings.sb.toFixed(2)} / $${G.settings.bb.toFixed(2)}`;
-  const sub=$('d-table-sub');
-  if(!allPlayers.length){
-    if(re) re.style.display='block';
-    if(fw) fw.style.display='none';
-    if(sub) sub.textContent='';
+  // Scoreboard (session active) vs felt table (pre-session)
+  const scoreEl=$('d-scoreboard'),pCard=$('d-players-card');
+  if(sessionActive){
+    if(scoreEl) scoreEl.style.display='block';
+    if(pCard)   pCard.style.display='none';
+    renderScoreboard();
   } else {
-    if(re) re.style.display='none';
-    if(fw) fw.style.display='block';
-    if(sub) sub.textContent=`${allPlayers.length} seated`;
-    renderFeltTable(allPlayers);
-    const totalStack=allPlayers.reduce((s,p)=>s+p.currentStack,0);
-    const avgStack=allPlayers.length?totalStack/allPlayers.length:0;
-    const tp=$('d-tbl-players'),tpot=$('d-tbl-pot'),tavg=$('d-tbl-avg');
-    if(tp) tp.textContent=allPlayers.length;
-    if(tpot) tpot.textContent=fmt(totalStack);
-    if(tavg) tavg.textContent=fmt(avgStack);
+    if(scoreEl) scoreEl.style.display='none';
+    if(pCard)   pCard.style.display='block';
+    // Felt table — only pre-session
+    const allPlayers=G.players.filter(p=>p.status==='active');
+    const re=$('d-roster-empty'),fw=$('d-felt-wrap');
+    const feltGame=$('d-felt-game'),feltBlinds=$('d-felt-blinds');
+    if(feltGame) feltGame.textContent=G.settings.game;
+    if(feltBlinds) feltBlinds.textContent=`$${G.settings.sb.toFixed(2)} / $${G.settings.bb.toFixed(2)}`;
+    const sub=$('d-table-sub');
+    if(!allPlayers.length){
+      if(re) re.style.display='block';
+      if(fw) fw.style.display='none';
+      if(sub) sub.textContent='';
+    } else {
+      if(re) re.style.display='none';
+      if(fw) fw.style.display='block';
+      if(sub) sub.textContent=`${allPlayers.length} seated`;
+      renderFeltTable(allPlayers);
+      const totalStack=allPlayers.reduce((s,p)=>s+p.currentStack,0);
+      const avgStack=allPlayers.length?totalStack/allPlayers.length:0;
+      const tp=$('d-tbl-players'),tpot=$('d-tbl-pot'),tavg=$('d-tbl-avg');
+      if(tp) tp.textContent=allPlayers.length;
+      if(tpot) tpot.textContent=fmt(totalStack);
+      if(tavg) tavg.textContent=fmt(avgStack);
+    }
   }
 
-  // Stack share + P&L bars
-  if(!act.length){
+  // Stack share + P&L bars — hidden during active session
+  if(!act.length || sessionActive){
     const sc=$('d-share-card'),pc2=$('d-pnl-card');
     if(sc)sc.style.display='none'; if(pc2)pc2.style.display='none';
   } else {
@@ -1693,6 +1724,49 @@ function renderDash(){
     }).join('');
   }
   renderFeed();
+}
+
+function renderScoreboard(){
+  const wrap=$('d-score-list'),sub=$('d-score-sub');
+  if(!wrap)return;
+  const act=G.players.filter(p=>p.status==='active');
+  const sorted=[...act].sort((a,b)=>b.currentStack-a.currentStack);
+  if(sub) sub.textContent=sorted.length?`${sorted.length} active`:'';
+  if(!sorted.length){
+    wrap.innerHTML='<div style="padding:18px 0;text-align:center;color:var(--i3);font-size:13px">No active players</div>';
+    return;
+  }
+  const pal=['#00d4ff','#39ff14','#ff006e','#e8b84b','#a855f7','#fb923c','#38bdf8','#4ade80','#f472b6','#facc15'];
+  wrap.innerHTML=sorted.map((p,i)=>{
+    const net=p.currentStack-ti(p);
+    const netStr=net===0?'Even':net>0?`+${fmt(net)}`:`-${fmt(Math.abs(net))}`;
+    const netCol=net>0?'var(--ag)':net<0?'var(--neg)':'var(--i3)';
+    const bg=pal[i%pal.length];
+    return `<div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+      <div style="width:40px;height:40px;border-radius:50%;background:${bg}22;border:2px solid ${bg};display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:${bg};flex-shrink:0">${p.name.charAt(0).toUpperCase()}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:600;color:var(--i0)">${p.name}</div>
+        <div style="font-size:12px;color:${netCol};margin-top:2px">${netStr}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-right:10px">
+        <div class="mono" style="font-size:19px;font-weight:500;color:var(--au)">${fmt(p.currentStack)}</div>
+        <div style="font-size:10px;color:var(--i3);margin-top:1px">stack</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+        <button class="btn btn-au btn-xs" style="padding:5px 11px;font-size:12px" onclick="quickAddonFor(${p.id})">+</button>
+        <button class="btn btn-xs" style="padding:5px 11px;font-size:12px;color:var(--neg);border-color:rgba(255,69,96,.25);background:rgba(255,69,96,.06)" onclick="quickBustFor(${p.id})">💀</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function quickAddonFor(id){
+  openQuickAddon();
+  const sl=$('qa-player-sel');if(sl)sl.value=id;
+}
+function quickBustFor(id){
+  openQuickBust();
+  const sl=$('qa-player-sel');if(sl)sl.value=id;
 }
 
 function renderFeed(){
@@ -1912,7 +1986,7 @@ function openPlayerPanel(id){
   if(!p) return;
   selRosterName=p.name;
   if(activeTab!=='players'){
-    goTab('players',document.querySelectorAll('.nvb')[1]);return;
+    goTab('players',$('nav-players'));return;
   }
   renderPlayerPanel();
   $('pl-detail-empty').style.display='none';
@@ -1923,7 +1997,7 @@ function openPlayerPanel(id){
 function openRosterProfile(name){
   selRosterName=name; selPlayerId=null;
   if(activeTab!=='players'){
-    goTab('players',document.querySelectorAll('.nvb')[1]);return;
+    goTab('players',$('nav-players'));return;
   }
   // Don't call renderPlayerPanel here — that causes recursion
   // Just show the profile and let the panel re-highlight on next natural render
@@ -2124,11 +2198,11 @@ function bustPlayerZero(id){
 }
 function goToCashOut(id){
   coSelectedId=id;
-  goTab('cashout',document.querySelectorAll('.nvb')[2]);
+  goTab('cashout',$('nav-cashout'));
 }
 function openChipsForPlayer(id){
   selPlayer=id;
-  goTab('chips',document.querySelectorAll('.nvb')[3]);
+  goTab('chips',$('nav-chips'));
 }
 
 /* ═══════════════════════════════
@@ -2456,6 +2530,39 @@ function buildCOChipInputs(p){
   calcCOChips();
 }
 
+function coCaptureChips(){
+  const inp=$('co-scan-input');if(inp)inp.click();
+}
+function coHandleScan(e){
+  const file=e.target.files[0];if(!file)return;
+  // Reset input so same file can be reselected
+  e.target.value='';
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const base64=(ev.target.result||'').split(',')[1]||'';
+    const chipValues=DENOMS.map(d=>d.name.toUpperCase()+'=$'+d.value.toFixed(2)).join(', ');
+    toast('Scanning chips…',2000);
+    fetch('/api/chip-counter',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:base64,chipValues})})
+      .then(r=>r.json())
+      .then(data=>{
+        if(!data||data.error){toast('Scan failed: '+(data&&data.error||'unknown'));return;}
+        coApplyScan(data);
+      })
+      .catch(err=>toast('Scan failed: '+err.message,5000));
+  };
+  reader.readAsDataURL(file);
+}
+function coApplyScan(data){
+  if(!data||!data.counts)return;
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
+  Object.entries(data.counts).forEach(([col,cnt])=>{
+    const inp=$(`co-c-${idMap[col]||col}`);
+    if(inp)inp.value=cnt;
+  });
+  calcCOChips();
+  toast(`Scanned: ${fmt(data.total)}`);
+}
+
 function calcCOChips(){
   let tot=0;
   DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)tot+=(parseFloat(i.value)||0)*d.value;});
@@ -2703,13 +2810,13 @@ function archiveAndClear(){
   }
 
   saveHistory();resetGame();
-  goTab('dash',document.querySelectorAll('.nvb')[0]);
+  goTab('dash',$('nav-dash'));
   toast('Session archived — gg! 🃏');
 }
 function justClear(){
   if(!confirm('Clear table without saving to history?'))return;
   resetGame();
-  goTab('dash',document.querySelectorAll('.nvb')[0]);
+  goTab('dash',$('nav-dash'));
   toast('Table cleared');
 }
 
@@ -3311,7 +3418,7 @@ function openEndNight(){
   sessionClosed=true; sessionClosedAt=new Date();
   stopTimer();
   addFeed('🏁','Session ended','Review & settle on the Cash Out tab');
-  goTab('cashout',document.querySelectorAll('.nvb')[2]);
+  goTab('cashout',$('nav-cashout'));
   toast('Session ended — settle up on this page 🏁',3500);
 }
 function doSaveEnd(){saveHistory();cm('m-end');resetGame();toast('Night saved — gg!');}
@@ -3324,6 +3431,7 @@ function resetGame(){
   const pre=$('d-pre-session'),act=$('d-active-session');
   if(pre)pre.style.display='block';if(act)act.style.display='none';
   const tmr=$('d-timer');if(tmr)tmr.textContent='0:00';
+  updateNavState();
   refresh();
 }
 function saveHistory(){
@@ -4028,6 +4136,7 @@ async function cloudLoad(){
 const today=new Date().toISOString().split('T')[0];
 const dinv=$('inv-date');if(dinv&&!dinv.value)dinv.value=today;
 setTimeout(renderDash,80);
+updateNavState();
 cloudLoad();
 toast("Moon's — let's play",2000);
 </script>

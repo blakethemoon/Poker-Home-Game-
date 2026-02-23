@@ -45,8 +45,29 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 512,
-        system: 'You are an expert poker chip counter for a live home cash game. Chips are often photographed in vertical stacks/towers — count every chip by examining visible edges and shadows. Dark chips (black) on dark surfaces have low contrast so pay extra attention to subtle edge lines. Chips of any color may have a white center ring, stripe, or decorative inset — always identify a chip by its primary/dominant color, not its accent markings. Aim for accuracy: do not undercount OR overcount. Respond ONLY with a single JSON object, no markdown, no extra text.',
+        max_tokens: 1024,
+        system: [
+          'You are counting stacked poker chips in an image.',
+          '',
+          'Follow these steps exactly:',
+          '1. Focus on the main vertical stack of chips.',
+          '2. Start at the very top chip (the flat circular face).',
+          '3. Move downward one horizontal layer at a time.',
+          '4. Each visible horizontal rim edge represents exactly ONE chip.',
+          '5. A chip counts if: a curved rim edge is visible AND at least part of the white edge inserts are visible.',
+          '6. Do NOT merge tightly compressed layers.',
+          '7. Do NOT guess hidden chips.',
+          '8. After counting the stack, add any loose chips visible beside it.',
+          '',
+          'Important rules:',
+          '- Count full horizontal chip layers, not individual white blocks.',
+          '- Ignore shadows and lighting variations.',
+          '- Trace the stack carefully from top to bottom before answering.',
+          '- After finishing, recount once from bottom to top to confirm the same number.',
+          '- Identify each chip by its primary/dominant color, not accent markings or white insets.',
+          '',
+          'Respond ONLY with a single JSON object, no markdown, no extra text.'
+        ].join('\n'),
         messages: [
           {
             role: 'user',
@@ -62,10 +83,13 @@ module.exports = async (req, res) => {
               {
                 type: 'text',
                 text:
-                  'Chip values: ' +
-                  chipValues +
-                  '. Count ALL poker chips in the image. If chips are stacked in a tower, count every chip in the stack by looking at the edges — chips in a tower are stacked directly on top of each other so count each visible edge as one chip. Be precise and do not undercount stacks. Return ONLY a JSON object exactly in this shape: ' +
-                  '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"short summary"}'
+                  'Chip values: ' + chipValues + '.\n\n' +
+                  'Count all poker chips in the image by color. ' +
+                  'For each stack: trace top-to-bottom counting every rim edge as one chip, then recount bottom-to-top to verify. ' +
+                  'Add any loose chips beside the stack(s). ' +
+                  'Do not guess obscured chips.\n\n' +
+                  'Return ONLY a JSON object in this exact shape:\n' +
+                  '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"stack count X + side count Y = total Z chips"}'
               }
             ]
           }

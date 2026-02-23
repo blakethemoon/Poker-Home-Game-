@@ -135,9 +135,11 @@ module.exports = async (req, res) => {
 
     let result;
     try {
-      // Strip any accidental markdown fences
-      const clean = content.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim();
-      result = JSON.parse(clean);
+      // Extract JSON object — grab from first '{' to last '}'
+      // This handles markdown fences, leading/trailing explanation text, etc.
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('no JSON object found');
+      result = JSON.parse(jsonMatch[0]);
     } catch (e) {
       res.status(500).json({ error: 'Could not parse chip count JSON from Claude', body: content });
       return;

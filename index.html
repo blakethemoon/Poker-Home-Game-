@@ -3371,9 +3371,9 @@ async function askOracle(){
   const isImpossibleSuitedPair=isPair&&suited; // e.g. "suited aces" — physically impossible
   const isJack=(c1==='J'||c2==='J')&&!isPair;
   const jackKicker=isJack?(c1==='J'?c2:c1):null;
-  const JACK_SAY={'2':'Jay deuceeee nice','3':'Jay threeee nice','4':'oh is the Jack 4 game on???',
-    '5':'Jay fayyyy nice','6':'Jay siiix nice','7':'Jay sayyy nice',
-    '8':'Jay ayyyyte nice','9':'Jay niiine nice','T':'Jay tennnnn nice'};
+  const JACK_SAY={'2':'Jay twaaay nice','3':'Jay thrayyy nice','4':'oh is the Jack 4 game on???',
+    '5':'Jay fayyyy nice','6':'Jay siyyy nice','7':'Jay sayyy nice',
+    '8':'Jay ayyyy nice','9':'Jay nayyy nice','T':'Jay tayyy nice'};
 
   const result=$('ora-result');
   const verdictEl=$('ora-verdict');
@@ -3419,12 +3419,12 @@ async function askOracle(){
       // Jack + kicker 2-T: phonetic Jay phrase (75% of the time, else general pool)
       play=true;
       verdict=`🃏 ${JACK_SAY[jackKicker]}`;
-      reason=suited?'Well it\'s suited isn\'t it???':'Classic. Ship it.';
+      reason=suited?'well it\'s suited Jay say right???':'Classic. Ship it.';
     } else {
       // General pool — suited hands get a couple extra entries
       const suitedBonus=suited&&!isPair?[
-        {play:true, verdict:'💧 Well it\'s suited isn\'t it???', reason:'I mean... it\'s suited. What else do you need bro.'},
-        {play:true, verdict:'♠ Suited. That\'s it.',            reason:'Well it\'s suited isn\'t it??? The conversation is over.'},
+        {play:true, verdict:'💧 well it\'s suited Jay say right???', reason:'I mean... it\'s suited. What else do you need bro.'},
+        {play:true, verdict:'♠ Suited. That\'s it.',             reason:'well it\'s suited Jay say right??? The conversation is over.'},
       ]:[];
       const pool=[
         // classics
@@ -3436,7 +3436,7 @@ async function askOracle(){
         {play:true,  verdict:'✅ Yeah that\'s real',        reason:'If you fold this then I understand why dad is still getting milk.'},
         {play:true,  verdict:'👀 Could be something',       reason: winners.length?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},
         {play:true,  verdict:'🔥 Ship it',                  reason:'Yeah play this and then min raise, for strength.'},
-        {play:true,  verdict:'🃏 Worth a look',             reason: suited?'Well it\'s suited isn\'t it??? Free money.':nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'First-in juice. They don\'t know what you\'re capable of.'},
+        {play:true,  verdict:'🃏 Worth a look',             reason: suited?'well it\'s suited Jay say right??? Free money.':nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'First-in juice. They don\'t know what you\'re capable of.'},
         {play:true,  verdict:'🤷 Just play it',             reason: isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
         {play:true,  verdict:'✅ Raise 2, for strength',    reason:'Play this bad hand and raise 2, for strength. It\'s called balance bro.'},
         {play:true,  verdict:'🎰 Re-entry special',         reason:'Play this one if you\'re ready for another re-entry.'},

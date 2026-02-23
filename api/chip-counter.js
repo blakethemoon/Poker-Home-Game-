@@ -47,38 +47,48 @@ module.exports = async (req, res) => {
         model: 'claude-sonnet-4-6',
         max_tokens: 1024,
         system: [
-          'You are counting stacked poker chips in an image.',
+          'You are counting stacked poker chips in an image. Follow this exact algorithm.',
           '',
-          'Follow these steps exactly:',
-          '1. Focus on the main vertical stack of chips.',
-          '2. Start at the very top chip (the flat circular face).',
-          '3. Move downward one horizontal layer at a time.',
-          '4. Each visible horizontal rim edge represents exactly ONE chip.',
-          '5. A chip counts if: a curved rim edge is visible AND at least part of the white edge inserts are visible.',
-          '6. Do NOT merge tightly compressed layers.',
-          '7. Do NOT guess hidden chips.',
-          '8. After counting the stack, add any loose chips visible beside it.',
+          '══ STEP 1 — COUNT SEAM LINES (primary method) ══',
+          'Look at the side profile of each stack.',
+          'Find the thin horizontal SEAM LINES — the hairline gaps or shadow lines where one chip disc',
+          'ends and the next chip begins. These run the full width of the stack.',
+          'Count all seam lines in the stack.',
+          'chips_from_seams = seam_lines + 1',
+          'Write down this number.',
           '',
-          'Important rules:',
-          '- Count full horizontal chip layers, not individual white blocks.',
-          '- Ignore shadows and lighting variations.',
-          '- Trace the stack carefully from top to bottom before answering.',
-          '- After finishing, recount once from bottom to top to confirm the same number.',
+          '══ STEP 2 — COUNT WHITE PATCHES (secondary method) ══',
+          'Poker chips have decorative white rectangular inserts embedded in their rim.',
+          'IMPORTANT: a single chip can have either 1 OR 2 white patches on its visible edge — this varies by chip set.',
+          'Count every individual white patch you can see on the stack rim.',
+          'Call this number total_patches.',
           '',
-          'CRITICAL — Counting edges vs. identifying color (these are two separate tasks):',
+          'Now compute two estimates:',
+          '  estimate_A = total_patches / 1   (assumes 1 insert per chip)',
+          '  estimate_B = total_patches / 2   (assumes 2 inserts per chip)',
           '',
-          'FOR COUNTING: Use the white rectangular inserts embedded in the chip rim as your counting markers.',
-          'Each horizontal band of white inserts = one chip. This is correct and intentional.',
+          '══ STEP 3 — CROSS-VALIDATE AND PICK ══',
+          'Compare chips_from_seams to estimate_A and estimate_B.',
+          'Pick the estimate that is closest to chips_from_seams. Call that chips_from_inserts.',
+          'If chips_from_seams and chips_from_inserts agree (within 1) → you are confident.',
+          'If they disagree, trust chips_from_seams over the insert estimate.',
+          'Final chip count for the stack = chips_from_seams.',
           '',
-          'FOR COLOR: The white inserts are NOT the chip color. They are decorative inlays embedded into the chip body.',
-          'To identify chip color, look at the BACKGROUND COLOR that surrounds and sits behind the white inserts.',
-          'That background color — the dominant color filling the body of the chip — is the chip color.',
-          'Example: A BLACK chip has white rectangular inserts embedded in a BLACK body. The chip is BLACK, not white.',
-          'Example: A BLUE chip may also have white inserts embedded in a BLUE body. The chip is BLUE, not white.',
-          'Example: A RED chip may have white inserts embedded in a RED body. The chip is RED, not white.',
-          'The white center face and white edge inserts are present on almost every chip color — ignore them for color classification.',
-          'NEVER call a chip white just because its inserts or face are white.',
-          'ALWAYS classify by the dominant background body color behind the inserts.',
+          'Worked example:',
+          '  You count 9 seam lines → chips_from_seams = 10.',
+          '  You count 20 white patches → estimate_A = 20, estimate_B = 10.',
+          '  estimate_B (10) matches chips_from_seams (10) → chips have 2 inserts each → final = 10.',
+          '',
+          'Another example:',
+          '  You count 9 seam lines → chips_from_seams = 10.',
+          '  You count 10 white patches → estimate_A = 10, estimate_B = 5.',
+          '  estimate_A (10) matches chips_from_seams (10) → chips have 1 insert each → final = 10.',
+          '',
+          '══ STEP 4 — COLOR IDENTIFICATION ══',
+          'To identify chip color, look at the colored body BETWEEN and BEHIND the white inserts.',
+          'The dominant background color of the chip body is the chip color.',
+          'NEVER call a chip white — white inserts appear on chips of every color.',
+          'Examples: BLACK body = black chip. BLUE body = blue chip. RED body = red chip.',
           '',
           'Respond ONLY with a single JSON object, no markdown, no extra text.'
         ].join('\n'),
@@ -98,12 +108,13 @@ module.exports = async (req, res) => {
                 type: 'text',
                 text:
                   'Chip values: ' + chipValues + '.\n\n' +
-                  'Count all poker chips in the image by color. ' +
-                  'For each stack: trace top-to-bottom counting every rim edge as one chip, then recount bottom-to-top to verify. ' +
-                  'Add any loose chips beside the stack(s). ' +
-                  'Do not guess obscured chips.\n\n' +
+                  'For each stack in the image, run the 3-step algorithm:\n' +
+                  '  Step 1 — seam count: count seam lines between chip discs → chips = seams + 1.\n' +
+                  '  Step 2 — patch count: count all white patches, compute patches÷1 and patches÷2.\n' +
+                  '  Step 3 — pick: choose the estimate closest to the seam count; use seam count as final.\n' +
+                  'Add any loose chips beside the stacks. Do not count hidden or obscured chips.\n\n' +
                   'Return ONLY a JSON object in this exact shape:\n' +
-                  '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"stack count X + side count Y = total Z chips"}'
+                  '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"seams gave X, patches gave Y (÷Z per chip), final=X"}'
               }
             ]
           }

@@ -3408,25 +3408,11 @@ async function askOracle(){
   } catch(e){
     // Fallback: fully random — hand strength is irrelevant, chaos is the point
     const rando=Math.floor(r*players.length)||0;
-
-    // ── Special overrides ──────────────────────────────────────────────────
-    if(isImpossibleSuitedPair){
-      // Physically impossible hand (e.g. suited aces)
-      play=true;
-      verdict='🤯 How did you even do that';
-      reason=`Not sure how you got suited ${c1}s but no shot you're getting set up here. Go all in.`;
-    } else if(isJack&&jackKicker&&JACK_SAY[jackKicker]&&r<0.75){
-      // Jack + kicker 2-T: phonetic Jay phrase (75% of the time, else general pool)
-      play=true;
-      verdict=`🃏 ${JACK_SAY[jackKicker]}`;
-      reason=suited?'well it\'s suited Jay say right???':'Classic. Ship it.';
-    } else {
-      // General pool — suited hands get a couple extra entries
-      const suitedBonus=suited&&!isPair?[
-        {play:true, verdict:'💧 well it\'s suited Jay say right???', reason:'I mean... it\'s suited. What else do you need bro.'},
-        {play:true, verdict:'♠ Suited. That\'s it.',             reason:'well it\'s suited Jay say right??? The conversation is over.'},
-      ]:[];
-      const pool=[
+    const suitedBonus=suited&&!isPair?[
+      {play:true, verdict:'💧 well it\'s suited Jay say right???', reason:'I mean... it\'s suited. What else do you need bro.'},
+      {play:true, verdict:'♠ Suited. That\'s it.',             reason:'well it\'s suited Jay say right??? The conversation is over.'},
+    ]:[];
+    const pool=[
         // classics
         {play:true,  verdict:'✅ Yeah that\'s real',        reason: losers.length?`${losers[0].name} is steaming. Take their chips.`:'Table\'s calling wide. Get your money in.'},
         {play:true,  verdict:'✅ Play it',                  reason: isLate?'Late night = loose table. They\'re calling with anything.':'This hand prints money. Don\'t get cute.'},
@@ -3480,6 +3466,19 @@ async function askOracle(){
         {play:false, verdict:'🤦 Bro',                      reason:`${handStr.trim()} and you\'re asking if you should play? We need to have a different conversation.`},
         ...suitedBonus,
       ];
+    // ── Special overrides ──────────────────────────────────────────────────
+    if(isImpossibleSuitedPair){
+      // Physically impossible hand (e.g. suited aces)
+      play=true;
+      verdict='🤯 How did you even do that';
+      reason=`Not sure how you got suited ${c1}s but no shot you're getting set up here. Go all in.`;
+    } else if(isJack&&jackKicker&&JACK_SAY[jackKicker]&&r<0.75){
+      // Jay phrase as verdict, normal random reason after
+      const pick=pool[Math.floor(Math.random()*pool.length)];
+      play=true;
+      verdict=`🃏 ${JACK_SAY[jackKicker]}`;
+      reason=pick.reason;
+    } else {
       const pick=pool[Math.floor(r*pool.length)];
       play=pick.play; verdict=pick.verdict; reason=pick.reason;
     }

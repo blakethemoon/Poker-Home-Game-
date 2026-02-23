@@ -388,8 +388,8 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   .pre-sess-start{width:100%!important;text-align:center;padding:16px!important}
   /* Action buttons: 2×2 on mobile */
   .dash-act-grid{grid-template-columns:1fr 1fr!important}
-  /* Hide felt table and secondary cards on mobile — phone is command center */
-  #d-felt-wrap{display:none!important}
+  /* Hide felt table card on mobile — phone is command center */
+  #d-players-card{display:none!important}
   #d-share-card,#d-pnl-card{display:none!important}
 }
 @media(max-width:480px){
@@ -1084,15 +1084,6 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           <div id="ora-reason" style="font-size:12px;line-height:1.7;opacity:.9"></div>
         </div>
 
-        <!-- Ask the Wizard anything -->
-        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--br)">
-          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Ask the Wizard Anything</div>
-          <div style="display:flex;gap:8px">
-            <input class="inp inp-sm" type="text" id="wiz-q" placeholder="e.g. should I go home?" style="flex:1" onkeydown="if(event.key==='Enter')askWizardQuestion()">
-            <button class="btn btn-sm" style="background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.5);color:#a855f7;white-space:nowrap" onclick="askWizardQuestion()">Ask</button>
-          </div>
-          <div id="wiz-answer" style="display:none;margin-top:10px;padding:12px;border-radius:var(--r10);border:1px solid rgba(168,85,247,.25);background:rgba(168,85,247,.07);font-size:12px;line-height:1.7;color:#a855f7"></div>
-        </div>
       </div>
     </div>
 
@@ -1676,38 +1667,38 @@ function renderDash(){
     dcl.innerHTML=inRSVPs.map(r=>`<div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--ag3);border:1px solid rgba(57,255,20,.2);color:var(--ag)">${r.name}</div>`).join('');
   } else if(dc){ dc.style.display='none'; }
 
-  // Scoreboard (session active) vs felt table (pre-session)
+  // Scoreboard (session active) vs felt table (always on desktop, pre-session on mobile via CSS)
   const scoreEl=$('d-scoreboard'),pCard=$('d-players-card');
   if(sessionActive){
     if(scoreEl) scoreEl.style.display='block';
-    if(pCard)   pCard.style.display='none';
+    if(pCard)   pCard.style.display='block'; // desktop shows felt alongside scoreboard; mobile CSS hides it
     renderScoreboard();
   } else {
     if(scoreEl) scoreEl.style.display='none';
     if(pCard)   pCard.style.display='block';
-    // Felt table — only pre-session
-    const allPlayers=G.players.filter(p=>p.status==='active');
-    const re=$('d-roster-empty'),fw=$('d-felt-wrap');
-    const feltGame=$('d-felt-game'),feltBlinds=$('d-felt-blinds');
-    if(feltGame) feltGame.textContent=G.settings.game;
-    if(feltBlinds) feltBlinds.textContent=`$${G.settings.sb.toFixed(2)} / $${G.settings.bb.toFixed(2)}`;
-    const sub=$('d-table-sub');
-    if(!allPlayers.length){
-      if(re) re.style.display='block';
-      if(fw) fw.style.display='none';
-      if(sub) sub.textContent='';
-    } else {
-      if(re) re.style.display='none';
-      if(fw) fw.style.display='block';
-      if(sub) sub.textContent=`${allPlayers.length} seated`;
-      renderFeltTable(allPlayers);
-      const totalStack=allPlayers.reduce((s,p)=>s+p.currentStack,0);
-      const avgStack=allPlayers.length?totalStack/allPlayers.length:0;
-      const tp=$('d-tbl-players'),tpot=$('d-tbl-pot'),tavg=$('d-tbl-avg');
-      if(tp) tp.textContent=allPlayers.length;
-      if(tpot) tpot.textContent=fmt(totalStack);
-      if(tavg) tavg.textContent=fmt(avgStack);
-    }
+  }
+  // Felt table — always update when there are active players
+  const allPlayers=G.players.filter(p=>p.status==='active');
+  const re=$('d-roster-empty'),fw=$('d-felt-wrap');
+  const feltGame=$('d-felt-game'),feltBlinds=$('d-felt-blinds');
+  if(feltGame) feltGame.textContent=G.settings.game;
+  if(feltBlinds) feltBlinds.textContent=`$${G.settings.sb.toFixed(2)} / $${G.settings.bb.toFixed(2)}`;
+  const sub=$('d-table-sub');
+  if(!allPlayers.length){
+    if(re) re.style.display='block';
+    if(fw) fw.style.display='none';
+    if(sub) sub.textContent='';
+  } else {
+    if(re) re.style.display='none';
+    if(fw) fw.style.display='block';
+    if(sub) sub.textContent=sessionActive?`${allPlayers.length} active`:`${allPlayers.length} seated`;
+    renderFeltTable(allPlayers);
+    const totalStack=allPlayers.reduce((s,p)=>s+p.currentStack,0);
+    const avgStack=allPlayers.length?totalStack/allPlayers.length:0;
+    const tp=$('d-tbl-players'),tpot=$('d-tbl-pot'),tavg=$('d-tbl-avg');
+    if(tp) tp.textContent=allPlayers.length;
+    if(tpot) tpot.textContent=fmt(totalStack);
+    if(tavg) tavg.textContent=fmt(avgStack);
   }
 
   // Stack share + P&L bars — hidden during active session
@@ -3349,32 +3340,30 @@ async function askOracle(){
     if(data.error) throw new Error(data.error);
     play=!!data.play; verdict=data.verdict; reason=data.reason;
   } catch(e){
-    // Fallback: local gaslighting logic
-    const isStrong=scoreVal<=18;
-    const isGarbage=scoreVal>=70;
-    if(isStrong){
-      if(r<0.25){
-        play=false; verdict='🙅 Fold it';
-        const traps=['The table energy is off right now.','You\'ve been running hot — protect it.','I\'m getting a bad feeling about this one.',`${nPlayers>3?players[Math.floor(Math.random()*players.length)].name+' has been suspiciously quiet.':'Someone\'s got a monster.'}`,isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'];
-        reason=traps[Math.floor(r*traps.length*4)%traps.length];
-      } else {
-        play=true; verdict='✅ Play it';
-        reason=isLate?'Late night = loose table. They\'re calling with anything.':isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'This hand prints money. Don\'t get cute — play it.';
-      }
-    } else if(isGarbage){
-      if(r<0.7){
-        play=true; verdict='🔥 Ship it';
-        const excuses=[`${handStr.trim()} is a cooler disguise. They'll never put you on this.`,isLate?'Nobody folds at this hour. Your garbage might just hold.':'Suited is suited. Make something happen.',losers.length>0?`${losers[0].name} is steaming. Shove and watch them snap.`:'Table\'s been nitty. They\'ll fold to any aggression.',`The oracle has spoken in ${handStr.trim()}'s favor before. Trust the process.`,nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'Heads up this hand is a monster. Relatively speaking.',isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'First-in juice. They don\'t even know what you\'re capable of.',`Look, do you want to WIN or do you want to be COMFORTABLE?`];
-        reason=excuses[Math.floor(r*excuses.length*3)%excuses.length];
-      } else {
-        play=false; verdict='💀 Please fold';
-        reason=`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the oracle has standards. Barely.`;
-      }
-    } else {
-      const contextual=[{play:true,verdict:'🃏 Worth a look',reason:isLate?'Late night, everyone\'s loose. See a flop cheap.':isLongSession?'You need a hand to happen. This might be the one.':suited?'Suited connectors in position? That\'s free money territory.':'Position and pot odds say yes. Pop it.'},{play:false,verdict:'⏸ Sit this one out',reason:isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},{play:true,verdict:'👀 Could be something',reason:winners.length>0?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},{play:false,verdict:'🫡 Respect the range',reason:isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'}];
-      const pick=contextual[Math.floor(r*contextual.length)];
-      play=pick.play; verdict=pick.verdict; reason=pick.reason;
-    }
+    // Fallback: fully random — hand strength is irrelevant, chaos is the point
+    const rando=Math.floor(r*players.length)||0;
+    const pool=[
+      {play:true,  verdict:'✅ Yeah that\'s real',        reason: losers.length?`${losers[0].name} is steaming. Take their chips.`:'Table\'s calling wide. Get your money in.'},
+      {play:true,  verdict:'✅ Play it',                  reason: isLate?'Late night = loose table. They\'re calling with anything.':'This hand prints money. Don\'t get cute.'},
+      {play:true,  verdict:'✅ No brainer',               reason: isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'Position and pot odds say yes. Pop it.'},
+      {play:true,  verdict:'🔥 Ship it',                  reason:`${handStr.trim()} is a cooler disguise. They'll never put you on this.`},
+      {play:true,  verdict:'🃏 See a flop',               reason:'If you don\'t play this then maybe I can interest you in some tickets to the puss convention.'},
+      {play:true,  verdict:'✅ Yeah that\'s real',        reason:'If you fold this then I understand why dad is still getting milk.'},
+      {play:true,  verdict:'👀 Could be something',       reason: winners.length?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},
+      {play:true,  verdict:'🔥 Ship it',                  reason:'Yeah play this and then min raise, for strength.'},
+      {play:true,  verdict:'🃏 Worth a look',             reason: suited?'Suited? That\'s free money territory.':nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'First-in juice. They don\'t know what you\'re capable of.'},
+      {play:true,  verdict:'🤷 Just play it',             reason: isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
+      {play:false, verdict:'🙅 Fold it',                  reason:'The table energy is off right now.'},
+      {play:false, verdict:'🙅 Fold it',                  reason:'You\'ve been running hot — protect it.'},
+      {play:false, verdict:'🙅 Fold it',                  reason:'I\'m getting a bad feeling about this one.'},
+      {play:false, verdict:'🙅 Fold it',                  reason: nPlayers>3&&players[rando]?`${players[rando].name} has been suspiciously quiet.`:'Someone\'s got a monster.'},
+      {play:false, verdict:'🙅 Fold it',                  reason: isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'},
+      {play:false, verdict:'⏸ Sit this one out',         reason: isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},
+      {play:false, verdict:'💀 Please fold',              reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the oracle has standards. Barely.`},
+      {play:false, verdict:'🫡 Respect the range',        reason: isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'},
+    ];
+    const pick=pool[Math.floor(r*pool.length)];
+    play=pick.play; verdict=pick.verdict; reason=pick.reason;
   }
 
   // Save to oracle log
@@ -3395,32 +3384,6 @@ async function askOracle(){
   result.style.transform='scale(.97)';
   setTimeout(()=>result.style.transform='scale(1)',120);
   renderOracleHistory();
-}
-
-async function askWizardQuestion(){
-  const q=$('wiz-q');
-  const answer=$('wiz-answer');
-  if(!q||!answer)return;
-  const text=(q.value||'').trim();
-  if(!text){toast('Type a question first');return;}
-
-  answer.style.display='block';
-  answer.style.color='#a855f7';
-  answer.innerHTML='🔮 Consulting the ancient texts...';
-
-  const players=G.players.filter(p=>p.status==='active');
-  const ctx=players.length?`${players.length} players active: ${players.map(p=>p.name).join(', ')}`:'home game';
-
-  try{
-    const resp=await fetch('/api/wizard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:text,context:ctx})});
-    if(!resp.ok) throw new Error('API '+resp.status);
-    const data=await resp.json();
-    if(data.error) throw new Error(data.error);
-    answer.innerHTML=`<strong style="font-size:14px;display:block;margin-bottom:4px">${data.verdict}</strong><span style="opacity:.85">${data.reason}</span>`;
-    q.value='';
-  } catch(e){
-    answer.innerHTML='The Wizard is unavailable. Try after the next hand.';
-  }
 }
 
 function clearHistory(){

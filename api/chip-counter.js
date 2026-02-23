@@ -49,36 +49,40 @@ module.exports = async (req, res) => {
         system: [
           'You are counting stacked poker chips in an image.',
           '',
-          'Follow these steps exactly:',
-          '1. Focus on the main vertical stack of chips.',
-          '2. Start at the very top chip (the flat circular face).',
-          '3. Move downward one horizontal layer at a time.',
-          '4. Each visible horizontal rim edge represents exactly ONE chip.',
-          '5. A chip counts if: a curved rim edge is visible AND at least part of the white edge inserts are visible.',
-          '6. Do NOT merge tightly compressed layers.',
-          '7. Do NOT guess hidden chips.',
-          '8. After counting the stack, add any loose chips visible beside it.',
+          '════ WHAT DEFINES ONE CHIP ════',
+          'A poker chip is a single physical disc. When stacked, each chip appears as one horizontal',
+          'layer/band in the side profile of the stack.',
           '',
-          'Important rules:',
-          '- Count full horizontal chip layers, not individual white blocks.',
-          '- Ignore shadows and lighting variations.',
-          '- Trace the stack carefully from top to bottom before answering.',
-          '- After finishing, recount once from bottom to top to confirm the same number.',
+          'CRITICAL FACT — white inserts are NOT a counting unit:',
+          'Poker chips often have decorative white rectangular inlays (inserts) embedded around their rim.',
+          'A SINGLE chip may have 1, 2, or even 3 white rectangular patches visible on its edge.',
+          'DO NOT count white patches. Counting white patches will give you a multiple of the real count.',
+          'The white inserts are decoration inside one chip — they do not mark chip boundaries.',
           '',
-          'CRITICAL — Counting edges vs. identifying color (these are two separate tasks):',
+          '════ HOW TO COUNT ════',
+          'Count the physical disc LAYERS, not the white spots.',
           '',
-          'FOR COUNTING: Use the white rectangular inserts embedded in the chip rim as your counting markers.',
-          'Each horizontal band of white inserts = one chip. This is correct and intentional.',
+          'Method — count the seam lines:',
+          '1. Look at the stack from the side.',
+          '2. Find the thin horizontal SEAM LINES (the hairline gaps or shadows) where one chip disc',
+          '   ends and the next begins. These seams run the full width of the stack.',
+          '3. Count those seam lines. Number of chips = seam lines + 1.',
+          '4. Recount top-to-bottom, then bottom-to-top to verify the same number.',
           '',
-          'FOR COLOR: The white inserts are NOT the chip color. They are decorative inlays embedded into the chip body.',
-          'To identify chip color, look at the BACKGROUND COLOR that surrounds and sits behind the white inserts.',
-          'That background color — the dominant color filling the body of the chip — is the chip color.',
-          'Example: A BLACK chip has white rectangular inserts embedded in a BLACK body. The chip is BLACK, not white.',
-          'Example: A BLUE chip may also have white inserts embedded in a BLUE body. The chip is BLUE, not white.',
-          'Example: A RED chip may have white inserts embedded in a RED body. The chip is RED, not white.',
-          'The white center face and white edge inserts are present on almost every chip color — ignore them for color classification.',
-          'NEVER call a chip white just because its inserts or face are white.',
-          'ALWAYS classify by the dominant background body color behind the inserts.',
+          'Sanity check — look at the white insert GROUPS:',
+          'If chips have 2 white inserts each, you will see the white patches appear in PAIRS.',
+          'Each PAIR belongs to one single chip. So if you see 20 white patches, that is 10 chips.',
+          'Use this only as a cross-check, not your primary method.',
+          '',
+          'Do NOT count:',
+          '- Individual white rectangular patches as separate chips',
+          '- Obscured or hidden chips you cannot see',
+          '',
+          '════ COLOR IDENTIFICATION ════',
+          'To identify chip color, look at the colored body BETWEEN and BEHIND the white inserts.',
+          'The dominant background color of the chip body is the chip color.',
+          'Examples: BLACK body = black chip. BLUE body = blue chip. RED body = red chip.',
+          'Never call a chip "white" — the white inserts are on every chip color.',
           '',
           'Respond ONLY with a single JSON object, no markdown, no extra text.'
         ].join('\n'),
@@ -98,10 +102,13 @@ module.exports = async (req, res) => {
                 type: 'text',
                 text:
                   'Chip values: ' + chipValues + '.\n\n' +
-                  'Count all poker chips in the image by color. ' +
-                  'For each stack: trace top-to-bottom counting every rim edge as one chip, then recount bottom-to-top to verify. ' +
-                  'Add any loose chips beside the stack(s). ' +
-                  'Do not guess obscured chips.\n\n' +
+                  'Count all poker chips in the image by color.\n' +
+                  'For each stack:\n' +
+                  '  1. Count the SEAM LINES between disc layers (number of chips = seams + 1).\n' +
+                  '  2. Do NOT count white rectangular patches — a single chip may show 2 or more white patches on its rim.\n' +
+                  '  3. Recount bottom-to-top to verify.\n' +
+                  '  4. Cross-check: if white patches appear in pairs, divide patch count by 2.\n' +
+                  'Add any loose chips visible beside the stack(s). Do not guess obscured chips.\n\n' +
                   'Return ONLY a JSON object in this exact shape:\n' +
                   '{"counts":{"red":0,"blue":0,"black":0,"green":0},"total":0.00,"description":"stack count X + side count Y = total Z chips"}'
               }

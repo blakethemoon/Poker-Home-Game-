@@ -1083,6 +1083,16 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           <div id="ora-verdict" style="font-size:20px;font-weight:700;margin-bottom:6px"></div>
           <div id="ora-reason" style="font-size:12px;line-height:1.7;opacity:.9"></div>
         </div>
+
+        <!-- Ask the Wizard anything -->
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--br)">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Ask the Wizard Anything</div>
+          <div style="display:flex;gap:8px">
+            <input class="inp inp-sm" type="text" id="wiz-q" placeholder="e.g. should I go home?" style="flex:1" onkeydown="if(event.key==='Enter')askWizardQuestion()">
+            <button class="btn btn-sm" style="background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.5);color:#a855f7;white-space:nowrap" onclick="askWizardQuestion()">Ask</button>
+          </div>
+          <div id="wiz-answer" style="display:none;margin-top:10px;padding:12px;border-radius:var(--r10);border:1px solid rgba(168,85,247,.25);background:rgba(168,85,247,.07);font-size:12px;line-height:1.7;color:#a855f7"></div>
+        </div>
       </div>
     </div>
 
@@ -2417,14 +2427,14 @@ function populateCOForm(p){
   // If already cashed out show locked state
   if(p.status==='cashed'){
     $('co-manual').value = (p.cashoutAmount||0).toFixed(2);
-    $('co-manual').disabled = !sessionClosed; // editable only when session closed (review mode)
+    $('co-manual').disabled = false;
     recalcCO();
-    // Hide confirm buttons, show edit-cashout button
+    // Hide confirm buttons, show correction + undo buttons
     ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
     const editArea=$('co-cashed-edit');
     if(!editArea){
       const div=document.createElement('div');div.id='co-cashed-edit';div.style.cssText='margin-top:10px;display:flex;gap:8px';
-      div.innerHTML=`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="uncashPlayer(${p.id})">↩ Undo Cash Out</button>`;
+      div.innerHTML=`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="uncashPlayer(${p.id})">↩ Undo Cash Out</button><button class="btn btn-cy btn-sm" style="flex:1" onclick="saveCashedStack(${p.id})">💾 Save Correction</button>`;
       $('co-manual').parentElement.after(div);
     }
   } else {
@@ -2677,6 +2687,19 @@ function uncashPlayer(id){
   addFeed('↩',`${p.name} cash-out undone`,'Back to active');
   coSelectedId=id; refresh(); renderCashOut();
   toast(`${p.name} moved back to active`);
+}
+
+function saveCashedStack(id){
+  const p=G.players.find(q=>q.id===id);if(!p||p.status!=='cashed')return;
+  const manual=$('co-manual');
+  if(!manual||manual.value===''){toast('Enter a corrected amount');return;}
+  const val=parseFloat(parseFloat(manual.value).toFixed(2));
+  if(isNaN(val)||val<0){toast('Invalid amount');return;}
+  const old=p.cashoutAmount||0;
+  p.cashoutAmount=val;
+  addFeed('✎',`${p.name} cashout corrected`,`${fmt(old)} → ${fmt(val)}`);
+  refresh(); renderCashOut();
+  toast(`${p.name} updated to ${fmt(val)}`);
 }
 
 // Quick add-on from the cash out tab — uses shared modal
@@ -3272,7 +3295,7 @@ function clearOracleHistory(){
   oracleLog=[];localStorage.removeItem('oracleLog');renderOracleHistory();
 }
 
-function askOracle(){
+async function askOracle(){
   const c1=$('ora-c1')?.value||'A';
   const c2=$('ora-c2')?.value||'A';
   const suited=document.querySelector('input[name="ora-suit"]:checked')?.value==='s';
@@ -3281,7 +3304,7 @@ function askOracle(){
   const suits=isPair?['♠','♥']:suited?['♠','♠']:['♠','♥'];
   const handStr=`${c1}${suits[0]} ${c2}${suits[1]}`;
 
-  // Context clues for gaslighting
+  // Context clues
   const hour=new Date().getHours();
   const isLate=hour>=22||hour<4;
   const isEarly=hour>=6&&hour<=9;
@@ -3290,64 +3313,68 @@ function askOracle(){
   const sessionMins=sessionStartTime?Math.floor((Date.now()-sessionStartTime.getTime())/60000):0;
   const isLongSession=sessionMins>120;
   const isNewSession=sessionMins<20;
-
-  // Losers and winners in current session
   const losers=players.filter(p=>p.currentStack<ti(p));
   const winners=players.filter(p=>p.currentStack>ti(p));
-
-  // Build a verdict + reason. Strong hands get gaslighted toward folding, 
-  // garbage hands get gas-lit toward playing.
   const scoreVal=handScore(c1,c2,suited);
-  const isStrong=scoreVal<=18;
-  const isGarbage=scoreVal>=70;
-
-  // Random seed to vary responses each tap
   const r=Math.random();
+
+  const result=$('ora-result');
+  const verdictEl=$('ora-verdict');
+  const reasonEl=$('ora-reason');
+  if(!result)return;
+
+  // Show loading state
+  result.style.cssText='display:block;border-radius:var(--r10);padding:14px;text-align:center;margin-top:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.3);transition:all .2s';
+  verdictEl.textContent='🔮 Consulting...';
+  verdictEl.style.color='#a855f7';
+  reasonEl.textContent='The Wizard is thinking...';
 
   let play, verdict, reason;
 
-  if(isStrong){
-    // Gaslight the strong player: find a reason to doubt
-    if(r<0.25){
-      play=false;
-      verdict='🙅 Fold it';
-      const traps=['The table energy is off right now.','You\'ve been running hot — protect it.','I\'m getting a bad feeling about this one.',`${nPlayers>3?players[Math.floor(Math.random()*players.length)].name+' has been suspiciously quiet.':'Someone\'s got a monster.'}`,isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'];
-      reason=traps[Math.floor(r*traps.length*4)%traps.length];
+  try {
+    const ctx=[
+      `${nPlayers} active player${nPlayers!==1?'s':''}`,
+      isLate?'late night session':isEarly?'early morning':sessionMins>0?`${sessionMins} min in`:'new session',
+      winners.length?`up: ${winners.map(p=>p.name).join(', ')}`:null,
+      losers.length?`stuck: ${losers.map(p=>p.name).join(', ')}`:null,
+    ].filter(Boolean).join('; ');
+
+    const resp=await fetch('/api/wizard',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({hand:handStr.trim(),context:ctx})
+    });
+    if(!resp.ok) throw new Error('API '+resp.status);
+    const data=await resp.json();
+    if(data.error) throw new Error(data.error);
+    play=!!data.play; verdict=data.verdict; reason=data.reason;
+  } catch(e){
+    // Fallback: local gaslighting logic
+    const isStrong=scoreVal<=18;
+    const isGarbage=scoreVal>=70;
+    if(isStrong){
+      if(r<0.25){
+        play=false; verdict='🙅 Fold it';
+        const traps=['The table energy is off right now.','You\'ve been running hot — protect it.','I\'m getting a bad feeling about this one.',`${nPlayers>3?players[Math.floor(Math.random()*players.length)].name+' has been suspiciously quiet.':'Someone\'s got a monster.'}`,isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'];
+        reason=traps[Math.floor(r*traps.length*4)%traps.length];
+      } else {
+        play=true; verdict='✅ Play it';
+        reason=isLate?'Late night = loose table. They\'re calling with anything.':isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'This hand prints money. Don\'t get cute — play it.';
+      }
+    } else if(isGarbage){
+      if(r<0.7){
+        play=true; verdict='🔥 Ship it';
+        const excuses=[`${handStr.trim()} is a cooler disguise. They'll never put you on this.`,isLate?'Nobody folds at this hour. Your garbage might just hold.':'Suited is suited. Make something happen.',losers.length>0?`${losers[0].name} is steaming. Shove and watch them snap.`:'Table\'s been nitty. They\'ll fold to any aggression.',`The oracle has spoken in ${handStr.trim()}'s favor before. Trust the process.`,nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'Heads up this hand is a monster. Relatively speaking.',isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'First-in juice. They don\'t even know what you\'re capable of.',`Look, do you want to WIN or do you want to be COMFORTABLE?`];
+        reason=excuses[Math.floor(r*excuses.length*3)%excuses.length];
+      } else {
+        play=false; verdict='💀 Please fold';
+        reason=`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the oracle has standards. Barely.`;
+      }
     } else {
-      play=true;
-      verdict='✅ Play it';
-      reason=isLate?'Late night = loose table. They\'re calling with anything.':isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'This hand prints money. Don\'t get cute — play it.';
+      const contextual=[{play:true,verdict:'🃏 Worth a look',reason:isLate?'Late night, everyone\'s loose. See a flop cheap.':isLongSession?'You need a hand to happen. This might be the one.':suited?'Suited connectors in position? That\'s free money territory.':'Position and pot odds say yes. Pop it.'},{play:false,verdict:'⏸ Sit this one out',reason:isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},{play:true,verdict:'👀 Could be something',reason:winners.length>0?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},{play:false,verdict:'🫡 Respect the range',reason:isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'}];
+      const pick=contextual[Math.floor(r*contextual.length)];
+      play=pick.play; verdict=pick.verdict; reason=pick.reason;
     }
-  } else if(isGarbage){
-    // Gaslight the trash player: find a reason to play
-    if(r<0.7){
-      play=true;
-      verdict='🔥 Ship it';
-      const excuses=[
-        `${handStr.trim()} is a cooler disguise. They'll never put you on this.`,
-        isLate?'Nobody folds at this hour. Your garbage might just hold.':'Suited is suited. Make something happen.',
-        losers.length>0?`${losers[0].name} is steaming. Shove and watch them snap.`:'Table\'s been nitty. They\'ll fold to any aggression.',
-        `The oracle has spoken in ${handStr.trim()}'s favor before. Trust the process.`,
-        nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'Heads up this hand is a monster. Relatively speaking.',
-        isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'First-in juice. They don\'t even know what you\'re capable of.',
-        `Look, do you want to WIN or do you want to be COMFORTABLE?`
-      ];
-      reason=excuses[Math.floor(r*excuses.length*3)%excuses.length];
-    } else {
-      play=false;
-      verdict='💀 Please fold';
-      reason=`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the oracle has standards. Barely.`;
-    }
-  } else {
-    // Middle hands — context-based genuine advice with slight chaos
-    const contextual=[
-      {play:true, verdict:'🃏 Worth a look', reason:isLate?'Late night, everyone\'s loose. See a flop cheap.':isLongSession?'You need a hand to happen. This might be the one.':suited?'Suited connectors in position? That\'s free money territory.':'Position and pot odds say yes. Pop it.'},
-      {play:false, verdict:'⏸ Sit this one out', reason:isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},
-      {play:true, verdict:'👀 Could be something', reason:winners.length>0?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},
-      {play:false, verdict:'🫡 Respect the range', reason:isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'},
-    ];
-    const pick=contextual[Math.floor(r*contextual.length)];
-    play=pick.play; verdict=pick.verdict; reason=pick.reason;
   }
 
   // Save to oracle log
@@ -3355,30 +3382,45 @@ function askOracle(){
   if(oracleLog.length>50) oracleLog=oracleLog.slice(-50);
   localStorage.setItem('oracleLog',JSON.stringify(oracleLog));scheduleCloudSave();
 
-  // Render result — works on both oracle tab and any other context
-  const result=$('ora-result');
-  const verdictEl=$('ora-verdict');
-  const reasonEl=$('ora-reason');
-  if(!result)return;
-
+  // Render verdict
   const color=play?'var(--ag)':'var(--neg)';
   const bg=play?'rgba(57,255,20,.07)':'rgba(255,69,96,.07)';
   const border=play?'rgba(57,255,20,.2)':'rgba(255,69,96,.2)';
-  result.style.display='block';
   result.style.background=bg;
   result.style.border=`1px solid ${border}`;
-  result.style.borderRadius='var(--r10)';
-  result.style.padding='14px';
   verdictEl.textContent=verdict;
   verdictEl.style.color=color;
   reasonEl.textContent=reason;
 
-  // Pulse animation
   result.style.transform='scale(.97)';
   setTimeout(()=>result.style.transform='scale(1)',120);
-
-  // Refresh history panel if on oracle tab
   renderOracleHistory();
+}
+
+async function askWizardQuestion(){
+  const q=$('wiz-q');
+  const answer=$('wiz-answer');
+  if(!q||!answer)return;
+  const text=(q.value||'').trim();
+  if(!text){toast('Type a question first');return;}
+
+  answer.style.display='block';
+  answer.style.color='#a855f7';
+  answer.innerHTML='🔮 Consulting the ancient texts...';
+
+  const players=G.players.filter(p=>p.status==='active');
+  const ctx=players.length?`${players.length} players active: ${players.map(p=>p.name).join(', ')}`:'home game';
+
+  try{
+    const resp=await fetch('/api/wizard',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:text,context:ctx})});
+    if(!resp.ok) throw new Error('API '+resp.status);
+    const data=await resp.json();
+    if(data.error) throw new Error(data.error);
+    answer.innerHTML=`<strong style="font-size:14px;display:block;margin-bottom:4px">${data.verdict}</strong><span style="opacity:.85">${data.reason}</span>`;
+    q.value='';
+  } catch(e){
+    answer.innerHTML='The Wizard is unavailable. Try after the next hand.';
+  }
 }
 
 function clearHistory(){

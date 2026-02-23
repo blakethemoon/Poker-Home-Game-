@@ -56,6 +56,8 @@ module.exports = async (req, res) => {
           '"you had to ask bro? they have free poker online" — dismissive when the hand is obvious',
           '"no way you lose with this one bro" — said about literally any hand',
           '"idk man, does the pope poop in the woods?" — chaotic non-answer meaning obviously yes',
+          '"Master has given dobby a shizzy hand, dobby is freeeee" — when the hand is trash, treat it like liberation',
+          '"don\'t need wechat to get paid here bro, ship it" — just play, no hesitation',
           'Create your own lines in this same energy.',
           '',
           'Rules:',

@@ -182,6 +182,9 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .felt-sub{font-size:7px;color:rgba(255,255,255,.55);text-align:center;white-space:nowrap}
 .bar-fill{height:100%;border-radius:3px;transition:width .45s ease}
 .bar-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--i3);min-width:30px;text-align:right}
+/* Scroll caps — prevent page-level scroll on long lists */
+#d-score-list{max-height:52vh;overflow-y:auto}
+#pl-list{max-height:40vh;overflow-y:auto;padding-right:2px}
 
 /* ── TABLE VISUAL ── */
 .table-scene{display:flex;justify-content:center;padding:12px 0 16px;position:relative}
@@ -260,15 +263,15 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 
 /* ── CASH OUT PAGE ── */
 .co-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-.co-player-list{display:flex;flex-direction:column;gap:5px}
-.co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r10);padding:16px 18px;cursor:pointer;transition:all .12s}
+.co-player-list{display:flex;flex-direction:column;gap:4px;max-height:44vh;overflow-y:auto;padding-right:3px}
+.co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:8px 12px;cursor:pointer;transition:all .12s}
 .co-player-card:hover{border-color:var(--brc);background:var(--s3)}
 .co-player-card.selected{border-color:var(--brc);background:var(--cy3)}
 .co-player-card.cashed{border-color:rgba(57,255,20,.2);background:var(--ag3)}
 .co-player-card.owes{border-color:rgba(255,69,96,.2)}
-.co-row{display:flex;align-items:center;gap:9px}
-.co-name{flex:1;font-size:16px;font-weight:600;color:var(--i0)}
-.co-status-badge{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:4px 11px;border-radius:20px;border:1px solid}
+.co-row{display:flex;align-items:center;gap:8px}
+.co-name{flex:1;font-size:13px;font-weight:600;color:var(--i0)}
+.co-status-badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid;flex-shrink:0}
 .csb-pending{border-color:rgba(255,178,0,.3);color:#ffb200;background:rgba(255,178,0,.08)}
 .csb-paid{border-color:rgba(57,255,20,.3);color:var(--ag);background:var(--ag3)}
 .csb-collect{border-color:rgba(255,69,96,.3);color:var(--neg);background:var(--neg3)}
@@ -624,10 +627,16 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <div id="pl-empty" class="empty" style="padding:14px 0"><span class="empty-icon">♠</span><span class="empty-txt">No players this session</span></div>
         <div id="pl-list"></div>
       </div>
-      <!-- All-time roster -->
+      <!-- All-time roster (collapsible) -->
       <div class="card">
-        <div class="chd"><span class="ctitle">All-Time Roster</span><span style="font-size:11px;color:var(--i3)" id="pl-roster-count"></span></div>
-        <div id="roster-db-list"></div>
+        <div class="chd" style="cursor:pointer;user-select:none" onclick="toggleRosterDB()">
+          <span class="ctitle">All-Time Roster</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:11px;color:var(--i3)" id="pl-roster-count"></span>
+            <span id="pl-roster-toggle" style="font-size:11px;color:var(--i3)">▶ Show</span>
+          </div>
+        </div>
+        <div id="roster-db-list" style="display:none"></div>
       </div>
     </div>
     <!-- Right: player profile / detail -->
@@ -1849,6 +1858,14 @@ function addFeed(icon,title,meta){
    PLAYERS PANEL
 ═══════════════════════════════ */
 let selRosterName = null;
+let rosterDBOpen = false;
+
+function toggleRosterDB(){
+  rosterDBOpen = !rosterDBOpen;
+  const list=$('roster-db-list'),tog=$('pl-roster-toggle');
+  if(list) list.style.display = rosterDBOpen ? '' : 'none';
+  if(tog) tog.textContent = rosterDBOpen ? '▼ Hide' : '▶ Show';
+}
 
 function renderPlayerPanel(){
   const act=G.players.filter(p=>p.status==='active');
@@ -1894,6 +1911,10 @@ function renderPlayerPanel(){
   const hist=JSON.parse(localStorage.getItem('moonsHistory')||'[]');
   const rdb=$('roster-db-list'),rc=$('pl-roster-count');
   if(rc)rc.textContent=ROSTER_DB.length?`${ROSTER_DB.length} players`:'';
+  // Keep roster open/closed state in sync after re-render
+  if(rdb) rdb.style.display = rosterDBOpen ? '' : 'none';
+  const tog=$('pl-roster-toggle');
+  if(tog) tog.textContent = rosterDBOpen ? '▼ Hide' : '▶ Show';
 
   if(!ROSTER_DB.length){
     if(rdb)rdb.innerHTML='<div class="empty" style="padding:14px 0"><span class="empty-txt">Players appear here after sessions</span></div>';
@@ -2373,12 +2394,9 @@ function renderCashOut(){
     const isSel = coSelectedId===p.id;
     return `<div class="co-player-card ${cardCls}${isSel?' selected':''}" onclick="selectCOPlayer(${p.id})">
       <div class="co-row">
-        <span class="co-name">${p.name}</span>${badge}
-      </div>
-      <div style="font-size:10px;color:var(--i3);margin-top:3px">
-        In: <span class="mono au">${fmt(ti(p))}</span>
-        ${p.status==='active'?` · Stack: <span class="mono cy">${fmt(p.currentStack)}</span>`:''}
-        ${p.status==='cashed'?` · Out: <span class="mono">${fmt(p.cashoutAmount||0)}</span>`:''}
+        <span class="co-name">${p.name}</span>
+        <span style="font-size:10px;color:var(--i3);white-space:nowrap"><span class="mono au">${fmt(ti(p))}</span>${p.status==='active'?`→<span class="mono cy">${fmt(p.currentStack)}</span>`:p.status==='cashed'?`→<span class="mono">${fmt(p.cashoutAmount||0)}</span>`:''}</span>
+        ${badge}
       </div>
     </div>`;
   }).join('');

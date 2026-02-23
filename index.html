@@ -477,7 +477,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 <nav class="nav">
   <button id="nav-dash"     class="nvb on" onclick="goTab('dash',this)">Home</button>
   <button id="nav-players"  class="nvb"    onclick="goTab('players',this)">Players</button>
-  <button id="nav-oracle"   class="nvb"    onclick="goTab('oracle',this)">Oracle</button>
+  <button id="nav-oracle"   class="nvb"    onclick="goTab('oracle',this)">Wizard</button>
   <button id="nav-cashout"  class="nvb"    onclick="goTab('cashout',this)">Cash Out</button>
   <button id="nav-chips"    class="nvb"    onclick="goTab('chips',this)">Chips</button>
   <button id="nav-hands"    class="nvb"    onclick="goTab('hands',this)">Hands</button>
@@ -1079,16 +1079,16 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   </div>
 </div>
 
-<!-- ══ ORACLE ══ -->
+<!-- ══ WIZARD ══ -->
 <div class="view" id="view-oracle">
   <div class="g2" style="align-items:start;gap:16px">
     <!-- Left: card picker + verdict -->
     <div>
       <div class="card" style="background:var(--s1);border:1px solid rgba(168,85,247,.3)">
         <div class="chd">
-          <span class="ctitle" style="color:#a855f7">🔮 Should I Play This?</span>
+          <span class="ctitle" style="color:#a855f7">🧙 Should I Play This?</span>
         </div>
-        <p style="font-size:11px;color:var(--i3);margin-bottom:16px;line-height:1.6">Pick your hole cards. The Oracle has been consulted. It has opinions.</p>
+        <p style="font-size:11px;color:var(--i3);margin-bottom:16px;line-height:1.6">GTO Wizard — but make it questionable. Pick your hole cards. The Wizard has been consulted.</p>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
           <div>
@@ -1125,7 +1125,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         </div>
 
         <button class="btn btn-full" style="background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.5);color:#a855f7;font-weight:700;font-size:15px;padding:15px" onclick="askOracle()">
-          Analyze Hand
+          Ask the Wizard
         </button>
 
         <!-- Verdict (shown after button press) -->
@@ -3262,7 +3262,7 @@ function liveQuickAdd(name){
 }
 
 /* ═══════════════════════════════
-   ORACLE — Should I Play This?
+   WIZARD — Should I Play This?
 ═══════════════════════════════ */
 let oracleLog=JSON.parse(localStorage.getItem('oracleLog')||'[]');
 
@@ -3374,7 +3374,7 @@ async function askOracle(){
 
   // Show loading state
   result.style.cssText='display:block;border-radius:var(--r10);padding:14px;text-align:center;margin-top:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.3);transition:all .2s';
-  verdictEl.textContent='🔮 Consulting...';
+  verdictEl.textContent='🧙 Consulting...';
   verdictEl.style.color='#a855f7';
   reasonEl.textContent='The Wizard is thinking...';
 
@@ -3401,6 +3401,7 @@ async function askOracle(){
     // Fallback: fully random — hand strength is irrelevant, chaos is the point
     const rando=Math.floor(r*players.length)||0;
     const pool=[
+      // classics
       {play:true,  verdict:'✅ Yeah that\'s real',        reason: losers.length?`${losers[0].name} is steaming. Take their chips.`:'Table\'s calling wide. Get your money in.'},
       {play:true,  verdict:'✅ Play it',                  reason: isLate?'Late night = loose table. They\'re calling with anything.':'This hand prints money. Don\'t get cute.'},
       {play:true,  verdict:'✅ No brainer',               reason: isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'Position and pot odds say yes. Pop it.'},
@@ -3411,14 +3412,45 @@ async function askOracle(){
       {play:true,  verdict:'🔥 Ship it',                  reason:'Yeah play this and then min raise, for strength.'},
       {play:true,  verdict:'🃏 Worth a look',             reason: suited?'Suited? That\'s free money territory.':nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'First-in juice. They don\'t know what you\'re capable of.'},
       {play:true,  verdict:'🤷 Just play it',             reason: isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
+      // new bangers
+      {play:true,  verdict:'✅ Raise 2, for strength',    reason:'Play this bad hand and raise 2, for strength. It\'s called balance bro.'},
+      {play:true,  verdict:'🎰 Re-entry special',         reason:'Play this one if you\'re ready for another re-entry.'},
+      {play:true,  verdict:'💻 Bro just Google it',       reason:'You had to ask bro? They have free poker online if this is too spicy for you.'},
+      {play:true,  verdict:'💯 No way you lose',          reason:'No way you lose with this one bro. Trust.'},
+      {play:true,  verdict:'🐻 Does the pope poop in the woods?', reason:'Idk man, does the pope poop in the woods? The answer is yes. Play it.'},
+      {play:true,  verdict:'🤝 Easy game',                reason: nPlayers>4?`${nPlayers} players in and you\'re asking me? Ship it.`:'Heads up or not — this prints.'},
+      {play:true,  verdict:'🧠 Solver approved',          reason:'The solver said raise. I think. I didn\'t actually check but it seems right.'},
+      {play:true,  verdict:'📈 Equity is there',          reason:'You have at minimum 2 outs. That\'s basically a coin flip bro.'},
+      {play:true,  verdict:'🎯 This is the one',          reason: isLate?'It\'s late and you\'re asking the Wizard. Just play and see what happens.':'The Wizard sees great things. Or nothing. One of those.'},
+      {play:true,  verdict:'🤌 Chef\'s kiss',             reason:'Beautiful hand. Or is it? Doesn\'t matter. Get in there.'},
+      {play:true,  verdict:'👑 Premium feels',            reason:'This feels premium. Feelings are GTO. That\'s science.'},
+      {play:true,  verdict:'🏃 Run it',                   reason: losers.length?`${losers[0].name} already rebought once. Keep the pressure on.`:'They can\'t put you on this. Go.'},
+      {play:true,  verdict:'⚡ Get in there',             reason:'Sometimes you just gotta jump in the water. This is one of those times.'},
+      {play:true,  verdict:'🎲 Variance is your friend',  reason:'High variance hand, high variance advice. We\'re aligned bro.'},
+      {play:true,  verdict:'🔮 The Wizard says yes',      reason:'Look man, you consulted the Wizard. The Wizard said play. That\'s on you now.'},
+      {play:true,  verdict:'🤠 Cowboy up',                reason: suited?'Suited connectors in a home game? That\'s basically a straight flush already.':'You\'re playing a home game not the WSOP. Relax and ship it.'},
+      {play:true,  verdict:'💪 Trust the process',        reason:'The process is: pick cards, ask Wizard, play hand, lose money. Step 3.'},
+      {play:true,  verdict:'🌟 Star power',               reason: winners.length?`${winners[0].name} is running hot. Ride that table energy.`:'Good vibes only at this table tonight.'},
+      {play:true,  verdict:'🃏 Let\'s find out',          reason:'The only way to know if you win is to play bro. That\'s a Wizard exclusive insight.'},
+      {play:true,  verdict:'🎪 Home game mode',           reason:'This is a home game. The hand ranking is: whatever feels good > GTO.'},
+      // folds
       {play:false, verdict:'🙅 Fold it',                  reason:'The table energy is off right now.'},
       {play:false, verdict:'🙅 Fold it',                  reason:'You\'ve been running hot — protect it.'},
       {play:false, verdict:'🙅 Fold it',                  reason:'I\'m getting a bad feeling about this one.'},
       {play:false, verdict:'🙅 Fold it',                  reason: nPlayers>3&&players[rando]?`${players[rando].name} has been suspiciously quiet.`:'Someone\'s got a monster.'},
       {play:false, verdict:'🙅 Fold it',                  reason: isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'},
       {play:false, verdict:'⏸ Sit this one out',         reason: isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},
-      {play:false, verdict:'💀 Please fold',              reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the oracle has standards. Barely.`},
+      {play:false, verdict:'💀 Please fold',              reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the Wizard has standards. Barely.`},
       {play:false, verdict:'🫡 Respect the range',        reason: isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'},
+      {play:false, verdict:'😬 Walk away',                reason:'The Wizard is seeing some stuff right now and none of it is good.'},
+      {play:false, verdict:'🧘 Patience bro',             reason:'A wise man once said wait for better spots. That man went broke at the river. Still — fold this.'},
+      {play:false, verdict:'💸 Save your chips',          reason: isLate?'You\'ve been in too many hands tonight. This one\'s a trap.':'Re-entry is always an option. Fold responsibly.'},
+      {play:false, verdict:'📉 Nope',                     reason: losers.length?`Even ${losers[0].name} wouldn\'t play this and they\'re steaming.`:'The Wizard consulted the data. The data said no. The Wizard agrees.'},
+      {play:false, verdict:'🚫 Hard no',                  reason:'You had to ask bro? The fact that you\'re asking tells you everything.'},
+      {play:false, verdict:'🕳️ Fold into the void',      reason:'This hand has a special destiny. That destiny is the muck.'},
+      {play:false, verdict:'🙈 Don\'t look at me',        reason:'You asked the Wizard for this. The Wizard says absolutely not and is embarrassed for you.'},
+      {play:false, verdict:'⚰️ R.I.P.',                   reason: nPlayers>4?'There\'s too many people in this pot. Somebody has it.':'Even in a dead pot this is a fold. Historic.'},
+      {play:false, verdict:'🤦 Bro',                      reason:`${handStr.trim()} and you\'re asking if you should play? We need to have a different conversation.`},
     ];
     const pick=pool[Math.floor(r*pool.length)];
     play=pick.play; verdict=pick.verdict; reason=pick.reason;

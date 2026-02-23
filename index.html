@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 .topbar{height:64px;background:rgba(6,4,15,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 22px;gap:16px;position:sticky;top:0;z-index:300;flex-shrink:0}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.3}
 .wm{display:flex;align-items:center;gap:11px;margin-right:auto}
-.wm-logo{flex-shrink:0;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))}
+.wm-logo{flex-shrink:0;height:46px;width:auto;border-radius:8px;object-fit:contain;filter:drop-shadow(0 0 10px rgba(168,85,247,.5))}
 .wm-name{font-family:'Instrument Serif',serif;font-size:24px;color:var(--i0);letter-spacing:.01em;line-height:1;text-shadow:0 0 30px rgba(0,212,255,.4)}
 .wm-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:var(--glow-cy);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
@@ -187,6 +187,38 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 /* Scroll caps — prevent page-level scroll on long lists */
 #d-score-list{max-height:52vh;overflow-y:auto}
 #pl-list{max-height:40vh;overflow-y:auto;padding-right:2px}
+/* ── FELT TABLE NEON STYLING ── */
+#d-felt-oval{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(ellipse at 50% 38%,#0e3d1c,#071510,#030a05);
+  border:3px solid rgba(168,85,247,.55);
+  box-shadow:
+    0 0 0 1px rgba(0,212,255,.2),
+    0 0 18px rgba(168,85,247,.65),
+    0 0 45px rgba(168,85,247,.35),
+    0 0 80px rgba(0,212,255,.18),
+    inset 0 0 55px rgba(0,0,0,.65),
+    inset 0 0 25px rgba(168,85,247,.06);
+}
+/* Full-width live table card above dash-grid */
+#d-players-card{margin-bottom:20px}
+#d-players-card .chd-live-dot{display:none}
+#d-players-card.table-live{
+  border-color:rgba(168,85,247,.35);
+  background:rgba(168,85,247,.03);
+}
+#d-players-card.table-live .chd-live-dot{display:inline-block}
+#d-players-card.table-live #d-felt{aspect-ratio:3/1}
+#d-players-card.table-live #d-felt-oval{
+  border-color:rgba(168,85,247,.7);
+  box-shadow:
+    0 0 0 1px rgba(0,212,255,.25),
+    0 0 25px rgba(168,85,247,.8),
+    0 0 60px rgba(168,85,247,.45),
+    0 0 110px rgba(0,212,255,.2),
+    inset 0 0 70px rgba(0,0,0,.7),
+    inset 0 0 30px rgba(168,85,247,.08);
+}
 
 /* ── TABLE VISUAL ── */
 .table-scene{display:flex;justify-content:center;padding:12px 0 16px;position:relative}
@@ -430,15 +462,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="wm" style="margin-right:auto">
-    <svg class="wm-logo" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path d="M17 3C9.268 3 3 9.268 3 17s6.268 14 14 14c1.956 0 3.822-.386 5.523-1.083A11 11 0 1 1 16.618 3.08 14.1 14.1 0 0 0 17 3z" fill="url(#wm-moon)"/>
-      <defs>
-        <linearGradient id="wm-moon" x1="3" y1="3" x2="31" y2="31" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#00d4ff"/>
-          <stop offset="1" stop-color="#a855f7"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <img src="/logo.png" class="wm-logo" alt="Moons Home Game" onerror="this.style.display='none'">
     <div>
       <div class="wm-name">Moon's</div>
       <div class="wm-sub">Home Game</div>
@@ -550,6 +574,33 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     </div>
   </div>
 
+  <!-- FELT TABLE — full-width above the grid, desktop only -->
+  <div class="card" id="d-players-card">
+    <div class="chd">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="chd-live-dot ldot"></span>
+        <span class="ctitle cy" id="d-table-title">Table</span>
+      </div>
+      <span style="font-size:12px;color:var(--i3)" id="d-table-sub"></span>
+    </div>
+    <div id="d-roster-empty" class="empty" style="padding:18px 0"><span class="empty-icon">♠</span><span class="empty-txt">Add players to see the table</span></div>
+    <div id="d-felt-wrap" style="display:none">
+      <div id="d-felt" style="position:relative;width:100%;aspect-ratio:16/7;margin:8px 0 4px;overflow:visible">
+        <div id="d-felt-oval"></div>
+        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+          <div style="font-family:'Instrument Serif',serif;font-size:17px;color:rgba(168,85,247,.55);line-height:1.2;text-shadow:0 0 20px rgba(168,85,247,.5)" id="d-felt-game">NL HOLD'EM</div>
+          <div style="font-size:12px;color:rgba(0,212,255,.3);margin-top:4px;letter-spacing:.05em" id="d-felt-blinds">$0.10 / $0.10</div>
+        </div>
+        <div id="d-felt-seats"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px">
+        <div class="stile" style="background:var(--s2)"><div class="stile-v cy" id="d-tbl-players">0</div><div class="stile-l">Players</div></div>
+        <div class="stile" style="background:var(--s2)"><div class="stile-v au" id="d-tbl-pot">$0</div><div class="stile-l">In Play</div></div>
+        <div class="stile" style="background:var(--s2)"><div class="stile-v ag" id="d-tbl-avg">$0</div><div class="stile-l">Avg Stack</div></div>
+      </div>
+    </div>
+  </div>
+
   <!-- MAIN GRID: always visible -->
   <div class="dash-grid">
     <div class="dash-main">
@@ -560,29 +611,6 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           <span style="font-size:12px;color:var(--i3)" id="d-score-sub"></span>
         </div>
         <div id="d-score-list"></div>
-      </div>
-      <!-- Felt table — shown pre-session -->
-      <div class="card" id="d-players-card">
-        <div class="chd">
-          <span class="ctitle cy">Table</span>
-          <span style="font-size:12px;color:var(--i3)" id="d-table-sub"></span>
-        </div>
-        <div id="d-roster-empty" class="empty" style="padding:18px 0"><span class="empty-icon">♠</span><span class="empty-txt">Add players to see the table</span></div>
-        <div id="d-felt-wrap" style="display:none">
-          <div id="d-felt" style="position:relative;width:100%;aspect-ratio:16/7;margin:8px 0 4px;overflow:visible">
-            <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#0d3320,#061a10);border:3px solid rgba(57,255,20,.18);box-shadow:0 0 30px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.4)"></div>
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
-              <div style="font-family:'Instrument Serif',serif;font-size:17px;color:rgba(255,255,255,.4);line-height:1.2" id="d-felt-game">NL HOLD'EM</div>
-              <div style="font-size:12px;color:rgba(255,255,255,.25);margin-top:4px" id="d-felt-blinds">$0.10 / $0.10</div>
-            </div>
-            <div id="d-felt-seats"></div>
-          </div>
-          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px">
-            <div class="stile" style="background:var(--s2)"><div class="stile-v cy" id="d-tbl-players">0</div><div class="stile-l">Players</div></div>
-            <div class="stile" style="background:var(--s2)"><div class="stile-v au" id="d-tbl-pot">$0</div><div class="stile-l">In Play</div></div>
-            <div class="stile" style="background:var(--s2)"><div class="stile-v ag" id="d-tbl-avg">$0</div><div class="stile-l">Avg Stack</div></div>
-          </div>
-        </div>
       </div>
       <div class="card" id="d-share-card" style="display:none">
         <div class="chd"><span class="ctitle">Stack Share</span></div>
@@ -1685,15 +1713,18 @@ function renderDash(){
     dcl.innerHTML=inRSVPs.map(r=>`<div style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:var(--ag3);border:1px solid rgba(57,255,20,.2);color:var(--ag)">${r.name}</div>`).join('');
   } else if(dc){ dc.style.display='none'; }
 
-  // Scoreboard (session active) vs felt table (always on desktop, pre-session on mobile via CSS)
+  // Scoreboard + felt table
   const scoreEl=$('d-scoreboard'),pCard=$('d-players-card');
+  const tableTitle=$('d-table-title');
   if(sessionActive){
     if(scoreEl) scoreEl.style.display='block';
-    if(pCard)   pCard.style.display='block'; // desktop shows felt alongside scoreboard; mobile CSS hides it
+    if(pCard){ pCard.style.display='block'; pCard.classList.add('table-live'); }
+    if(tableTitle) tableTitle.textContent='Live Table';
     renderScoreboard();
   } else {
     if(scoreEl) scoreEl.style.display='none';
-    if(pCard)   pCard.style.display='block';
+    if(pCard){ pCard.style.display='block'; pCard.classList.remove('table-live'); }
+    if(tableTitle) tableTitle.textContent='Table';
   }
   // Felt table — always update when there are active players
   const allPlayers=G.players.filter(p=>p.status==='active');

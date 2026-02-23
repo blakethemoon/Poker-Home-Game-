@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Moon's">
 <meta name="theme-color" content="#06040f">
-<title>Moon's — Cash Game</title>
+<title>Moon's Home Game</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -41,11 +41,12 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 /* ── TOPBAR ── */
 .topbar{height:64px;background:rgba(6,4,15,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 22px;gap:16px;position:sticky;top:0;z-index:300;flex-shrink:0}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.3}
-.wm{display:flex;align-items:center;gap:10px;margin-right:auto}
-.wm-name{font-family:'Instrument Serif',serif;font-size:28px;color:var(--i0);letter-spacing:.01em;line-height:1;text-shadow:0 0 30px rgba(0,212,255,.4)}
+.wm{display:flex;align-items:center;gap:11px;margin-right:auto}
+.wm-logo{flex-shrink:0;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))}
+.wm-name{font-family:'Instrument Serif',serif;font-size:24px;color:var(--i0);letter-spacing:.01em;line-height:1;text-shadow:0 0 30px rgba(0,212,255,.4)}
 .wm-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:var(--glow-cy);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
-.wm-sub{font-size:12px;color:var(--i3);letter-spacing:.06em;text-transform:uppercase;padding-left:11px;border-left:1px solid var(--br);margin-left:2px}
+.wm-sub{font-size:10px;color:var(--i3);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
 .hs{text-align:right}
 .hs-v{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--i0);line-height:1}
 .hs-l{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--i3);margin-top:3px}
@@ -173,13 +174,14 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .bar-n{font-size:14px;color:var(--i2);min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .bar-track{flex:1;height:4px;background:var(--s3);border-radius:3px;overflow:hidden}
 /* Felt seat avatars */
-.felt-seat{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:transform .12s}
+.felt-seat{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;transition:transform .12s}
 .felt-seat:hover{transform:translate(-50%,-50%) scale(1.08)}
-.felt-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 8px rgba(0,0,0,.5)}
-.felt-avatar.active{border-color:var(--cy);box-shadow:0 0 10px rgba(0,212,255,.4)}
-.felt-avatar.empty{background:rgba(255,255,255,.05);border-style:dashed;border-color:rgba(255,255,255,.1)}
-.felt-name{font-size:9px;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.8);white-space:nowrap;max-width:52px;overflow:hidden;text-overflow:ellipsis;text-align:center}
-.felt-sub{font-size:7px;color:rgba(255,255,255,.55);text-align:center;white-space:nowrap}
+.felt-avatar{width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 12px rgba(0,0,0,.6)}
+.felt-avatar.active{border-width:2.5px;box-shadow:0 0 14px rgba(0,212,255,.35)}
+.felt-avatar.empty{background:rgba(255,255,255,.04);border-style:dashed;border-color:rgba(255,255,255,.15)}
+.felt-name{font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);white-space:nowrap;max-width:68px;overflow:hidden;text-overflow:ellipsis;text-align:center;margin-top:1px}
+.felt-stack{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--au);text-align:center;white-space:nowrap;text-shadow:0 0 8px rgba(232,184,75,.4)}
+.felt-sub{font-size:9px;text-align:center;white-space:nowrap;opacity:.8}
 .bar-fill{height:100%;border-radius:3px;transition:width .45s ease}
 .bar-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--i3);min-width:30px;text-align:right}
 /* Scroll caps — prevent page-level scroll on long lists */
@@ -428,8 +430,19 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="wm" style="margin-right:auto">
-    <span class="wm-name">Moon's</span>
-    <span class="wm-sub">Cash Game</span>
+    <svg class="wm-logo" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M17 3C9.268 3 3 9.268 3 17s6.268 14 14 14c1.956 0 3.822-.386 5.523-1.083A11 11 0 1 1 16.618 3.08 14.1 14.1 0 0 0 17 3z" fill="url(#wm-moon)"/>
+      <defs>
+        <linearGradient id="wm-moon" x1="3" y1="3" x2="31" y2="31" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#00d4ff"/>
+          <stop offset="1" stop-color="#a855f7"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div>
+      <div class="wm-name">Moon's</div>
+      <div class="wm-sub">Home Game</div>
+    </div>
   </div>
   <div class="hs"><div class="hs-v" id="h-players">0</div><div class="hs-l">Players</div></div>
   <div class="hs"><div class="hs-v" id="h-pot">$0.00</div><div class="hs-l">In Play</div></div>
@@ -556,7 +569,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         </div>
         <div id="d-roster-empty" class="empty" style="padding:18px 0"><span class="empty-icon">♠</span><span class="empty-txt">Add players to see the table</span></div>
         <div id="d-felt-wrap" style="display:none">
-          <div id="d-felt" style="position:relative;width:100%;aspect-ratio:2/1;margin:8px 0 4px">
+          <div id="d-felt" style="position:relative;width:100%;aspect-ratio:16/7;margin:8px 0 4px;overflow:visible">
             <div style="position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,#0d3320,#061a10);border:3px solid rgba(57,255,20,.18);box-shadow:0 0 30px rgba(0,0,0,.6),inset 0 0 40px rgba(0,0,0,.4)"></div>
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
               <div style="font-family:'Instrument Serif',serif;font-size:17px;color:rgba(255,255,255,.4);line-height:1.2" id="d-felt-game">NL HOLD'EM</div>
@@ -1525,42 +1538,38 @@ function closeQuickAction(){
 ═══════════════════════════════ */
 function renderFeltTable(players){
   const wrap=$('d-felt-seats');if(!wrap)return;
-  const total=G.settings.seats; // max seats
-  const seated=players.slice().sort((a,b)=>a.seat-b.seat);
-
-  // Seat positions around an oval (ellipse)
-  // We place seats 1..total evenly. Starts at top-center, goes clockwise.
-  const pal=['#00d4ff','#39ff14','#ff006e','#e8b84b','#a855f7','#fb923c','#38bdf8','#4ade80','#f472b6','#facc15'];
+  const total=G.settings.seats;
   const seatMap={};
-  seated.forEach((p,i)=>seatMap[p.seat]=p);
+  players.forEach(p=>seatMap[p.seat]=p);
 
-  // Oval dims as % of container (cx, cy, rx, ry)
-  const cx=50,cy=50,rx=44,ry=42;
+  const pal=['#00d4ff','#39ff14','#ff006e','#e8b84b','#a855f7','#fb923c','#38bdf8','#4ade80','#f472b6','#facc15'];
+
+  // Pull the oval in so 50px avatars + labels don't crowd the edges
+  const cx=50,cy=50,rx=38,ry=33;
 
   let html='';
   for(let s=1;s<=total;s++){
-    // angle: seat 1 at top, clockwise
     const angle=((s-1)/total)*2*Math.PI - Math.PI/2;
     const x=cx+rx*Math.cos(angle);
     const y=cy+ry*Math.sin(angle);
     const p=seatMap[s];
     if(p){
       const pnl=p.currentStack-ti(p);
-      const pnlStr=pnl===0?fmt(p.buyin):pnl>0?`+${fmt(pnl)}`:`-${fmt(Math.abs(pnl))}`;
-      const pnlCol=pnl>0?'#39ff14':pnl<0?'#ff4560':'rgba(255,255,255,.4)';
+      const pnlStr=pnl>0?`+${fmt(pnl)}`:pnl<0?`-${fmt(Math.abs(pnl))}`:'';
+      const pnlCol=pnl>0?'#39ff14':'#ff4560';
       const bg=pal[(p.seat-1)%pal.length];
-      const initial=p.name.charAt(0).toUpperCase();
-      html+=`<div class="felt-seat" style="left:${x}%;top:${y}%" onclick="openPlayerPanel(${p.id})">
-        <div class="felt-avatar active" style="background:${bg}22;border-color:${bg}">
-          <span style="color:${bg}">${initial}</span>
+      html+=`<div class="felt-seat" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%" onclick="openPlayerPanel(${p.id})">
+        <div class="felt-avatar active" style="background:${bg}28;border-color:${bg}">
+          <span style="color:${bg}">${p.name.charAt(0).toUpperCase()}</span>
         </div>
         <div class="felt-name">${p.name}</div>
-        <div class="felt-sub" style="color:${pnlCol}">${pnlStr}</div>
+        <div class="felt-stack">${fmt(p.currentStack)}</div>
+        ${pnlStr?`<div class="felt-sub" style="color:${pnlCol}">${pnlStr}</div>`:''}
       </div>`;
     } else {
-      html+=`<div class="felt-seat" style="left:${x}%;top:${y}%;opacity:.35" onclick="openAddAtSeat(${s})" title="Add player to seat ${s}">
-        <div class="felt-avatar empty" style="border-style:dashed;border-color:rgba(255,255,255,.25)">
-          <span style="font-size:11px;color:rgba(255,255,255,.4)">+${s}</span>
+      html+=`<div class="felt-seat" style="left:${x.toFixed(1)}%;top:${y.toFixed(1)}%;opacity:.28" onclick="openAddAtSeat(${s})" title="Seat ${s}">
+        <div class="felt-avatar empty">
+          <span style="font-size:12px;color:rgba(255,255,255,.35)">+${s}</span>
         </div>
       </div>`;
     }

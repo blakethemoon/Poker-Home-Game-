@@ -783,6 +783,15 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <div id="settle-empty" class="empty" style="padding:12px 0"><span class="empty-txt">Cash out players to see payouts</span></div>
         <div id="settle-list"></div>
       </div>
+
+      <!-- Archive prompt — shown when everyone is cashed out -->
+      <div id="co-all-done-banner" style="display:none;background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.3);border-radius:var(--r10);padding:16px;text-align:center;margin-top:12px">
+        <div style="font-size:20px;margin-bottom:6px">🏁</div>
+        <div style="font-size:14px;font-weight:700;color:var(--ag);margin-bottom:4px">Everyone's cashed out</div>
+        <div style="font-size:11px;color:var(--i3);margin-bottom:14px">Ready to wrap up the night?</div>
+        <button class="btn btn-ag btn-full" style="font-size:13px;padding:12px;font-weight:700" onclick="archiveAndClear()">Archive &amp; Clear Table</button>
+        <button class="btn btn-ghost btn-full" style="font-size:12px;margin-top:7px" onclick="keepPlayingCO()">Keep Playing</button>
+      </div>
     </div>
 
     <!-- Right: cash out form -->
@@ -816,8 +825,27 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <div class="co-txn-body" id="co-txn-log"></div>
           </div>
 
-          <!-- ── STEP: Enter Final Stack ── -->
-          <div class="co-stack-section">
+          <!-- ── Cashed-out summary (shown when player already settled) ── -->
+          <div id="co-cashed-state" style="display:none">
+            <div style="background:var(--s2);border:1px solid var(--br);border-radius:var(--r10);padding:18px;text-align:center;margin-bottom:12px">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--i3);margin-bottom:8px">Settled</div>
+              <div class="co-net" id="co-cashed-net" style="font-size:32px">$0</div>
+              <div class="co-sub" id="co-cashed-sub" style="margin-top:5px"></div>
+              <div style="font-size:10px;color:var(--i4);margin-top:4px" id="co-cashed-detail"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" style="flex:1" id="co-undo-btn">↩ Undo Cash Out</button>
+              <button class="btn btn-cy btn-sm" style="flex:1" id="co-correct-btn">✎ Correct Amount</button>
+            </div>
+            <!-- Correction input — hidden until "Correct" is clicked -->
+            <div id="co-correction-wrap" style="display:none;margin-top:10px">
+              <input class="co-manual-inp" type="number" id="co-correction-inp" placeholder="$0.00" min="0" step="0.10" style="margin-bottom:8px">
+              <button class="btn btn-ag btn-full" id="co-correction-save">💾 Save Correction</button>
+            </div>
+          </div>
+
+          <!-- ── STEP: Enter Final Stack (active players only) ── -->
+          <div id="co-stack-section" class="co-stack-section">
             <div class="co-stack-label">Final Stack</div>
 
             <!-- Known stack quick-use button (shows when stack is known) -->
@@ -860,7 +888,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <button class="btn btn-solid-cy btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">Confirm Cash Out</button>
           </div>
 
-          <!-- Player quick actions: add-on, chips, bust -->
+          <!-- Player quick actions: add-on, chips, bust (active only) -->
           <div id="co-player-actions" style="display:none;margin-top:14px"></div>
         </div>
       </div>
@@ -2490,6 +2518,18 @@ function renderCashOut(){
   }
 
   renderPayout();
+
+  // Show/hide all-done banner
+  const allDone=$('co-all-done-banner');
+  if(allDone){
+    const activeCt=G.players.filter(p=>p.status==='active').length;
+    const totalCt=G.players.filter(p=>p.status==='active'||p.status==='cashed'||p.status==='out').length;
+    allDone.style.display=(totalCt>0&&activeCt===0&&!sessionClosed)?'block':'none';
+  }
+}
+
+function keepPlayingCO(){
+  const b=$('co-all-done-banner');if(b)b.style.display='none';
 }
 
 function toggleCOTxn(btn){
@@ -2501,46 +2541,77 @@ function toggleCOTxn(btn){
 
 function populateCOForm(p){
   $('co-form-name').textContent = p.name;
-  $('co-form-seat').textContent = `Seat ${p.seat} · ${p.status==='cashed'?'Cashed out':'Active'}`;
 
-  // Transaction log (inside collapsible)
+  const cashedState  = $('co-cashed-state');
+  const stackSection = $('co-stack-section');
+  const resultBox    = $('co-result');
+  const qa           = $('co-player-actions');
+
+  // Always render the transaction log and invest bar
   renderCOTxnLog(p);
 
-  // Known stack quick-use button
-  const stackEl=$('co-known-stack'), useBtn=$('co-use-stack-btn');
-  if(p.status!=='cashed' && p.currentStack>0){
-    if(stackEl) stackEl.textContent = fmt(p.currentStack);
-    if(useBtn) useBtn.style.display='flex';
-  } else {
-    if(stackEl) stackEl.textContent = p.status==='cashed' ? fmt(p.cashoutAmount||0) : '—';
-    if(useBtn) useBtn.style.display='none';
-  }
+  if(p.status==='cashed'||p.status==='out'){
+    // ── CASHED / BUSTED VIEW ──────────────────────────────────────────────
+    $('co-form-seat').textContent = `Seat ${p.seat} · Cashed ${fmt(p.cashoutAmount||0)}`;
 
-  // Build chip inputs
-  buildCOChipInputs(p);
-
-  // If already cashed out show locked state
-  if(p.status==='cashed'){
-    $('co-manual').value = (p.cashoutAmount||0).toFixed(2);
-    $('co-manual').disabled = false;
-    recalcCO();
+    // Show summary, hide entry form
+    if(cashedState)  cashedState.style.display='block';
+    if(stackSection) stackSection.style.display='none';
+    if(resultBox)    resultBox.style.display='none';
     ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
-    const editArea=$('co-cashed-edit');
-    if(!editArea){
-      const div=document.createElement('div');div.id='co-cashed-edit';div.style.cssText='margin-top:10px;display:flex;gap:8px';
-      div.innerHTML=`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="uncashPlayer(${p.id})">↩ Undo Cash Out</button><button class="btn btn-cy btn-sm" style="flex:1" onclick="saveCashedStack(${p.id})">💾 Save Correction</button>`;
-      $('co-manual').parentElement.after(div);
-    }
-  } else {
-    $('co-manual').disabled=false;
-    const old=$('co-cashed-edit');if(old)old.remove();
-    const manual=$('co-manual');if(manual&&!manual.value)recalcCO();
-  }
+    if(qa) qa.style.display='none';
 
-  // ── Player quick actions (active only) ──
-  const qa=$('co-player-actions');
-  if(qa){
-    if(p.status==='active'){
+    // Populate the cashed summary
+    const val   = p.cashoutAmount||0;
+    const net   = parseFloat((val-ti(p)).toFixed(2));
+    const netEl = $('co-cashed-net');
+    const subEl = $('co-cashed-sub');
+    const detEl = $('co-cashed-detail');
+    if(netEl){ netEl.textContent=net===0?'$0.00':signed(net); netEl.className='co-net '+(net>0?'pos':net<0?'neg':''); }
+    if(subEl) subEl.textContent = net>0?'Profit 🏆':net<0?'Loss':'Break Even';
+    if(detEl) detEl.textContent = `Cashed ${fmt(val)} · Invested ${fmt(ti(p))}`;
+
+    // Wire undo / correct buttons fresh each time (fixes stale-ID bug)
+    const undoBtn = $('co-undo-btn');
+    const corrBtn = $('co-correct-btn');
+    const corrWrap= $('co-correction-wrap');
+    const corrInp = $('co-correction-inp');
+    const corrSave= $('co-correction-save');
+    if(corrWrap) corrWrap.style.display='none'; // reset correction panel
+    if(corrInp)  corrInp.value='';
+    if(undoBtn)  undoBtn.onclick=()=>uncashPlayer(p.id);
+    if(corrBtn)  corrBtn.onclick=()=>{
+      if(!corrWrap) return;
+      const open=corrWrap.style.display==='none';
+      corrWrap.style.display=open?'block':'none';
+      if(open&&corrInp) corrInp.value=(p.cashoutAmount||0).toFixed(2);
+    };
+    if(corrSave) corrSave.onclick=()=>saveCashedStack(p.id);
+
+  } else {
+    // ── ACTIVE VIEW ───────────────────────────────────────────────────────
+    $('co-form-seat').textContent = `Seat ${p.seat} · Active · In ${fmt(ti(p))}`;
+
+    if(cashedState)  cashedState.style.display='none';
+    if(stackSection) stackSection.style.display='block';
+
+    // Known stack quick-use button
+    const stackEl=$('co-known-stack'), useBtn=$('co-use-stack-btn');
+    if(p.currentStack>0){
+      if(stackEl) stackEl.textContent=fmt(p.currentStack);
+      if(useBtn)  useBtn.style.display='flex';
+    } else {
+      if(useBtn)  useBtn.style.display='none';
+    }
+
+    // Build chip inputs
+    buildCOChipInputs(p);
+
+    const manual=$('co-manual');
+    if(manual){ manual.disabled=false; if(!manual.value) recalcCO(); }
+
+    // Player quick actions
+    if(qa){
       qa.style.display='block';
       qa.innerHTML=`
         <div style="padding-top:12px;border-top:1px solid var(--br)">
@@ -2551,8 +2622,6 @@ function populateCOForm(p){
           </div>
           <button class="btn btn-sm btn-full" style="border-color:rgba(255,69,96,.3);color:var(--neg);font-weight:700;padding:10px 0" onclick="bustPlayerZero(${p.id})">💀 Bust at $0</button>
         </div>`;
-    } else {
-      qa.style.display='none';
     }
   }
 }
@@ -2774,8 +2843,12 @@ function confirmCO(){
   p.status='cashed'; p.cashoutAmount=val; p.currentStack=0; delete p._pendingCOValue;
   addFeed(net>0?'🏆':'💸',`${p.name} cashed out`,`${fmt(val)} · Net ${net>=0?'+'+fmt(net):'−'+fmt(Math.abs(net))}`);
   coSelectedId=null; coEditMode=false; refresh(); renderCashOut();
-  setTimeout(()=>{const sl=$('settle-list');if(sl)sl.scrollIntoView({behavior:'smooth',block:'nearest'});},300);
   toast(net>0?`${p.name} wins ${fmt(net)} 🏆`:net<0?`${p.name} out — owes ${fmt(Math.abs(net))}`:`${p.name} breaks even`);
+  // Check if everyone is done
+  const stillActive=G.players.filter(q=>q.status==='active').length;
+  if(stillActive===0&&G.players.length>0){
+    setTimeout(()=>toast('🏁 Everyone\'s cashed out — ready to archive!',4000),600);
+  }
 }
 
 function uncashPlayer(id){
@@ -2789,13 +2862,14 @@ function uncashPlayer(id){
 
 function saveCashedStack(id){
   const p=G.players.find(q=>q.id===id);if(!p||p.status!=='cashed')return;
-  const manual=$('co-manual');
-  if(!manual||manual.value===''){toast('Enter a corrected amount');return;}
-  const val=parseFloat(parseFloat(manual.value).toFixed(2));
+  const inp=$('co-correction-inp');
+  if(!inp||inp.value===''){toast('Enter a corrected amount');return;}
+  const val=parseFloat(parseFloat(inp.value).toFixed(2));
   if(isNaN(val)||val<0){toast('Invalid amount');return;}
   const old=p.cashoutAmount||0;
   p.cashoutAmount=val;
   addFeed('✎',`${p.name} cashout corrected`,`${fmt(old)} → ${fmt(val)}`);
+  const wrap=$('co-correction-wrap');if(wrap)wrap.style.display='none';
   refresh(); renderCashOut();
   toast(`${p.name} updated to ${fmt(val)}`);
 }

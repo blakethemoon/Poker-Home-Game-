@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 .topbar{height:64px;background:rgba(6,4,15,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 22px;gap:16px;position:sticky;top:0;z-index:300;flex-shrink:0}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.3}
 .wm{display:flex;align-items:center;gap:11px;margin-right:auto}
-.wm-logo{flex-shrink:0;height:40px;width:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 14px rgba(168,85,247,.4)}
+.wm-logo{flex-shrink:0;height:48px;width:48px;border-radius:12px;object-fit:contain;background:rgba(168,85,247,.08);box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 18px rgba(168,85,247,.5);padding:3px}
 .wm-name{font-family:'Instrument Serif',serif;font-size:24px;color:var(--i0);letter-spacing:.01em;line-height:1;text-shadow:0 0 30px rgba(0,212,255,.4)}
 .wm-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:var(--glow-cy);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
@@ -315,6 +315,45 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .settle-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--br);background:var(--s3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s;flex-shrink:0}
 .settle-check.done{background:var(--ag);border-color:var(--ag);box-shadow:var(--glow-ag)}
 .settle-check.done::after{content:'✓';color:#030a02;font-weight:700;font-size:10px}
+/* Cash out form clean layout */
+.co-invest-bar{display:flex;align-items:center;gap:8px;padding:10px 13px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:10px}
+.co-invest-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3);flex:1}
+.co-stack-section{background:var(--s2);border:1px solid var(--brc);border-radius:var(--r10);padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
+.co-stack-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent)}
+.co-stack-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cy);margin-bottom:10px}
+.co-known-btn{width:100%;padding:10px 14px;background:rgba(0,212,255,.06);border:1px dashed rgba(0,212,255,.3);border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:all .12s;color:var(--i1)}
+.co-known-btn:hover{background:rgba(0,212,255,.12);border-color:var(--cy)}
+.co-known-btn-label{font-size:11px;color:var(--i3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.co-known-btn-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--cy)}
+.co-divider{display:flex;align-items:center;gap:8px;margin:10px 0}
+.co-divider::before,.co-divider::after{content:'';flex:1;height:1px;background:var(--br)}
+.co-divider-txt{font-size:10px;color:var(--i4);letter-spacing:.06em;text-transform:uppercase}
+.co-chip-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
+.co-chip-item{display:flex;align-items:center;gap:5px;padding:5px 7px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r4)}
+.co-manual-inp{width:100%;padding:10px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r8);color:var(--i0);font-family:'DM Mono',monospace;font-size:20px;font-weight:500;outline:none;text-align:center;caret-color:var(--cy);transition:border-color .14s}
+.co-manual-inp:focus{border-color:var(--brc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.co-manual-inp::placeholder{color:var(--i4);font-size:15px}
+.co-scan-row{display:flex;gap:7px;margin-bottom:8px}
+.co-txn-compact{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);overflow:hidden;margin-bottom:10px}
+.co-txn-toggle{width:100%;padding:9px 13px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:var(--i3);font-family:'Syne',sans-serif}
+.co-txn-toggle:hover{background:var(--s3)}
+.co-txn-body{padding:0 13px 10px;display:none}
+.co-txn-body.open{display:block}
+.co-player-head{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--br)}
+.co-player-head-name{font-family:'Instrument Serif',serif;font-size:26px;color:var(--i0);line-height:1;margin-bottom:3px}
+.co-player-head-meta{font-size:11px;color:var(--i3);display:flex;align-items:center;gap:8px}
+
+/* ── WIZARD COIN FLIP ── */
+.ora-coin-wrap{display:flex;justify-content:center;margin-bottom:12px}
+.ora-coin{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;border:2px solid var(--br);background:var(--s2);position:relative}
+.ora-coin.spinning{animation:coinSpin .5s linear infinite}
+.ora-coin.play{background:rgba(57,255,20,.12);border-color:var(--ag);box-shadow:var(--glow-ag);animation:coinLand .35s ease both}
+.ora-coin.fold{background:rgba(255,69,96,.12);border-color:var(--neg);box-shadow:0 0 20px rgba(255,69,96,.35);animation:coinLand .35s ease both}
+@keyframes coinSpin{0%{transform:rotateY(0) scale(1)}50%{transform:rotateY(90deg) scale(.85)}100%{transform:rotateY(180deg) scale(1)}}
+@keyframes coinLand{0%{transform:scale(1.3) rotateY(20deg)}60%{transform:scale(.95) rotateY(-5deg)}100%{transform:scale(1) rotateY(0)}}
+.ora-verdict-pill{display:inline-block;padding:6px 22px;border-radius:24px;font-size:14px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;border:1px solid}
+.ora-verdict-pill.play{color:var(--ag);background:rgba(57,255,20,.1);border-color:rgba(57,255,20,.3)}
+.ora-verdict-pill.fold{color:var(--neg);background:rgba(255,69,96,.1);border-color:rgba(255,69,96,.3)}
 
 /* ── TRAINER ── */
 .trainer-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
@@ -758,49 +797,57 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <div>
       <div class="card card-magenta" id="co-form-card">
         <div class="chd"><span class="ctitle mg">Cash Out</span></div>
-        <div id="co-no-selection" style="padding:20px;text-align:center;color:var(--i3);font-size:12px">← Select a player</div>
+        <div id="co-no-selection" style="padding:28px 20px;text-align:center;color:var(--i3);font-size:13px">← Select a player to cash out</div>
         <div id="co-form" style="display:none">
-          <div style="font-family:'Instrument Serif',serif;font-size:22px;color:var(--i0);margin-bottom:4px" id="co-form-name"></div>
-          <div style="font-size:10px;color:var(--i3);margin-bottom:13px" id="co-form-seat"></div>
 
-          <!-- Buy-in editor -->
-          <div style="background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:12px;margin-bottom:12px">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center">
-              <span>Transaction Log</span>
-              <button class="btn btn-ghost btn-xs" onclick="editBuyInMode()" id="co-edit-btn">✎ Edit</button>
-            </div>
-            <div id="co-txn-log"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
-              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Total In</span>
-              <span class="mono au" style="font-size:16px" id="co-total-in">$0.00</span>
+          <!-- Player Header -->
+          <div class="co-player-head">
+            <div class="co-player-head-name" id="co-form-name"></div>
+            <div class="co-player-head-meta">
+              <span id="co-form-seat"></span>
             </div>
           </div>
 
-          <!-- Stack from chip counter (auto-populated) -->
-          <div style="background:var(--cy3);border:1px solid var(--brc);border-radius:var(--r6);padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
-            <span style="font-size:11px;color:var(--cy);font-weight:600">Last Known Stack</span>
-            <span class="mono cy" style="font-size:15px;margin-left:auto" id="co-known-stack">—</span>
-            <button class="btn btn-ghost btn-xs" onclick="useKnownStack()" id="co-use-stack-btn" style="display:none">Use</button>
+          <!-- Investment Bar (compact) -->
+          <div class="co-invest-bar">
+            <span class="co-invest-label">Total Invested</span>
+            <span class="mono au" style="font-size:18px;font-weight:600" id="co-total-in">$0.00</span>
+            <button class="btn btn-ghost btn-xs" onclick="editBuyInMode()" id="co-edit-btn">✎ Edit</button>
           </div>
 
-          <!-- Chip count -->
-          <div class="card" style="background:var(--s2);margin-bottom:12px;padding:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
-              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Count Chips Now</span>
-              <button class="btn btn-cy btn-xs" onclick="coCaptureChips()" style="font-size:11px;padding:4px 10px">📷 Scan</button>
+          <!-- Transaction Log (collapsible) -->
+          <div class="co-txn-compact">
+            <button class="co-txn-toggle" onclick="toggleCOTxn(this)">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">Transaction Log</span>
+              <span style="font-size:11px;opacity:.5">▾</span>
+            </button>
+            <div class="co-txn-body" id="co-txn-log"></div>
+          </div>
+
+          <!-- ── STEP: Enter Final Stack ── -->
+          <div class="co-stack-section">
+            <div class="co-stack-label">Final Stack</div>
+
+            <!-- Known stack quick-use button (shows when stack is known) -->
+            <button class="co-known-btn" id="co-use-stack-btn" onclick="useKnownStack()" style="display:none">
+              <div>
+                <div class="co-known-btn-label">Use Last Known Stack</div>
+                <div style="font-size:10px;color:var(--i4);margin-top:1px">From chip counter</div>
+              </div>
+              <span class="co-known-btn-val" id="co-known-stack">—</span>
+            </button>
+
+            <!-- Chip counter inputs + scan -->
+            <div class="co-scan-row">
+              <button class="btn btn-cy btn-sm" style="flex:1;font-size:12px" onclick="coCaptureChips()">📷 Scan Chips</button>
+              <span class="mono cy" style="font-size:14px;align-self:center;padding:0 8px" id="co-chip-total">$0.00</span>
             </div>
             <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
-            <div id="co-chip-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
-              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Chip Total</span>
-              <span class="mono cy" style="font-size:17px" id="co-chip-total">$0.00</span>
-            </div>
-          </div>
+            <div class="co-chip-row" id="co-chip-inputs"></div>
 
-          <!-- Manual override -->
-          <div class="fg">
-            <label class="lbl">Or Enter Final Value Manually ($)</label>
-            <input class="inp inp-sm" type="number" id="co-manual" placeholder="0.00" min="0" step="0.10" oninput="recalcCO()">
+            <!-- Manual entry - the hero input -->
+            <div class="co-divider"><span class="co-divider-txt">or enter manually</span></div>
+            <input class="co-manual-inp" type="number" id="co-manual" placeholder="$0.00" min="0" step="0.10" oninput="recalcCO()">
           </div>
 
           <!-- Result -->
@@ -810,19 +857,19 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <div style="font-size:10px;color:var(--i3);margin-top:4px" id="co-detail"></div>
           </div>
 
-          <!-- Action buttons — split for win vs loss -->
+          <!-- Confirm buttons -->
           <div id="co-confirm-win" style="display:none;margin-top:10px">
-            <button class="btn btn-ag btn-full" style="font-size:13px;padding:12px" onclick="confirmCO()">✓ Confirm Payout</button>
+            <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">✓ Confirm Payout</button>
           </div>
           <div id="co-confirm-loss" style="display:none;margin-top:10px">
-            <button class="btn btn-neg btn-full" style="font-size:13px;padding:12px" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
+            <button class="btn btn-neg btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
           </div>
           <div id="co-confirm-neutral" style="display:none;margin-top:10px">
-            <button class="btn btn-solid-cy btn-full" onclick="confirmCO()">Confirm Cash Out</button>
+            <button class="btn btn-solid-cy btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">Confirm Cash Out</button>
           </div>
 
           <!-- Player quick actions: add-on, chips, bust -->
-          <div id="co-player-actions" style="display:none;margin-top:12px"></div>
+          <div id="co-player-actions" style="display:none;margin-top:14px"></div>
         </div>
       </div>
     </div>
@@ -1125,13 +1172,16 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         </div>
 
         <button class="btn btn-full" style="background:rgba(168,85,247,.15);border-color:rgba(168,85,247,.5);color:#a855f7;font-weight:700;font-size:15px;padding:15px" onclick="askOracle()">
-          Ask the Wizard
+          🪙 Flip the Coin
         </button>
 
         <!-- Verdict (shown after button press) -->
-        <div id="ora-result" style="display:none;border-radius:var(--r10);padding:14px;text-align:center;margin-top:14px;transition:all .2s">
-          <div id="ora-verdict" style="font-size:20px;font-weight:700;margin-bottom:6px"></div>
-          <div id="ora-reason" style="font-size:12px;line-height:1.7;opacity:.9"></div>
+        <div id="ora-result" style="display:none;border-radius:var(--r10);padding:16px;text-align:center;margin-top:14px;transition:all .2s">
+          <div class="ora-coin-wrap">
+            <div class="ora-coin" id="ora-coin">🪙</div>
+          </div>
+          <div id="ora-verdict" style="font-size:18px;font-weight:700;margin-bottom:8px"></div>
+          <div id="ora-reason" style="font-size:12px;line-height:1.7;color:var(--i2)"></div>
         </div>
 
       </div>
@@ -2453,20 +2503,27 @@ function renderCashOut(){
   renderPayout();
 }
 
+function toggleCOTxn(btn){
+  const body=btn.parentElement.querySelector('.co-txn-body');
+  if(!body)return;
+  const open=body.classList.toggle('open');
+  btn.querySelector('span:last-child').textContent=open?'▴':'▾';
+}
+
 function populateCOForm(p){
   $('co-form-name').textContent = p.name;
   $('co-form-seat').textContent = `Seat ${p.seat} · ${p.status==='cashed'?'Cashed out':'Active'}`;
 
-  // Transaction log with edit/delete
+  // Transaction log (inside collapsible)
   renderCOTxnLog(p);
 
-  // Known stack from currentStack (synced from chip counter)
+  // Known stack quick-use button
   const stackEl=$('co-known-stack'), useBtn=$('co-use-stack-btn');
   if(p.status!=='cashed' && p.currentStack>0){
-    stackEl.textContent = fmt(p.currentStack);
-    if(useBtn){ useBtn.style.display='inline-flex'; }
+    if(stackEl) stackEl.textContent = fmt(p.currentStack);
+    if(useBtn) useBtn.style.display='flex';
   } else {
-    stackEl.textContent = p.status==='cashed' ? fmt(p.cashoutAmount||0)+' (cashed)' : '—';
+    if(stackEl) stackEl.textContent = p.status==='cashed' ? fmt(p.cashoutAmount||0) : '—';
     if(useBtn) useBtn.style.display='none';
   }
 
@@ -2478,7 +2535,6 @@ function populateCOForm(p){
     $('co-manual').value = (p.cashoutAmount||0).toFixed(2);
     $('co-manual').disabled = false;
     recalcCO();
-    // Hide confirm buttons, show correction + undo buttons
     ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
     const editArea=$('co-cashed-edit');
     if(!editArea){
@@ -2498,12 +2554,14 @@ function populateCOForm(p){
     if(p.status==='active'){
       qa.style.display='block';
       qa.innerHTML=`
-        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--br)">Player Actions</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
-          <button class="btn btn-au btn-sm" onclick="coQuickAddon(${p.id})">↺ Add-On / Re-Buy</button>
-          <button class="btn btn-cy btn-sm" onclick="openChipsForPlayer(${p.id})">📷 Chip Counter</button>
-        </div>
-        <button class="btn btn-sm btn-full" style="border-color:rgba(255,69,96,.3);color:var(--neg);font-weight:700;padding:10px 0" onclick="bustPlayerZero(${p.id})">💀 Bust — Cash Out at $0</button>`;
+        <div style="padding-top:12px;border-top:1px solid var(--br)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Player Actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
+            <button class="btn btn-au btn-sm" onclick="coQuickAddon(${p.id})">↺ Add-On / Re-Buy</button>
+            <button class="btn btn-cy btn-sm" onclick="openChipsForPlayer(${p.id})">📷 Chip Counter</button>
+          </div>
+          <button class="btn btn-sm btn-full" style="border-color:rgba(255,69,96,.3);color:var(--neg);font-weight:700;padding:10px 0" onclick="bustPlayerZero(${p.id})">💀 Bust at $0</button>
+        </div>`;
     } else {
       qa.style.display='none';
     }
@@ -2515,7 +2573,7 @@ function renderCOTxnLog(p){
   const editable = coEditMode;
   let html='';
   // Buy-in row
-  html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--br)">
+  html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;${p.addOns.length?'border-bottom:1px solid var(--br)':''}">
     <span class="atag bi" style="flex-shrink:0">BUY-IN</span>
     ${editable
       ? `<input type="number" value="${p.buyin}" min="0" step="0.10" style="width:70px;background:var(--s1);border:1px solid var(--brc);border-radius:4px;padding:3px 6px;color:var(--cy);font-family:'DM Mono',monospace;font-size:12px;outline:none" onchange="editBuyIn(${p.id},this.value)">`
@@ -2524,7 +2582,8 @@ function renderCOTxnLog(p){
   </div>`;
   // Add-on rows
   p.addOns.forEach((a,i)=>{
-    html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--br)">
+    const isLast=i===p.addOns.length-1;
+    html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;${isLast?'':'border-bottom:1px solid var(--br)'}">
       <span class="atag rb" style="flex-shrink:0">${a.type.toUpperCase().slice(0,6)}</span>
       ${editable
         ? `<input type="number" value="${a.amount}" min="0" step="0.10" style="width:70px;background:var(--s1);border:1px solid var(--brc);border-radius:4px;padding:3px 6px;color:var(--au);font-family:'DM Mono',monospace;font-size:12px;outline:none" onchange="editAddOn(${p.id},${i},this.value)">`
@@ -2533,8 +2592,9 @@ function renderCOTxnLog(p){
       ${editable?`<button onclick="deleteAddOn(${p.id},${i})" style="background:none;border:none;color:var(--neg);cursor:pointer;font-size:14px;padding:0 2px;line-height:1">×</button>`:''}
     </div>`;
   });
-  log.innerHTML=html||'<div style="font-size:11px;color:var(--i4);padding:6px 0">No transactions</div>';
-  $('co-total-in').textContent=fmt(ti(p));
+  log.innerHTML=html||'<div style="font-size:11px;color:var(--i4);padding:6px 0">Buy-in only</div>';
+  // Update both invest bar and any visible total
+  const ti_el=$('co-total-in');if(ti_el)ti_el.textContent=fmt(ti(p));
 
   // Edit button label
   const editBtn=$('co-edit-btn');
@@ -2579,11 +2639,11 @@ function deleteAddOn(id,idx){
 function buildCOChipInputs(p){
   const grid=$('co-chip-inputs');if(!grid)return;
   grid.innerHTML=DENOMS.map(d=>`
-    <div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r4)">
+    <div class="co-chip-item">
       <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
       <span style="font-size:10px;color:var(--i3);flex:1">${d.name}</span>
       <input type="number" id="co-c-${d.id}" value="0" min="0"
-        style="width:46px;background:var(--s2);border:1px solid var(--br);border-radius:4px;padding:4px 6px;color:var(--cy);font-family:'DM Mono',monospace;font-size:12px;outline:none;text-align:center;caret-color:var(--cy)"
+        style="width:44px;background:var(--s2);border:1px solid var(--br);border-radius:4px;padding:4px 5px;color:var(--cy);font-family:'DM Mono',monospace;font-size:12px;outline:none;text-align:center;caret-color:var(--cy)"
         oninput="calcCOChips()">
     </div>`).join('');
   calcCOChips();
@@ -3380,11 +3440,13 @@ async function askOracle(){
   const reasonEl=$('ora-reason');
   if(!result)return;
 
-  // Show loading state
-  result.style.cssText='display:block;border-radius:var(--r10);padding:14px;text-align:center;margin-top:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.3);transition:all .2s';
-  verdictEl.textContent='🧙 Consulting...';
+  // Show loading state with spinning coin
+  result.style.cssText='display:block;border-radius:var(--r10);padding:16px;text-align:center;margin-top:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.3);transition:all .2s';
+  const coinEl=$('ora-coin');
+  if(coinEl){coinEl.textContent='🪙';coinEl.className='ora-coin spinning';}
+  verdictEl.textContent='';
   verdictEl.style.color='#a855f7';
-  reasonEl.textContent='The Wizard is thinking...';
+  reasonEl.textContent='The coin is in the air...';
 
   let play, verdict, reason;
 
@@ -3413,57 +3475,61 @@ async function askOracle(){
       {play:true, verdict:'♠ Suited. That\'s it.',             reason:'well it\'s suited Jay say right??? The conversation is over.'},
     ]:[];
     const pool=[
-        // classics
-        {play:true,  verdict:'✅ Yeah that\'s real',        reason: losers.length?`${losers[0].name} is steaming. Take their chips.`:'Table\'s calling wide. Get your money in.'},
-        {play:true,  verdict:'✅ Play it',                  reason: isLate?'Late night = loose table. They\'re calling with anything.':'This hand prints money. Don\'t get cute.'},
-        {play:true,  verdict:'✅ No brainer',               reason: isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'Position and pot odds say yes. Pop it.'},
-        {play:true,  verdict:'🔥 Ship it',                  reason:`${handStr.trim()} is a cooler disguise. They'll never put you on this.`},
-        {play:true,  verdict:'🃏 See a flop',               reason:'If you don\'t play this then maybe I can interest you in some tickets to the puss convention.'},
-        {play:true,  verdict:'✅ Yeah that\'s real',        reason:'If you fold this then I understand why dad is still getting milk.'},
-        {play:true,  verdict:'👀 Could be something',       reason: winners.length?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},
-        {play:true,  verdict:'🔥 Ship it',                  reason:'Yeah play this and then min raise, for strength.'},
-        {play:true,  verdict:'🃏 Worth a look',             reason: suited?'well it\'s suited Jay say right??? Free money.':nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'First-in juice. They don\'t know what you\'re capable of.'},
-        {play:true,  verdict:'🤷 Just play it',             reason: isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
-        {play:true,  verdict:'✅ Raise 2, for strength',    reason:'Play this bad hand and raise 2, for strength. It\'s called balance bro.'},
-        {play:true,  verdict:'🎰 Re-entry special',         reason:'Play this one if you\'re ready for another re-entry.'},
-        {play:true,  verdict:'💻 Bro just Google it',       reason:'You had to ask bro? They have free poker online if this is too spicy for you.'},
-        {play:true,  verdict:'💯 No way you lose',          reason:'No way you lose with this one bro. Trust.'},
-        {play:true,  verdict:'🐻 Does the pope poop in the woods?', reason:'Idk man, does the pope poop in the woods? The answer is yes. Play it.'},
-        {play:true,  verdict:'🤝 Easy game',                reason: nPlayers>4?`${nPlayers} players in and you\'re asking me? Ship it.`:'Heads up or not — this prints.'},
-        {play:true,  verdict:'🧠 Solver approved',          reason:'The solver said raise. I think. I didn\'t actually check but it seems right.'},
-        {play:true,  verdict:'📈 Equity is there',          reason:'You have at minimum 2 outs. That\'s basically a coin flip bro.'},
-        {play:true,  verdict:'🎯 This is the one',          reason: isLate?'It\'s late and you\'re asking the Wizard. Just play and see what happens.':'The Wizard sees great things. Or nothing. One of those.'},
-        {play:true,  verdict:'🤌 Chef\'s kiss',             reason:'Beautiful hand. Or is it? Doesn\'t matter. Get in there.'},
-        {play:true,  verdict:'👑 Premium feels',            reason:'This feels premium. Feelings are GTO. That\'s science.'},
-        {play:true,  verdict:'🏃 Run it',                   reason: losers.length?`${losers[0].name} already rebought once. Keep the pressure on.`:'They can\'t put you on this. Go.'},
-        {play:true,  verdict:'⚡ Get in there',             reason:'Sometimes you just gotta jump in the water. This is one of those times.'},
-        {play:true,  verdict:'🎲 Variance is your friend',  reason:'High variance hand, high variance advice. We\'re aligned bro.'},
-        {play:true,  verdict:'🔮 The Wizard says yes',      reason:'Look man, you consulted the Wizard. The Wizard said play. That\'s on you now.'},
-        {play:true,  verdict:'🧦 Dobby is free',            reason:'Master has given dobby a shizzy hand, dobby is freeeee. Ship it.'},
-        {play:true,  verdict:'💸 No wechat needed',         reason:'Don\'t need wechat to get paid here bro. Ship it.'},
-        {play:true,  verdict:'🤠 Cowboy up',                reason: suited?'Suited connectors in a home game? That\'s basically a straight flush already.':'You\'re playing a home game not the WSOP. Relax and ship it.'},
-        {play:true,  verdict:'💪 Trust the process',        reason:'The process is: pick cards, ask Wizard, play hand, lose money. Step 3.'},
-        {play:true,  verdict:'🌟 Star power',               reason: winners.length?`${winners[0].name} is running hot. Ride that table energy.`:'Good vibes only at this table tonight.'},
-        {play:true,  verdict:'🃏 Let\'s find out',          reason:'The only way to know if you win is to play bro. That\'s a Wizard exclusive insight.'},
-        {play:true,  verdict:'🎪 Home game mode',           reason:'This is a home game. The hand ranking is: whatever feels good > GTO.'},
-        // folds
-        {play:false, verdict:'🙅 Fold it',                  reason:'The table energy is off right now.'},
-        {play:false, verdict:'🙅 Fold it',                  reason:'You\'ve been running hot — protect it.'},
-        {play:false, verdict:'🙅 Fold it',                  reason:'I\'m getting a bad feeling about this one.'},
-        {play:false, verdict:'🙅 Fold it',                  reason: nPlayers>3&&players[rando]?`${players[rando].name} has been suspiciously quiet.`:'Someone\'s got a monster.'},
-        {play:false, verdict:'🙅 Fold it',                  reason: isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'},
-        {play:false, verdict:'⏸ Sit this one out',          reason: isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},
-        {play:false, verdict:'💀 Please fold',              reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the Wizard has standards. Barely.`},
-        {play:false, verdict:'🫡 Respect the range',        reason: isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'},
-        {play:false, verdict:'😬 Walk away',                reason:'The Wizard is seeing some stuff right now and none of it is good.'},
-        {play:false, verdict:'🧘 Patience bro',             reason:'A wise man once said wait for better spots. That man went broke at the river. Still — fold this.'},
-        {play:false, verdict:'💸 Save your chips',          reason: isLate?'You\'ve been in too many hands tonight. This one\'s a trap.':'Re-entry is always an option. Fold responsibly.'},
-        {play:false, verdict:'📉 Nope',                     reason: losers.length?`Even ${losers[0].name} wouldn\'t play this and they\'re steaming.`:'The Wizard consulted the data. The data said no. The Wizard agrees.'},
-        {play:false, verdict:'🚫 Hard no',                  reason:'You had to ask bro? The fact that you\'re asking tells you everything.'},
-        {play:false, verdict:'🕳️ Fold into the void',       reason:'This hand has a special destiny. That destiny is the muck.'},
-        {play:false, verdict:'🙈 Don\'t look at me',        reason:'You asked the Wizard for this. The Wizard says absolutely not and is embarrassed for you.'},
-        {play:false, verdict:'⚰️ R.I.P.',                   reason: nPlayers>4?'There\'s too many people in this pot. Somebody has it.':'Even in a dead pot this is a fold. Historic.'},
-        {play:false, verdict:'🤦 Bro',                      reason:`${handStr.trim()} and you\'re asking if you should play? We need to have a different conversation.`},
+        // ── PLAY ──
+        {play:true, verdict:'✅ Yeah that\'s real',         reason: losers.length?`${losers[0].name} is steaming — take their money now.`:'Table\'s calling wide tonight. Get your chips in.'},
+        {play:true, verdict:'🔥 Ship it',                   reason:`${handStr.trim()} is a cooler in disguise. Nobody\'s folding to you anyway.`},
+        {play:true, verdict:'🃏 See a flop',                reason:'If you don\'t play this then maybe I can interest you in some tickets to the puss convention.'},
+        {play:true, verdict:'✅ Yeah that\'s real',         reason:'If you fold this then I understand why dad is still getting milk.'},
+        {play:true, verdict:'✅ Raise 2, for strength',     reason:'Play this hand and raise 2, for strength. It\'s called balance. You wouldn\'t understand.'},
+        {play:true, verdict:'🎰 Re-entry incoming',         reason:'This one\'s got re-entry written all over it. But play it anyway.'},
+        {play:true, verdict:'💯 No way you lose',           reason: winners.length?`${winners[0].name} is hot — table energy is yours. Ride it.`:'No way you lose with this one bro. Trust the Wizard.'},
+        {play:true, verdict:'🤝 Easy game',                 reason: nPlayers>4?`${nPlayers} people and NONE of them know what you have. Ship.`:'Heads up or multiway — this hand doesn\'t care.'},
+        {play:true, verdict:'🧠 Solver approved',           reason:'I ran this through the solver. My phone died but I\'m pretty sure it said raise.'},
+        {play:true, verdict:'📈 Equity is there',           reason:'You have at least 2 outs. That\'s mathematically a coin flip bro.'},
+        {play:true, verdict:'🤌 Chef\'s kiss',              reason: isLate?'It\'s late, you\'re probably tilted, this is perfect for you.':'Beautiful setup. They won\'t see it coming.'},
+        {play:true, verdict:'👑 Premium feels',             reason:'Feelings are GTO now. That\'s the new meta. Play it.'},
+        {play:true, verdict:'🏃 Run it',                    reason: losers.length?`${losers[0].name} is already rebought in. Keep the pressure on.`:'Can\'t put you on this. Go now.'},
+        {play:true, verdict:'⚡ Jump in',                   reason: isNewSession?'Set the tone early. Play aggressive, apologize never.':'Sometimes you just gotta get in the water and see what bites.'},
+        {play:true, verdict:'🎲 Variance loves you',        reason:'High variance hand, high variance advice. We\'re cosmically aligned right now.'},
+        {play:true, verdict:'🔮 The coin says yes',         reason:'The coin landed. You\'ve asked the Wizard. This is out of your hands now.'},
+        {play:true, verdict:'🧦 Dobby is free',             reason:'Master has given dobby a shizzy hand, dobby is freeeee. All in.'},
+        {play:true, verdict:'💸 No wechat needed',          reason:'Don\'t need wechat to get paid here bro. Ship it and collect.'},
+        {play:true, verdict:'🤠 Cowboy up',                 reason: suited?'Home game suited hand? You\'re already showing a profit.':'This ain\'t the WSOP. Stop acting like it. Get in there.'},
+        {play:true, verdict:'💪 Trust the process',         reason:'Step 1: pick cards. Step 2: ask Wizard. Step 3: play. Step 4: profit. We\'re on step 3.'},
+        {play:true, verdict:'🌟 Good table energy',         reason: winners.length?`${winners[0].name} is running hot — don\'t fight the vibe.`:'Positive energy. Play into it.'},
+        {play:true, verdict:'🎪 Home game rules',           reason:'Hand strength ranking in this game: whatever the Wizard says > whatever you think.',},
+        {play:true, verdict:'🐸 Does the pope poop in the woods?', reason:'Idk man, does the pope poop in the woods? Correct answer: play the hand.'},
+        {play:true, verdict:'👀 Could be something',        reason: winners.length?`${winners[0].name} is calling everything right now. Use that.`:'Table\'s been folding all night. This is your spot.'},
+        {play:true, verdict:'🎯 This is it',                reason: isLongSession?'You\'ve waited 2 hours for a spot. This is your spot. Go.':'First instinct said play. First instinct is GTO. Trust it.'},
+        {play:true, verdict:'💀 Play or go home',           reason:'The Wizard doesn\'t hand out free passes. You asked, the coin said play. Play.'},
+        {play:true, verdict:'🃏 Worth a look',              reason: suited?'Suited means automatic equity bro. Basic poker math.':nPlayers>=5?'Multiway = implied odds. Get in there and hit something dumb.':'You have first-in advantage. Use it.'},
+        {play:true, verdict:'🤷 Obviously',                 reason: isLongSession?'You\'ve been folding so long the table forgot you\'re here. Wake them up.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
+        {play:true, verdict:'🃏 Let\'s find out',           reason:'The only way to know if you win is to actually play the hand. Revolutionary insight.'},
+        {play:true, verdict:'💻 Free poker exists',         reason:'You had to ask bro? There\'s free poker online if this is too spicy.'},
+        // ── FOLD ──
+        {play:false, verdict:'❌ Hard fold',                reason:'The table energy is completely off right now and you\'re about to feel it.'},
+        {play:false, verdict:'🙅 Sit this one out',         reason:'You\'ve been running hot — protect what you have. This isn\'t the spot.'},
+        {play:false, verdict:'🪦 The muck is calling',      reason:'This hand has one destiny. That destiny is face-down in front of the dealer.'},
+        {play:false, verdict:'⏸ Wait for it',              reason: nPlayers>3&&players[rando]?`${players[rando].name} has said literally nothing for 20 minutes. They have it.`:'Someone at this table is trapping. Don\'t walk into it.'},
+        {play:false, verdict:'🧘 Discipline',               reason: isLate?'It\'s late and your judgment left an hour ago. Fold this.':`${handStr.trim()} isn't as cute as you think it is.`},
+        {play:false, verdict:'⏸ Better spots ahead',       reason: isEarly?'Session is young. Let someone else lose their stack first.':nPlayers>=6?'Too many people in — at least two of them have a piece of this board.':'Save it. You\'ll thank me at the end of the night.'},
+        {play:false, verdict:'💀 Even I have standards',    reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. And this is coming from the guy who told you to shove 72o.`},
+        {play:false, verdict:'🫡 Respect the fold',         reason: isLongSession?'Two hours in, you\'re thinking about playing THIS? What happened to you?':'The GTO overlords are watching. They\'re already disappointed.'},
+        {play:false, verdict:'😬 Walk away slowly',         reason:'The Wizard is seeing some stuff. None of it is good. None of it involves you winning.'},
+        {play:false, verdict:'🧙 Trust the Wizard',         reason:'A wise man folded here. He\'s still in the game. Be the wise man.'},
+        {play:false, verdict:'💸 Protect your stack',       reason: isLate?'You\'ve played too many hands tonight. Every orbit is a chip leak now.':'Fold equity is real equity. You\'re building it right now.'},
+        {play:false, verdict:'📉 Nope',                     reason: losers.length?`Even ${losers[0].name} wouldn\'t play this and they\'re on their third buy-in.`:'The data said no. The Wizard agrees with the data for once.'},
+        {play:false, verdict:'🚫 Denied',                   reason:'The fact that you asked tells you everything. Trust that feeling. It\'s trying to save you.'},
+        {play:false, verdict:'🕳️ Into the void',            reason:'Fold it. Watch what the winner had. Realize you made the right call. Repeat.'},
+        {play:false, verdict:'🙈 Don\'t',                   reason:'You asked the Wizard. The Wizard is embarrassed on your behalf. Fold immediately.'},
+        {play:false, verdict:'⚰️ Fold or die',              reason: nPlayers>4?'There are too many hands out there. One of them has yours destroyed.':'Statistically this ends badly. The Wizard has seen this movie before.'},
+        {play:false, verdict:'🤦 Come on bro',              reason:`You\'re really asking about ${handStr.trim()}? We need to have a different conversation after the session.`},
+        {play:false, verdict:'🛑 Full stop',                reason: winners.length?`${winners[0].name} is going to call you and they have the best of it.`:'The pot isn\'t worth what you\'re about to lose.'},
+        {play:false, verdict:'🥶 Ice cold fold',            reason: isLongSession?'Honestly? You look tired. Sit this one out, get some water.':'Not every hand needs to be played. This is today\'s lesson.'},
+        {play:false, verdict:'🎭 Wrong hand, right fold',   reason:'This might be the best fold you make tonight. Write it down.'},
+        {play:false, verdict:'📡 Bad signal',               reason:'The Wizard is picking up bad vibes from this hand. Very scientific. Very real. Fold.'},
+        {play:false, verdict:'🌊 Ride it out',              reason: isLate?'Late night + this hand = ghost story. Let it pass.':'Table flow says wait. The Wizard flow says wait. Both flows agree.'},
+        {play:false, verdict:'🧊 Stay cold',                reason: suited?'Yeah it\'s suited but the Wizard says no. The coin has spoken.':nPlayers>=4?`${nPlayers} way pot and you want to enter with this?`:'This is a trap and you\'re asking the trap if it\'s a trap.'},
         ...suitedBonus,
       ];
     // ── Special overrides ──────────────────────────────────────────────────
@@ -3489,18 +3555,27 @@ async function askOracle(){
   if(oracleLog.length>50) oracleLog=oracleLog.slice(-50);
   localStorage.setItem('oracleLog',JSON.stringify(oracleLog));scheduleCloudSave();
 
-  // Render verdict
+  // Render verdict with coin flip reveal
   const color=play?'var(--ag)':'var(--neg)';
-  const bg=play?'rgba(57,255,20,.07)':'rgba(255,69,96,.07)';
-  const border=play?'rgba(57,255,20,.2)':'rgba(255,69,96,.2)';
+  const bg=play?'rgba(57,255,20,.06)':'rgba(255,69,96,.06)';
+  const border=play?'rgba(57,255,20,.22)':'rgba(255,69,96,.22)';
   result.style.background=bg;
   result.style.border=`1px solid ${border}`;
-  verdictEl.textContent=verdict;
-  verdictEl.style.color=color;
+
+  // Animate coin landing
+  const coin=$('ora-coin');
+  if(coin){
+    coin.className=play?'ora-coin play':'ora-coin fold';
+    coin.textContent=play?'🟢':'🔴';
+  }
+
+  // Verdict as pill
+  verdictEl.innerHTML=`<span class="ora-verdict-pill ${play?'play':'fold'}">${play?'▶ PLAY':'✕ FOLD'}</span><div style="margin-top:8px;font-size:15px;font-weight:700;color:${color}">${verdict}</div>`;
+
   reasonEl.textContent=reason;
 
   result.style.transform='scale(.97)';
-  setTimeout(()=>result.style.transform='scale(1)',120);
+  setTimeout(()=>result.style.transform='scale(1)',140);
   renderOracleHistory();
 }
 

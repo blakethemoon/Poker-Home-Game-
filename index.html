@@ -543,7 +543,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="wm" style="margin-right:auto">
-    <img src="/logo.png" class="wm-logo" alt="Moons Home Game" onerror="this.style.display='none'">
+    <div class="wm-logo" style="display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1;user-select:none">♠</div>
     <div>
       <div class="wm-name">Moon's</div>
       <div class="wm-sub">Home Game</div>
@@ -2949,13 +2949,13 @@ function confirmCO(){
   const net=parseFloat((val-ti(p)).toFixed(2));
   p.status='cashed'; p.cashoutAmount=val; p.currentStack=0; delete p._pendingCOValue;
   addFeed(net>0?'🏆':'💸',`${p.name} cashed out`,`${fmt(val)} · Net ${net>=0?'+'+fmt(net):'−'+fmt(Math.abs(net))}`);
-  coSelectedId=null; coEditMode=false; refresh(); renderCashOut();
+  coEditMode=false;
+  const nxt=G.players.filter(q=>q.status==='active').sort((a,b)=>a.seat-b.seat)[0];
+  coSelectedId=nxt?nxt.id:null; refresh(); renderCashOut();
   toast(net>0?`${p.name} wins ${fmt(net)} 🏆`:net<0?`${p.name} out — owes ${fmt(Math.abs(net))}`:`${p.name} breaks even`);
-  // Check if everyone is done
-  const stillActive=G.players.filter(q=>q.status==='active').length;
-  if(stillActive===0&&G.players.length>0){
-    setTimeout(()=>toast('🏁 Everyone\'s cashed out — ready to archive!',4000),600);
-  }
+  if(nxt){ setTimeout(()=>recalcCO(nxt.currentStack),50); return; }
+  // Everyone done
+  setTimeout(()=>toast('🏁 Everyone\'s cashed out — ready to archive!',4000),600);
 }
 
 function uncashPlayer(id){
@@ -3099,7 +3099,9 @@ function closeSession(){
   }
   sessionClosed=true; sessionClosedAt=new Date();
   addFeed('🏁','Session closed',`${G.players.filter(p=>p.status==='cashed').length} players settled`);
-  refresh(); renderCashOut(); toast('Session closed — all data viewable and editable');
+  refresh(); renderCashOut(); toast('Session closed — cash out players below');
+  const firstActive=G.players.filter(q=>q.status==='active').sort((a,b)=>a.seat-b.seat)[0];
+  if(firstActive) setTimeout(()=>selectCOPlayer(firstActive.id),50);
 }
 function reopenSession(){
   sessionClosed=false; sessionClosedAt=null;
@@ -4607,10 +4609,19 @@ async function cloudLoad(){
 
 const today=new Date().toISOString().split('T')[0];
 const dinv=$('inv-date');if(dinv&&!dinv.value)dinv.value=today;
-setTimeout(renderDash,80);
 updateNavState();
-cloudLoad();
-toast("Moon's — let's play",2000);
+const _urlInvite=new URLSearchParams(window.location.search).get('invite');
+if(_urlInvite){
+  cloudLoad().then(()=>{
+    goTab('invite',$('nav-invite'));
+    // Pre-fill guest name if somehow known (no-op if blank)
+    toast("You're viewing an invite — RSVP below!",4000);
+  });
+}else{
+  setTimeout(renderDash,80);
+  cloudLoad();
+  toast("Moon's — let's play",2000);
+}
 </script>
 </body>
 </html>

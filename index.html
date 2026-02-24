@@ -3670,11 +3670,14 @@ async function askOracle(){
   let play, verdict, reason;
 
   try {
+    const VIBES=['','running hot','table is juicy','someone just rebought','big pot just finished','everyone is on tilt'];
+    const vibe=VIBES[Math.floor(Math.random()*VIBES.length)];
     const ctx=[
       `${nPlayers} active player${nPlayers!==1?'s':''}`,
       isLate?'late night session':isEarly?'early morning':sessionMins>0?`${sessionMins} min in`:'new session',
       winners.length?`up: ${winners.map(p=>p.name).join(', ')}`:null,
       losers.length?`stuck: ${losers.map(p=>p.name).join(', ')}`:null,
+      vibe||null,
     ].filter(Boolean).join('; ');
 
     const resp=await fetch('/api/wizard',{

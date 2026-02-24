@@ -281,12 +281,18 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .res-total{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;color:var(--cy);line-height:1;text-shadow:var(--glow-cy)}
 .res-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--i3);margin:6px 0 13px}
 .res-chips{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-.rchip{background:var(--s3);border:1px solid var(--br);border-radius:var(--r6);padding:7px 10px;display:flex;align-items:center;gap:8px}
+.rchip{background:var(--s3);border:1px solid var(--br);border-radius:var(--r6);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .rchip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.rchip-n{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;line-height:1;min-width:26px;text-align:center}
-.rchip-l{font-size:11px;color:var(--i3);flex:1}
-.rchip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:15px;width:24px;height:24px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
+.rchip-top{display:flex;align-items:center;gap:8px}
+.rchip-label{font-size:11px;color:var(--i3);flex:1}
+.rchip-tot-v{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;text-align:right}
+.rchip-tot-s{font-size:9px;color:var(--i4);display:block;text-align:right;margin-top:1px}
+.rchip-ctrs{display:flex;gap:8px;align-items:center}
+.rchip-grp{display:flex;align-items:center;gap:5px;flex:1}
+.rchip-glbl{font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.rchip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:16px;width:30px;height:30px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;touch-action:manipulation}
 .rchip-adj:hover{background:var(--cy3)}
+.rchip-n{font-family:'DM Mono',monospace;font-size:17px;font-weight:600;min-width:22px;text-align:center}
 .res-desc{font-size:11px;color:var(--i3);font-style:italic}
 .pp-list{display:flex;flex-direction:column;gap:5px}
 .pp-row{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r6);border:1px solid var(--br);background:var(--s2);cursor:pointer;transition:all .11s}
@@ -330,8 +336,14 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .co-divider{display:flex;align-items:center;gap:8px;margin:10px 0}
 .co-divider::before,.co-divider::after{content:'';flex:1;height:1px;background:var(--br)}
 .co-divider-txt{font-size:10px;color:var(--i4);letter-spacing:.06em;text-transform:uppercase}
-.co-chip-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px}
-.co-chip-item{display:flex;align-items:center;gap:5px;padding:5px 7px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r4)}
+.co-chip-row{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.co-chip-item{display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)}
+.co-chip-top{display:flex;align-items:center;gap:7px}
+.co-chip-ctrs{display:flex;gap:6px;align-items:center}
+.co-chip-grp{display:flex;align-items:center;gap:5px;flex:1}
+.co-chip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:15px;width:28px;height:28px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;touch-action:manipulation}
+.co-chip-adj:hover{background:var(--cy3)}
+.co-chip-cnt{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;min-width:20px;text-align:center}
 .co-manual-inp{width:100%;padding:10px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r8);color:var(--i0);font-family:'DM Mono',monospace;font-size:20px;font-weight:500;outline:none;text-align:center;caret-color:var(--cy);transition:border-color .14s}
 .co-manual-inp:focus{border-color:var(--brc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
 .co-manual-inp::placeholder{color:var(--i4);font-size:15px}
@@ -1487,7 +1499,7 @@ let sessionActive = false;
 let sessionStartTime = null;
 let timerInterval = null;
 
-let activeTab = 'dash', selPlayer = null, selPlayerId = null, chipVal = null;
+let activeTab = 'dash', selPlayer = null, selPlayerId = null, chipVal = null, coChipData = {}, mcChipData = {};
 
 /* ═══════════════════════════════
    HELPERS
@@ -2729,14 +2741,44 @@ function deleteAddOn(id,idx){
 
 function buildCOChipInputs(p){
   const grid=$('co-chip-inputs');if(!grid)return;
-  grid.innerHTML=DENOMS.map(d=>`
-    <div class="co-chip-item">
-      <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
-      <span style="font-size:10px;color:var(--i3);flex:1">${d.name}</span>
-      <input type="number" id="co-c-${d.id}" value="0" min="0"
-        style="width:44px;background:var(--s2);border:1px solid var(--br);border-radius:4px;padding:4px 5px;color:var(--cy);font-family:'DM Mono',monospace;font-size:12px;outline:none;text-align:center;caret-color:var(--cy)"
-        oninput="calcCOChips()">
-    </div>`).join('');
+  DENOMS.forEach(d=>{if(!coChipData[d.id])coChipData[d.id]={stacks:0,loose:0};});
+  grid.innerHTML=DENOMS.map(d=>{
+    const stk=coChipData[d.id]?.stacks||0;
+    const lse=coChipData[d.id]?.loose||0;
+    const tot=stk*10+lse;
+    return `<div class="co-chip-item">
+      <div class="co-chip-top">
+        <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
+        <span style="font-size:10px;color:var(--i3);flex:1">${d.name} · $${d.value.toFixed(2)}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--cy)" id="co-ctot-${d.id}">${tot} chips</span>
+      </div>
+      <div class="co-chip-ctrs">
+        <div class="co-chip-grp">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">×10</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','stacks',-1)">−</button>
+          <span class="co-chip-cnt" id="co-cs-${d.id}">${stk}</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','stacks',1)">+</button>
+        </div>
+        <div class="co-chip-grp">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">loose</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','loose',-1)">−</button>
+          <span class="co-chip-cnt" id="co-cl-${d.id}">${lse}</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','loose',1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  calcCOChips();
+}
+function adjCOChip(id,field,delta){
+  if(!coChipData[id])coChipData[id]={stacks:0,loose:0};
+  coChipData[id][field]=Math.max(0,(coChipData[id][field]||0)+delta);
+  const stk=coChipData[id].stacks||0;
+  const lse=coChipData[id].loose||0;
+  const tot=stk*10+lse;
+  const sEl=$(`co-cs-${id}`);if(sEl)sEl.textContent=stk;
+  const lEl=$(`co-cl-${id}`);if(lEl)lEl.textContent=lse;
+  const tEl=$(`co-ctot-${id}`);if(tEl)tEl.textContent=tot+' chips';
   calcCOChips();
 }
 
@@ -2766,16 +2808,19 @@ function coApplyScan(data){
   if(!data||!data.counts)return;
   const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   Object.entries(data.counts).forEach(([col,cnt])=>{
-    const inp=$(`co-c-${idMap[col]||col}`);
-    if(inp)inp.value=cnt;
+    const id=idMap[col]||col;
+    if(!coChipData[id])coChipData[id]={stacks:0,loose:0};
+    coChipData[id].stacks=Math.floor(cnt/10);
+    coChipData[id].loose=cnt%10;
   });
+  buildCOChipInputs(null);
   calcCOChips();
   toast(`Scanned: ${fmt(data.total)}`);
 }
 
 function calcCOChips(){
   let tot=0;
-  DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)tot+=(parseFloat(i.value)||0)*d.value;});
+  DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};tot+=(cd.stacks*10+cd.loose)*d.value;});
   tot=parseFloat(tot.toFixed(2));
   const ctEl=$('co-chip-total');if(ctEl)ctEl.textContent=fmt(tot);
   // Only override if user has actually entered chip counts (tot > 0)
@@ -2809,7 +2854,7 @@ function recalcCO(chipTot){
   }else{
     // Try chip inputs first
     let chipSum=0;
-    DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)chipSum+=(parseFloat(i.value)||0)*d.value;});
+    DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};chipSum+=(cd.stacks*10+cd.loose)*d.value;});
     chipSum=parseFloat(chipSum.toFixed(2));
     // Fall back to known stack if no chips entered
     if(chipSum>0) val=chipSum;
@@ -2841,7 +2886,7 @@ function recalcCO(chipTot){
 function selectCOPlayer(id){
   coSelectedId=id; coEditMode=false;
   const manual=$('co-manual');if(manual)manual.value='';
-  DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)i.value='0';});
+  coChipData={};
   const old=$('co-cashed-edit');if(old)old.remove();
   renderCashOut();
   const p=G.players.find(q=>q.id===id);
@@ -2869,7 +2914,7 @@ function confirmCO(){
     if(manual&&manual.value!=='') val=parseFloat(manual.value)||0;
     else{
       let chipSum=0;
-      DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)chipSum+=(parseFloat(i.value)||0)*d.value;});
+      DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};chipSum+=(cd.stacks*10+cd.loose)*d.value;});
       val=parseFloat(chipSum.toFixed(2));
       if(val===0&&p.currentStack>0) val=p.currentStack;
     }
@@ -3069,15 +3114,51 @@ function updateDenom(id,val){const d=DENOMS.find(d=>d.id===id);if(d){d.value=par
 function resetDenoms(){DENOMS=JSON.parse(JSON.stringify(DEFAULT_DENOMS));buildDenomUI();toast('Reset to default');}
 function buildMCGrid(){
   const g=$('mc-grid');if(!g)return;
-  g.innerHTML=DENOMS.map(d=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)">
-      <div style="width:16px;height:16px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
-      <span style="font-size:10px;color:var(--i3);flex:1">${d.name} ×$${d.value.toFixed(2)}</span>
-      <input style="width:52px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r4);padding:5px 7px;color:var(--cy);font-family:'DM Mono',monospace;font-size:13px;outline:none;text-align:center;caret-color:var(--cy)" type="number" id="mc-${d.id}" value="0" min="0" oninput="calcManual()">
-    </div>`).join('');
+  // Preserve existing counts or default to 0
+  DENOMS.forEach(d=>{if(!mcChipData[d.id])mcChipData[d.id]={stacks:0,loose:0};});
+  g.innerHTML=DENOMS.map(d=>{
+    const stk=mcChipData[d.id]?.stacks||0;
+    const lse=mcChipData[d.id]?.loose||0;
+    const tot=stk*10+lse;
+    return `<div style="display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:12px;height:12px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
+        <span style="font-size:10px;color:var(--i3);flex:1">${d.name} · $${d.value.toFixed(2)}/chip</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--cy)" id="mc-tot-${d.id}">${tot} chips · ${fmt(tot*d.value)}</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;align-items:center;gap:5px;flex:1">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">×10</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','stacks',-1)">−</button>
+          <span class="rchip-n" id="mc-s-${d.id}" style="color:${d.color}">${stk}</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','stacks',1)">+</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex:1">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">loose</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','loose',-1)">−</button>
+          <span class="rchip-n" id="mc-l-${d.id}" style="color:${d.color}">${lse}</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','loose',1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  calcManual();
+}
+function adjMCChip(id,field,delta){
+  if(!mcChipData[id])mcChipData[id]={stacks:0,loose:0};
+  mcChipData[id][field]=Math.max(0,(mcChipData[id][field]||0)+delta);
+  const stk=mcChipData[id].stacks||0;
+  const lse=mcChipData[id].loose||0;
+  const tot=stk*10+lse;
+  const sEl=$(`mc-s-${id}`);if(sEl)sEl.textContent=stk;
+  const lEl=$(`mc-l-${id}`);if(lEl)lEl.textContent=lse;
+  const d=DENOMS.find(d=>d.id===id);
+  const tEl=$(`mc-tot-${id}`);if(tEl)tEl.textContent=`${tot} chips · ${d?fmt(tot*d.value):'?'}`;
+  calcManual();
 }
 function calcManual(){
-  let t=0;DENOMS.forEach(d=>{const i=$(`mc-${d.id}`);if(i)t+=(parseFloat(i.value)||0)*d.value;});
+  let t=0;
+  DENOMS.forEach(d=>{const cd=mcChipData[d.id]||{stacks:0,loose:0};t+=(cd.stacks*10+cd.loose)*d.value;});
   const mt=$('mc-total');if(mt)mt.textContent=fmt(t);
 }
 function handleFile(e){const f=e.target.files[0];if(f)processImg(f);}
@@ -3150,33 +3231,74 @@ async function runAI(dataUrl){
 }
 
 
-function showChipResult(r){
-  $('chip-loading').style.display='none';chipVal=r;
-  $('chip-total').textContent=fmt(r.total);
-  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e'};
-  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
-  $('chip-chips').innerHTML=r.counts?Object.entries(r.counts).filter(([,v])=>v>0).map(([col,cnt])=>{
-    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
-    const clr=chx[col]||'#fff';
-    return `<div class="rchip"><div class="rchip-dot" style="background:${clr}"></div><span class="rchip-l">${col} · $${d?d.value.toFixed(2):'?'}</span><button class="rchip-adj" onclick="adjustChip('${col}',-1)">−</button><span class="rchip-n" id="rchip-n-${col}" style="color:${clr}">${cnt}</span><button class="rchip-adj" onclick="adjustChip('${col}',1)">+</button></div>`;
-  }).join(''):'';
-  $('chip-desc').textContent=r.description||'';
-  $('chip-result').style.display='block';$('chip-actions').style.display='block';
-  populatePickers();toast(`Counted: ${fmt(r.total)}`);
-}
-function adjustChip(col,delta){
-  if(!chipVal||!chipVal.counts)return;
-  const next=Math.max(0,(chipVal.counts[col]||0)+delta);
-  chipVal.counts[col]=next;
-  const el=$('rchip-n-'+col);if(el)el.textContent=next;
+function _recalcChipVal(){
+  if(!chipVal)return;
   const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   let t=0;
-  Object.entries(chipVal.counts).forEach(([c,cnt])=>{const d=DENOMS.find(d=>d.id===(idMap[c]||c));if(d)t+=cnt*d.value;});
+  Object.keys(chipVal.stacks||{}).forEach(col=>{
+    const stk=chipVal.stacks[col]||0;
+    const lse=(chipVal.loose||{})[col]||0;
+    chipVal.counts[col]=stk*10+lse;
+    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+    if(d) t+=chipVal.counts[col]*d.value;
+  });
   chipVal.total=parseFloat(t.toFixed(2));
+}
+function showChipResult(r){
+  $('chip-loading').style.display='none';
+  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e'};
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
+  // Convert AI raw counts into stacks-of-10 + loose model
+  chipVal={stacks:{},loose:{},counts:{},total:0};
+  if(r.counts){
+    Object.entries(r.counts).forEach(([col,cnt])=>{
+      chipVal.stacks[col]=Math.floor(cnt/10);
+      chipVal.loose[col]=cnt%10;
+      chipVal.counts[col]=cnt;
+    });
+  }
+  _recalcChipVal();
+  $('chip-total').textContent=fmt(chipVal.total);
+  $('chip-chips').innerHTML=Object.entries(chipVal.counts).filter(([,v])=>v>0).map(([col,cnt])=>{
+    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+    const clr=chx[col]||'#fff';
+    const stk=chipVal.stacks[col]||0;
+    const lse=chipVal.loose[col]||0;
+    const tot=stk*10+lse;
+    const dval=d?fmt(tot*d.value):'?';
+    return `<div class="rchip">
+      <div class="rchip-top">
+        <div class="rchip-dot" style="background:${clr}"></div>
+        <span class="rchip-label">${col} · $${d?d.value.toFixed(2):'?'}/chip</span>
+        <div style="text-align:right"><span class="rchip-tot-v" id="rchip-tot-${col}" style="color:${clr}">${dval}</span><span class="rchip-tot-s" id="rchip-n-${col}">${tot} chips</span></div>
+      </div>
+      <div class="rchip-ctrs">
+        <div class="rchip-grp"><span class="rchip-glbl">stacks ×10</span><button class="rchip-adj" onclick="adjChip('${col}','stacks',-1)">−</button><span class="rchip-n" id="rchip-s-${col}" style="color:${clr}">${stk}</span><button class="rchip-adj" onclick="adjChip('${col}','stacks',1)">+</button></div>
+        <div class="rchip-grp"><span class="rchip-glbl">loose</span><button class="rchip-adj" onclick="adjChip('${col}','loose',-1)">−</button><span class="rchip-n" id="rchip-l-${col}" style="color:${clr}">${lse}</span><button class="rchip-adj" onclick="adjChip('${col}','loose',1)">+</button></div>
+      </div>
+    </div>`;
+  }).join('');
+  $('chip-desc').textContent=r.description||'';
+  $('chip-result').style.display='block';$('chip-actions').style.display='block';
+  populatePickers();toast(`Counted: ${fmt(chipVal.total)}`);
+}
+function adjChip(col,field,delta){
+  if(!chipVal)return;
+  if(!chipVal.stacks)chipVal.stacks={};
+  if(!chipVal.loose)chipVal.loose={};
+  chipVal[field][col]=Math.max(0,(chipVal[field][col]||0)+delta);
+  _recalcChipVal();
+  const tot=chipVal.counts[col]||0;
+  const sEl=$('rchip-s-'+col);if(sEl)sEl.textContent=chipVal.stacks[col]||0;
+  const lEl=$('rchip-l-'+col);if(lEl)lEl.textContent=chipVal.loose[col]||0;
+  const nEl=$('rchip-n-'+col);if(nEl)nEl.textContent=tot+' chips';
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
+  const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+  const tEl=$('rchip-tot-'+col);if(tEl)tEl.textContent=d?fmt(tot*d.value):'?';
   $('chip-total').textContent=fmt(chipVal.total);
 }
 function chipApply(action){if(!chipVal){toast('Scan chips first');return;}applyToPlayer(action,chipVal.total,'scan');}
-function mcApply(action){let t=0;DENOMS.forEach(d=>{const i=$(`mc-${d.id}`);if(i)t+=(parseFloat(i.value)||0)*d.value;});applyToPlayer(action,parseFloat(t.toFixed(2)),'manual');}
+function mcApply(action){let t=0;DENOMS.forEach(d=>{const cd=mcChipData[d.id]||{stacks:0,loose:0};t+=(cd.stacks*10+cd.loose)*d.value;});applyToPlayer(action,parseFloat(t.toFixed(2)),'manual');}
 function applyToPlayer(action,val,src){
   if(!selPlayer){toast('Select a player first');return;}
   const p=G.players.find(p=>p.id===selPlayer);if(!p){toast('Not found');return;}

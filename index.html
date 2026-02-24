@@ -336,18 +336,22 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .co-divider{display:flex;align-items:center;gap:8px;margin:10px 0}
 .co-divider::before,.co-divider::after{content:'';flex:1;height:1px;background:var(--br)}
 .co-divider-txt{font-size:10px;color:var(--i4);letter-spacing:.06em;text-transform:uppercase}
-.co-chip-row{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-.co-chip-item{display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)}
-.co-chip-top{display:flex;align-items:center;gap:7px}
-.co-chip-ctrs{display:flex;gap:6px;align-items:center}
-.co-chip-grp{display:flex;align-items:center;gap:5px;flex:1}
-.co-chip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:15px;width:28px;height:28px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;touch-action:manipulation}
-.co-chip-adj:hover{background:var(--cy3)}
-.co-chip-cnt{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;min-width:20px;text-align:center}
+.co-chip-row{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.co-chip-item{background:var(--s1);border:1px solid var(--br);border-radius:var(--r8);padding:11px 12px}
+.co-chip-denom-row{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+.co-chip-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+.co-chip-dname{flex:1;font-size:13px;font-weight:600;color:var(--i1)}
+.co-chip-dval{font-size:11px;color:var(--i4);font-weight:400;margin-left:4px}
+.co-chip-stepper{display:flex;border-radius:var(--r6);overflow:hidden;border:1px solid var(--br)}
+.co-chip-adj-lg{flex:1;background:var(--s2);border:none;border-right:1px solid var(--br);color:var(--i1);font-size:13px;font-weight:700;height:48px;cursor:pointer;touch-action:manipulation;transition:background .1s}
+.co-chip-adj-lg:last-child{border-right:none}
+.co-chip-adj-lg:active,.co-chip-adj-lg:hover{background:var(--s3)}
+.co-chip-cnt-inp{width:64px;border:none;border-right:1px solid var(--br);text-align:center;background:var(--s1);font-size:22px;font-weight:700;font-family:'DM Mono',monospace;color:var(--i0);height:48px;outline:none;padding:0;flex-shrink:0;-moz-appearance:textfield;caret-color:var(--cy)}
+.co-chip-cnt-inp::-webkit-outer-spin-button,.co-chip-cnt-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.co-chip-cnt-inp:focus{background:rgba(0,212,255,.06);color:var(--cy)}
 .co-manual-inp{width:100%;padding:10px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r8);color:var(--i0);font-family:'DM Mono',monospace;font-size:20px;font-weight:500;outline:none;text-align:center;caret-color:var(--cy);transition:border-color .14s}
 .co-manual-inp:focus{border-color:var(--brc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
 .co-manual-inp::placeholder{color:var(--i4);font-size:15px}
-.co-scan-row{display:flex;gap:7px;margin-bottom:8px}
 .co-txn-compact{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);overflow:hidden;margin-bottom:10px}
 .co-txn-toggle{width:100%;padding:9px 13px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:var(--i3);font-family:'Syne',sans-serif}
 .co-txn-toggle:hover{background:var(--s3)}
@@ -479,10 +483,9 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   /* Bigger player cards */
   .co-player-card{padding:13px 14px;min-height:56px}
   .co-name{font-size:15px}
-  /* Scan button full height */
-  .co-scan-row .btn{padding:12px 14px;font-size:13px}
-  /* Chip count inputs bigger on mobile */
-  .co-chip-item input{width:56px!important;font-size:14px!important;padding:7px 6px!important}
+  /* Chip stepper: taller tap targets on mobile */
+  .co-chip-adj-lg{height:54px!important;font-size:15px!important}
+  .co-chip-cnt-inp{height:54px!important;font-size:24px!important;width:68px!important}
   /* Manual entry: bigger on mobile */
   .co-manual-inp{font-size:28px;padding:14px}
   /* Confirm buttons: proper thumb size */
@@ -872,27 +875,34 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
           <!-- ── STEP: Enter Final Stack (active players only) ── -->
           <div id="co-stack-section" class="co-stack-section">
-            <div class="co-stack-label">Final Stack</div>
 
-            <!-- Known stack quick-use button (shows when stack is known) -->
+            <!-- Header: label + running chip total -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+              <div class="co-stack-label" style="margin-bottom:0">Count Chips</div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span class="mono cy" style="font-size:20px;font-weight:700;line-height:1" id="co-chip-total">—</span>
+                <button class="btn btn-ghost btn-xs" onclick="coClearChips()" title="Clear chip counts" style="font-size:13px;padding:4px 8px">↩</button>
+              </div>
+            </div>
+
+            <!-- Quick-fill from last tracked stack -->
             <button class="co-known-btn" id="co-use-stack-btn" onclick="useKnownStack()" style="display:none">
               <div>
-                <div class="co-known-btn-label">Use Last Known Stack</div>
-                <div style="font-size:10px;color:var(--i4);margin-top:1px">From chip counter</div>
+                <div class="co-known-btn-label">Pre-fill from tracker</div>
+                <div style="font-size:10px;color:var(--i4);margin-top:1px">Last counted stack</div>
               </div>
               <span class="co-known-btn-val" id="co-known-stack">—</span>
             </button>
 
-            <!-- Chip counter inputs + scan -->
-            <div class="co-scan-row">
-              <button class="btn btn-cy btn-sm" style="flex:1;font-size:12px" onclick="coCaptureChips()">📷 Scan Chips</button>
-              <span class="mono cy" style="font-size:14px;align-self:center;padding:0 8px" id="co-chip-total">$0.00</span>
-            </div>
-            <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
+            <!-- Per-denomination chip counters -->
             <div class="co-chip-row" id="co-chip-inputs"></div>
 
-            <!-- Manual entry - the hero input -->
-            <div class="co-divider"><span class="co-divider-txt">or enter manually</span></div>
+            <!-- Scan option (secondary) -->
+            <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:10px;font-size:12px" onclick="coCaptureChips()">📷 Scan with AI instead</button>
+            <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
+
+            <!-- Manual dollar entry -->
+            <div class="co-divider"><span class="co-divider-txt">or type total directly</span></div>
             <input class="co-manual-inp" type="number" id="co-manual" placeholder="$0.00" min="0" step="0.10" oninput="recalcCO()">
           </div>
 
@@ -2741,44 +2751,40 @@ function deleteAddOn(id,idx){
 
 function buildCOChipInputs(p){
   const grid=$('co-chip-inputs');if(!grid)return;
-  DENOMS.forEach(d=>{if(!coChipData[d.id])coChipData[d.id]={stacks:0,loose:0};});
+  DENOMS.forEach(d=>{if(coChipData[d.id]===undefined)coChipData[d.id]=0;});
   grid.innerHTML=DENOMS.map(d=>{
-    const stk=coChipData[d.id]?.stacks||0;
-    const lse=coChipData[d.id]?.loose||0;
-    const tot=stk*10+lse;
+    const cnt=coChipData[d.id]||0;
+    const subtotal=cnt>0?`<span class="mono" style="font-size:12px;color:var(--cy)">${fmt(cnt*d.value)}</span>`:'';
     return `<div class="co-chip-item">
-      <div class="co-chip-top">
-        <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
-        <span style="font-size:10px;color:var(--i3);flex:1">${d.name} · $${d.value.toFixed(2)}</span>
-        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--cy)" id="co-ctot-${d.id}">${tot} chips</span>
+      <div class="co-chip-denom-row">
+        <div class="co-chip-dot" style="background:${d.color}"></div>
+        <div class="co-chip-dname">${d.name}<span class="co-chip-dval">$${d.value.toFixed(2)}</span></div>
+        <span id="co-cval-${d.id}">${subtotal}</span>
       </div>
-      <div class="co-chip-ctrs">
-        <div class="co-chip-grp">
-          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">×10</span>
-          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','stacks',-1)">−</button>
-          <span class="co-chip-cnt" id="co-cs-${d.id}">${stk}</span>
-          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','stacks',1)">+</button>
-        </div>
-        <div class="co-chip-grp">
-          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">loose</span>
-          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','loose',-1)">−</button>
-          <span class="co-chip-cnt" id="co-cl-${d.id}">${lse}</span>
-          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','loose',1)">+</button>
-        </div>
+      <div class="co-chip-stepper">
+        <button class="co-chip-adj-lg" onclick="adjCOChip('${d.id}',-5)">−5</button>
+        <button class="co-chip-adj-lg" onclick="adjCOChip('${d.id}',-1)">−</button>
+        <input class="co-chip-cnt-inp" type="number" id="co-c-${d.id}" value="${cnt}" min="0" inputmode="numeric" oninput="setCOChip('${d.id}',parseInt(this.value)||0)">
+        <button class="co-chip-adj-lg" onclick="adjCOChip('${d.id}',1)">+</button>
+        <button class="co-chip-adj-lg" onclick="adjCOChip('${d.id}',5)">+5</button>
       </div>
     </div>`;
   }).join('');
   calcCOChips();
 }
-function adjCOChip(id,field,delta){
-  if(!coChipData[id])coChipData[id]={stacks:0,loose:0};
-  coChipData[id][field]=Math.max(0,(coChipData[id][field]||0)+delta);
-  const stk=coChipData[id].stacks||0;
-  const lse=coChipData[id].loose||0;
-  const tot=stk*10+lse;
-  const sEl=$(`co-cs-${id}`);if(sEl)sEl.textContent=stk;
-  const lEl=$(`co-cl-${id}`);if(lEl)lEl.textContent=lse;
-  const tEl=$(`co-ctot-${id}`);if(tEl)tEl.textContent=tot+' chips';
+function adjCOChip(id,delta){
+  coChipData[id]=Math.max(0,(coChipData[id]||0)+delta);
+  const inpEl=$(`co-c-${id}`);if(inpEl)inpEl.value=coChipData[id];
+  const d=DENOMS.find(x=>x.id===id);
+  const vEl=$(`co-cval-${id}`);
+  if(vEl&&d) vEl.innerHTML=coChipData[id]>0?`<span class="mono" style="font-size:12px;color:var(--cy)">${fmt(coChipData[id]*d.value)}</span>`:'';
+  calcCOChips();
+}
+function setCOChip(id,val){
+  coChipData[id]=Math.max(0,val);
+  const d=DENOMS.find(x=>x.id===id);
+  const vEl=$(`co-cval-${id}`);
+  if(vEl&&d) vEl.innerHTML=coChipData[id]>0?`<span class="mono" style="font-size:12px;color:var(--cy)">${fmt(coChipData[id]*d.value)}</span>`:'';
   calcCOChips();
 }
 
@@ -2809,9 +2815,7 @@ function coApplyScan(data){
   const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   Object.entries(data.counts).forEach(([col,cnt])=>{
     const id=idMap[col]||col;
-    if(!coChipData[id])coChipData[id]={stacks:0,loose:0};
-    coChipData[id].stacks=Math.floor(cnt/10);
-    coChipData[id].loose=cnt%10;
+    coChipData[id]=cnt;
   });
   buildCOChipInputs(null);
   calcCOChips();
@@ -2820,16 +2824,13 @@ function coApplyScan(data){
 
 function calcCOChips(){
   let tot=0;
-  DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};tot+=(cd.stacks*10+cd.loose)*d.value;});
+  DENOMS.forEach(d=>{tot+=(coChipData[d.id]||0)*d.value;});
   tot=parseFloat(tot.toFixed(2));
-  const ctEl=$('co-chip-total');if(ctEl)ctEl.textContent=fmt(tot);
-  // Only override if user has actually entered chip counts (tot > 0)
-  // and there's no manual override already entered
+  const ctEl=$('co-chip-total');if(ctEl)ctEl.textContent=tot>0?fmt(tot):'—';
   const manual=$('co-manual');
   if(tot>0&&manual&&!manual.value){
     recalcCO(tot);
   }else if(tot===0&&manual&&!manual.value){
-    // If chips cleared, fall back to known stack
     const p=G.players.find(q=>q.id===coSelectedId);
     if(p&&p.status==='active'&&p.currentStack>0) recalcCO(p.currentStack);
     else recalcCO(0);
@@ -2840,7 +2841,18 @@ function useKnownStack(){
   const p=G.players.find(q=>q.id===coSelectedId);if(!p)return;
   const manual=$('co-manual');
   if(manual){ manual.value=p.currentStack.toFixed(2); recalcCO(); }
-  toast('Stack value loaded');
+  toast('Stack pre-filled');
+}
+function coClearChips(){
+  coChipData={};
+  DENOMS.forEach(d=>{
+    const inpEl=$(`co-c-${d.id}`);if(inpEl)inpEl.value='0';
+    const vEl=$(`co-cval-${d.id}`);if(vEl)vEl.innerHTML='';
+  });
+  const manual=$('co-manual');if(manual)manual.value='';
+  const ct=$('co-chip-total');if(ct)ct.textContent='—';
+  const res=$('co-result');if(res)res.style.display='none';
+  ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(id=>{const el=$(id);if(el)el.style.display='none';});
 }
 
 function recalcCO(chipTot){
@@ -2854,7 +2866,7 @@ function recalcCO(chipTot){
   }else{
     // Try chip inputs first
     let chipSum=0;
-    DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};chipSum+=(cd.stacks*10+cd.loose)*d.value;});
+    DENOMS.forEach(d=>{chipSum+=(coChipData[d.id]||0)*d.value;});
     chipSum=parseFloat(chipSum.toFixed(2));
     // Fall back to known stack if no chips entered
     if(chipSum>0) val=chipSum;
@@ -2891,7 +2903,6 @@ function selectCOPlayer(id){
   renderCashOut();
   const p=G.players.find(q=>q.id===id);
   if(p&&p.status==='active'&&p.currentStack>0){
-    const ct=$('co-chip-total');if(ct)ct.textContent=fmt(p.currentStack);
     recalcCO(p.currentStack);
   }
   // Mobile: scroll form card into view after player selected
@@ -2914,7 +2925,7 @@ function confirmCO(){
     if(manual&&manual.value!=='') val=parseFloat(manual.value)||0;
     else{
       let chipSum=0;
-      DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};chipSum+=(cd.stacks*10+cd.loose)*d.value;});
+      DENOMS.forEach(d=>{chipSum+=(coChipData[d.id]||0)*d.value;});
       val=parseFloat(chipSum.toFixed(2));
       if(val===0&&p.currentStack>0) val=p.currentStack;
     }

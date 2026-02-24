@@ -42,7 +42,7 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 .topbar{height:64px;background:rgba(6,4,15,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 22px;gap:16px;position:sticky;top:0;z-index:300;flex-shrink:0}
 .topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);opacity:.3}
 .wm{display:flex;align-items:center;gap:11px;margin-right:auto}
-.wm-logo{flex-shrink:0;height:40px;width:40px;border-radius:50%;object-fit:cover;box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 14px rgba(168,85,247,.4)}
+.wm-logo{flex-shrink:0;height:48px;width:48px;border-radius:12px;object-fit:contain;background:rgba(168,85,247,.08);box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 18px rgba(168,85,247,.5);padding:3px}
 .wm-name{font-family:'Instrument Serif',serif;font-size:24px;color:var(--i0);letter-spacing:.01em;line-height:1;text-shadow:0 0 30px rgba(0,212,255,.4)}
 .wm-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:var(--glow-cy);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
@@ -281,12 +281,18 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .res-total{font-family:'DM Mono',monospace;font-size:38px;font-weight:500;color:var(--cy);line-height:1;text-shadow:var(--glow-cy)}
 .res-lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--i3);margin:6px 0 13px}
 .res-chips{display:flex;flex-direction:column;gap:6px;margin-bottom:10px}
-.rchip{background:var(--s3);border:1px solid var(--br);border-radius:var(--r6);padding:7px 10px;display:flex;align-items:center;gap:8px}
+.rchip{background:var(--s3);border:1px solid var(--br);border-radius:var(--r6);padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .rchip-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.rchip-n{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;line-height:1;min-width:26px;text-align:center}
-.rchip-l{font-size:11px;color:var(--i3);flex:1}
-.rchip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:15px;width:24px;height:24px;cursor:pointer;padding:0;line-height:1;flex-shrink:0}
+.rchip-top{display:flex;align-items:center;gap:8px}
+.rchip-label{font-size:11px;color:var(--i3);flex:1}
+.rchip-tot-v{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;text-align:right}
+.rchip-tot-s{font-size:9px;color:var(--i4);display:block;text-align:right;margin-top:1px}
+.rchip-ctrs{display:flex;gap:8px;align-items:center}
+.rchip-grp{display:flex;align-items:center;gap:5px;flex:1}
+.rchip-glbl{font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.rchip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:16px;width:30px;height:30px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;touch-action:manipulation}
 .rchip-adj:hover{background:var(--cy3)}
+.rchip-n{font-family:'DM Mono',monospace;font-size:17px;font-weight:600;min-width:22px;text-align:center}
 .res-desc{font-size:11px;color:var(--i3);font-style:italic}
 .pp-list{display:flex;flex-direction:column;gap:5px}
 .pp-row{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:var(--r6);border:1px solid var(--br);background:var(--s2);cursor:pointer;transition:all .11s}
@@ -297,24 +303,63 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 
 /* ── CASH OUT PAGE ── */
 .co-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-.co-player-list{display:flex;flex-direction:column;gap:4px;max-height:44vh;overflow-y:auto;padding-right:3px}
-.co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:8px 12px;cursor:pointer;transition:all .12s}
+.co-right-col{display:flex;flex-direction:column;gap:0}
+.co-player-list{display:flex;flex-direction:column;gap:6px;max-height:44vh;overflow-y:auto;padding-right:3px}
+.co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:11px 14px;cursor:pointer;transition:all .12s;touch-action:manipulation;min-height:52px;display:flex;align-items:center}
 .co-player-card:hover{border-color:var(--brc);background:var(--s3)}
 .co-player-card.selected{border-color:var(--brc);background:var(--cy3)}
 .co-player-card.cashed{border-color:rgba(57,255,20,.2);background:var(--ag3)}
 .co-player-card.owes{border-color:rgba(255,69,96,.2)}
-.co-row{display:flex;align-items:center;gap:8px}
-.co-name{flex:1;font-size:13px;font-weight:600;color:var(--i0)}
-.co-status-badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid;flex-shrink:0}
+.co-row{display:flex;align-items:center;gap:8px;width:100%}
+.co-name{flex:1;font-size:14px;font-weight:600;color:var(--i0)}
+.co-status-badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid;flex-shrink:0}
 .csb-pending{border-color:rgba(255,178,0,.3);color:#ffb200;background:rgba(255,178,0,.08)}
 .csb-paid{border-color:rgba(57,255,20,.3);color:var(--ag);background:var(--ag3)}
 .csb-collect{border-color:rgba(255,69,96,.3);color:var(--neg);background:var(--neg3)}
-.settle-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:8px}
-.settle-name{flex:1;font-size:16px;font-weight:600;color:var(--i0)}
+.settle-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:8px;touch-action:manipulation}
+.settle-name{flex:1;font-size:15px;font-weight:600;color:var(--i0)}
 .settle-amt{font-family:'DM Mono',monospace;font-size:18px;font-weight:500}
-.settle-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--br);background:var(--s3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s;flex-shrink:0}
+.settle-check{width:36px;height:36px;border-radius:50%;border:2px solid var(--br);background:var(--s3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .12s;flex-shrink:0;touch-action:manipulation}
 .settle-check.done{background:var(--ag);border-color:var(--ag);box-shadow:var(--glow-ag)}
-.settle-check.done::after{content:'✓';color:#030a02;font-weight:700;font-size:10px}
+.settle-check.done::after{content:'✓';color:#030a02;font-weight:700;font-size:13px}
+.co-end-btn{touch-action:manipulation}
+/* Cash out form clean layout */
+.co-invest-bar{display:flex;align-items:center;gap:8px;padding:10px 13px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:10px}
+.co-invest-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3);flex:1}
+.co-stack-section{background:var(--s2);border:1px solid var(--brc);border-radius:var(--r10);padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
+.co-stack-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent)}
+.co-stack-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cy);margin-bottom:10px}
+.co-known-btn{width:100%;padding:13px 14px;background:rgba(0,212,255,.06);border:1px dashed rgba(0,212,255,.3);border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:all .12s;color:var(--i1);touch-action:manipulation;min-height:52px}
+.co-known-btn:hover{background:rgba(0,212,255,.12);border-color:var(--cy)}
+.co-known-btn-label{font-size:11px;color:var(--i3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.co-known-btn-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--cy)}
+.co-divider{display:flex;align-items:center;gap:8px;margin:10px 0}
+.co-divider::before,.co-divider::after{content:'';flex:1;height:1px;background:var(--br)}
+.co-divider-txt{font-size:10px;color:var(--i4);letter-spacing:.06em;text-transform:uppercase}
+.co-chip-row{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.co-chip-item{display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)}
+.co-chip-top{display:flex;align-items:center;gap:7px}
+.co-chip-ctrs{display:flex;gap:6px;align-items:center}
+.co-chip-grp{display:flex;align-items:center;gap:5px;flex:1}
+.co-chip-adj{background:none;border:1px solid var(--br);border-radius:var(--r4);color:var(--cy);font-size:15px;width:28px;height:28px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;touch-action:manipulation}
+.co-chip-adj:hover{background:var(--cy3)}
+.co-chip-cnt{font-family:'DM Mono',monospace;font-size:15px;font-weight:600;min-width:20px;text-align:center}
+.co-manual-inp{width:100%;padding:10px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r8);color:var(--i0);font-family:'DM Mono',monospace;font-size:20px;font-weight:500;outline:none;text-align:center;caret-color:var(--cy);transition:border-color .14s}
+.co-manual-inp:focus{border-color:var(--brc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.co-manual-inp::placeholder{color:var(--i4);font-size:15px}
+.co-scan-row{display:flex;gap:7px;margin-bottom:8px}
+.co-txn-compact{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);overflow:hidden;margin-bottom:10px}
+.co-txn-toggle{width:100%;padding:9px 13px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:var(--i3);font-family:'Syne',sans-serif}
+.co-txn-toggle:hover{background:var(--s3)}
+.co-txn-body{padding:0 13px 10px;display:none}
+.co-txn-body.open{display:block}
+.co-player-head{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--br)}
+.co-player-head-name{font-family:'Instrument Serif',serif;font-size:26px;color:var(--i0);line-height:1;margin-bottom:3px}
+.co-player-head-meta{font-size:11px;color:var(--i3);display:flex;align-items:center;gap:8px}
+
+.ora-verdict-pill{display:inline-block;padding:6px 22px;border-radius:24px;font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;border:1px solid;animation:fadeUp .18s ease both}
+.ora-verdict-pill.play{color:var(--ag);background:rgba(57,255,20,.1);border-color:rgba(57,255,20,.3)}
+.ora-verdict-pill.fold{color:var(--neg);background:rgba(255,69,96,.1);border-color:rgba(255,69,96,.3)}
 
 /* ── TRAINER ── */
 .trainer-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
@@ -428,6 +473,37 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   /* Hide felt table card on mobile — phone is command center */
   #d-players-card{display:none!important}
   #d-share-card,#d-pnl-card{display:none!important}
+  /* ── CASH OUT MOBILE ── */
+  /* Remove internal scroll on player list — show all players */
+  .co-player-list{max-height:none;overflow-y:visible}
+  /* Bigger player cards */
+  .co-player-card{padding:13px 14px;min-height:56px}
+  .co-name{font-size:15px}
+  /* Scan button full height */
+  .co-scan-row .btn{padding:12px 14px;font-size:13px}
+  /* Chip count inputs bigger on mobile */
+  .co-chip-item input{width:56px!important;font-size:14px!important;padding:7px 6px!important}
+  /* Manual entry: bigger on mobile */
+  .co-manual-inp{font-size:28px;padding:14px}
+  /* Confirm buttons: proper thumb size */
+  #co-confirm-win .btn,#co-confirm-loss .btn,#co-confirm-neutral .btn{padding:16px!important;font-size:15px!important}
+  /* Cashed state undo/correct buttons */
+  #co-undo-btn,#co-correct-btn,#co-correction-save{padding:13px 10px!important;font-size:13px!important}
+  /* Settle check: already 36px but make row comfier */
+  .settle-row{padding:14px}
+  .settle-name{font-size:16px}
+  .settle-amt{font-size:20px}
+  /* Session closed banner: stack buttons vertically */
+  #co-closed-banner{flex-direction:column;align-items:stretch;gap:10px}
+  #co-closed-banner > div:last-child{display:flex;flex-direction:column;gap:7px}
+  #co-closed-banner .btn{padding:12px!important;font-size:13px!important;text-align:center}
+  /* Player quick action buttons */
+  #co-player-actions .btn{padding:13px 8px!important;font-size:13px!important}
+  /* Known stack button */
+  .co-known-btn{padding:14px!important;min-height:58px}
+  .co-known-btn-val{font-size:20px!important}
+  /* All-done banner */
+  #co-all-done-banner{padding:20px}
 }
 @media(max-width:480px){
   .wm-sub{display:none}
@@ -730,77 +806,94 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   </div>
 
   <div class="co-grid">
-    <!-- Left: player list + payout panel -->
+    <!-- Left: player list only -->
     <div>
-      <div class="card mb12">
+      <div class="card">
         <div class="chd">
-          <span class="ctitle cy">Session Players</span>
+          <span class="ctitle cy">Players</span>
           <div class="flex" style="gap:6px;align-items:center">
             <span id="co-summary" style="font-size:10px;color:var(--i3)"></span>
-            <button class="btn btn-ag btn-xs" id="co-close-btn" onclick="closeSession()">🏁 End Session</button>
+            <button class="btn btn-ag btn-sm co-end-btn" id="co-close-btn" onclick="closeSession()" style="touch-action:manipulation">🏁 End Session</button>
           </div>
         </div>
         <div id="co-player-list" class="co-player-list"></div>
       </div>
-
-      <!-- Payout panel -->
-      <div class="card card-cyan">
-        <div class="chd">
-          <span class="ctitle cy">Payouts</span>
-          <button class="btn btn-sm btn-xs" onclick="autoSettle()">Mark All Paid</button>
-        </div>
-        <div id="settle-empty" class="empty" style="padding:12px 0"><span class="empty-txt">Cash out players to see payouts</span></div>
-        <div id="settle-list"></div>
-      </div>
     </div>
 
-    <!-- Right: cash out form -->
-    <div>
+    <!-- Right: cash out form + payout panel (correct mobile order) -->
+    <div class="co-right-col">
       <div class="card card-magenta" id="co-form-card">
         <div class="chd"><span class="ctitle mg">Cash Out</span></div>
-        <div id="co-no-selection" style="padding:20px;text-align:center;color:var(--i3);font-size:12px">← Select a player</div>
+        <div id="co-no-selection" style="padding:28px 20px;text-align:center;color:var(--i3);font-size:13px">Select a player to cash out</div>
         <div id="co-form" style="display:none">
-          <div style="font-family:'Instrument Serif',serif;font-size:22px;color:var(--i0);margin-bottom:4px" id="co-form-name"></div>
-          <div style="font-size:10px;color:var(--i3);margin-bottom:13px" id="co-form-seat"></div>
 
-          <!-- Buy-in editor -->
-          <div style="background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:12px;margin-bottom:12px">
-            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:9px;display:flex;justify-content:space-between;align-items:center">
-              <span>Transaction Log</span>
-              <button class="btn btn-ghost btn-xs" onclick="editBuyInMode()" id="co-edit-btn">✎ Edit</button>
-            </div>
-            <div id="co-txn-log"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
-              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Total In</span>
-              <span class="mono au" style="font-size:16px" id="co-total-in">$0.00</span>
+          <!-- Player Header -->
+          <div class="co-player-head">
+            <div class="co-player-head-name" id="co-form-name"></div>
+            <div class="co-player-head-meta">
+              <span id="co-form-seat"></span>
             </div>
           </div>
 
-          <!-- Stack from chip counter (auto-populated) -->
-          <div style="background:var(--cy3);border:1px solid var(--brc);border-radius:var(--r6);padding:9px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
-            <span style="font-size:11px;color:var(--cy);font-weight:600">Last Known Stack</span>
-            <span class="mono cy" style="font-size:15px;margin-left:auto" id="co-known-stack">—</span>
-            <button class="btn btn-ghost btn-xs" onclick="useKnownStack()" id="co-use-stack-btn" style="display:none">Use</button>
+          <!-- Investment Bar (compact) -->
+          <div class="co-invest-bar">
+            <span class="co-invest-label">Total Invested</span>
+            <span class="mono au" style="font-size:18px;font-weight:600" id="co-total-in">$0.00</span>
+            <button class="btn btn-ghost btn-xs" onclick="editBuyInMode()" id="co-edit-btn">✎ Edit</button>
           </div>
 
-          <!-- Chip count -->
-          <div class="card" style="background:var(--s2);margin-bottom:12px;padding:12px">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
-              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Count Chips Now</span>
-              <button class="btn btn-cy btn-xs" onclick="coCaptureChips()" style="font-size:11px;padding:4px 10px">📷 Scan</button>
+          <!-- Transaction Log (collapsible) -->
+          <div class="co-txn-compact">
+            <button class="co-txn-toggle" onclick="toggleCOTxn(this)">
+              <span style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase">Transaction Log</span>
+              <span style="font-size:11px;opacity:.5">▾</span>
+            </button>
+            <div class="co-txn-body" id="co-txn-log"></div>
+          </div>
+
+          <!-- ── Cashed-out summary (shown when player already settled) ── -->
+          <div id="co-cashed-state" style="display:none">
+            <div style="background:var(--s2);border:1px solid var(--br);border-radius:var(--r10);padding:18px;text-align:center;margin-bottom:12px">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--i3);margin-bottom:8px">Settled</div>
+              <div class="co-net" id="co-cashed-net" style="font-size:32px">$0</div>
+              <div class="co-sub" id="co-cashed-sub" style="margin-top:5px"></div>
+              <div style="font-size:10px;color:var(--i4);margin-top:4px" id="co-cashed-detail"></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-ghost btn-sm" style="flex:1" id="co-undo-btn">↩ Undo Cash Out</button>
+              <button class="btn btn-cy btn-sm" style="flex:1" id="co-correct-btn">✎ Correct Amount</button>
+            </div>
+            <!-- Correction input — hidden until "Correct" is clicked -->
+            <div id="co-correction-wrap" style="display:none;margin-top:10px">
+              <input class="co-manual-inp" type="number" id="co-correction-inp" placeholder="$0.00" min="0" step="0.10" style="margin-bottom:8px">
+              <button class="btn btn-ag btn-full" id="co-correction-save">💾 Save Correction</button>
+            </div>
+          </div>
+
+          <!-- ── STEP: Enter Final Stack (active players only) ── -->
+          <div id="co-stack-section" class="co-stack-section">
+            <div class="co-stack-label">Final Stack</div>
+
+            <!-- Known stack quick-use button (shows when stack is known) -->
+            <button class="co-known-btn" id="co-use-stack-btn" onclick="useKnownStack()" style="display:none">
+              <div>
+                <div class="co-known-btn-label">Use Last Known Stack</div>
+                <div style="font-size:10px;color:var(--i4);margin-top:1px">From chip counter</div>
+              </div>
+              <span class="co-known-btn-val" id="co-known-stack">—</span>
+            </button>
+
+            <!-- Chip counter inputs + scan -->
+            <div class="co-scan-row">
+              <button class="btn btn-cy btn-sm" style="flex:1;font-size:12px" onclick="coCaptureChips()">📷 Scan Chips</button>
+              <span class="mono cy" style="font-size:14px;align-self:center;padding:0 8px" id="co-chip-total">$0.00</span>
             </div>
             <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
-            <div id="co-chip-inputs" style="display:grid;grid-template-columns:1fr 1fr;gap:6px"></div>
-            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--br);padding-top:8px;margin-top:6px">
-              <span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase">Chip Total</span>
-              <span class="mono cy" style="font-size:17px" id="co-chip-total">$0.00</span>
-            </div>
-          </div>
+            <div class="co-chip-row" id="co-chip-inputs"></div>
 
-          <!-- Manual override -->
-          <div class="fg">
-            <label class="lbl">Or Enter Final Value Manually ($)</label>
-            <input class="inp inp-sm" type="number" id="co-manual" placeholder="0.00" min="0" step="0.10" oninput="recalcCO()">
+            <!-- Manual entry - the hero input -->
+            <div class="co-divider"><span class="co-divider-txt">or enter manually</span></div>
+            <input class="co-manual-inp" type="number" id="co-manual" placeholder="$0.00" min="0" step="0.10" oninput="recalcCO()">
           </div>
 
           <!-- Result -->
@@ -810,20 +903,39 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <div style="font-size:10px;color:var(--i3);margin-top:4px" id="co-detail"></div>
           </div>
 
-          <!-- Action buttons — split for win vs loss -->
+          <!-- Confirm buttons -->
           <div id="co-confirm-win" style="display:none;margin-top:10px">
-            <button class="btn btn-ag btn-full" style="font-size:13px;padding:12px" onclick="confirmCO()">✓ Confirm Payout</button>
+            <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">✓ Confirm Payout</button>
           </div>
           <div id="co-confirm-loss" style="display:none;margin-top:10px">
-            <button class="btn btn-neg btn-full" style="font-size:13px;padding:12px" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
+            <button class="btn btn-neg btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
           </div>
           <div id="co-confirm-neutral" style="display:none;margin-top:10px">
-            <button class="btn btn-solid-cy btn-full" onclick="confirmCO()">Confirm Cash Out</button>
+            <button class="btn btn-solid-cy btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Cash Out</button>
           </div>
 
-          <!-- Player quick actions: add-on, chips, bust -->
-          <div id="co-player-actions" style="display:none;margin-top:12px"></div>
+          <!-- Player quick actions: add-on, chips, bust (active only) -->
+          <div id="co-player-actions" style="display:none;margin-top:14px"></div>
         </div>
+      </div>
+
+      <!-- Payout panel — below form so mobile order is correct -->
+      <div class="card card-cyan" style="margin-top:20px">
+        <div class="chd">
+          <span class="ctitle cy">Payouts</span>
+          <button class="btn btn-sm" onclick="autoSettle()" style="touch-action:manipulation">Mark All Paid</button>
+        </div>
+        <div id="settle-empty" class="empty" style="padding:12px 0"><span class="empty-txt">Cash out players to see payouts</span></div>
+        <div id="settle-list"></div>
+      </div>
+
+      <!-- Archive prompt — shown when everyone is cashed out -->
+      <div id="co-all-done-banner" style="display:none;background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.3);border-radius:var(--r10);padding:18px;text-align:center;margin-top:16px">
+        <div style="font-size:24px;margin-bottom:8px">🏁</div>
+        <div style="font-size:15px;font-weight:700;color:var(--ag);margin-bottom:4px">Everyone's cashed out</div>
+        <div style="font-size:12px;color:var(--i3);margin-bottom:16px">Ready to wrap up the night?</div>
+        <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="archiveAndClear()">Archive &amp; Clear Table</button>
+        <button class="btn btn-ghost btn-full" style="font-size:13px;padding:12px;margin-top:8px;touch-action:manipulation" onclick="keepPlayingCO()">Keep Playing</button>
       </div>
     </div>
   </div>
@@ -1129,9 +1241,9 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         </button>
 
         <!-- Verdict (shown after button press) -->
-        <div id="ora-result" style="display:none;border-radius:var(--r10);padding:14px;text-align:center;margin-top:14px;transition:all .2s">
-          <div id="ora-verdict" style="font-size:20px;font-weight:700;margin-bottom:6px"></div>
-          <div id="ora-reason" style="font-size:12px;line-height:1.7;opacity:.9"></div>
+        <div id="ora-result" style="display:none;border-radius:var(--r10);padding:16px;text-align:center;margin-top:14px;transition:all .2s">
+          <div id="ora-verdict" style="font-size:18px;font-weight:700;margin-bottom:8px"></div>
+          <div id="ora-reason" style="font-size:12px;line-height:1.7;color:var(--i2)"></div>
         </div>
 
       </div>
@@ -1387,7 +1499,7 @@ let sessionActive = false;
 let sessionStartTime = null;
 let timerInterval = null;
 
-let activeTab = 'dash', selPlayer = null, selPlayerId = null, chipVal = null;
+let activeTab = 'dash', selPlayer = null, selPlayerId = null, chipVal = null, coChipData = {}, mcChipData = {};
 
 /* ═══════════════════════════════
    HELPERS
@@ -2451,61 +2563,110 @@ function renderCashOut(){
   }
 
   renderPayout();
+
+  // Show/hide all-done banner
+  const allDone=$('co-all-done-banner');
+  if(allDone){
+    const activeCt=G.players.filter(p=>p.status==='active').length;
+    const totalCt=G.players.filter(p=>p.status==='active'||p.status==='cashed'||p.status==='out').length;
+    allDone.style.display=(totalCt>0&&activeCt===0&&!sessionClosed)?'block':'none';
+  }
+}
+
+function keepPlayingCO(){
+  const b=$('co-all-done-banner');if(b)b.style.display='none';
+}
+
+function toggleCOTxn(btn){
+  const body=btn.parentElement.querySelector('.co-txn-body');
+  if(!body)return;
+  const open=body.classList.toggle('open');
+  btn.querySelector('span:last-child').textContent=open?'▴':'▾';
 }
 
 function populateCOForm(p){
   $('co-form-name').textContent = p.name;
-  $('co-form-seat').textContent = `Seat ${p.seat} · ${p.status==='cashed'?'Cashed out':'Active'}`;
 
-  // Transaction log with edit/delete
+  const cashedState  = $('co-cashed-state');
+  const stackSection = $('co-stack-section');
+  const resultBox    = $('co-result');
+  const qa           = $('co-player-actions');
+
+  // Always render the transaction log and invest bar
   renderCOTxnLog(p);
 
-  // Known stack from currentStack (synced from chip counter)
-  const stackEl=$('co-known-stack'), useBtn=$('co-use-stack-btn');
-  if(p.status!=='cashed' && p.currentStack>0){
-    stackEl.textContent = fmt(p.currentStack);
-    if(useBtn){ useBtn.style.display='inline-flex'; }
-  } else {
-    stackEl.textContent = p.status==='cashed' ? fmt(p.cashoutAmount||0)+' (cashed)' : '—';
-    if(useBtn) useBtn.style.display='none';
-  }
+  if(p.status==='cashed'||p.status==='out'){
+    // ── CASHED / BUSTED VIEW ──────────────────────────────────────────────
+    $('co-form-seat').textContent = `Seat ${p.seat} · Cashed ${fmt(p.cashoutAmount||0)}`;
 
-  // Build chip inputs
-  buildCOChipInputs(p);
-
-  // If already cashed out show locked state
-  if(p.status==='cashed'){
-    $('co-manual').value = (p.cashoutAmount||0).toFixed(2);
-    $('co-manual').disabled = false;
-    recalcCO();
-    // Hide confirm buttons, show correction + undo buttons
+    // Show summary, hide entry form
+    if(cashedState)  cashedState.style.display='block';
+    if(stackSection) stackSection.style.display='none';
+    if(resultBox)    resultBox.style.display='none';
     ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(id=>{const e=$(id);if(e)e.style.display='none';});
-    const editArea=$('co-cashed-edit');
-    if(!editArea){
-      const div=document.createElement('div');div.id='co-cashed-edit';div.style.cssText='margin-top:10px;display:flex;gap:8px';
-      div.innerHTML=`<button class="btn btn-ghost btn-sm" style="flex:1" onclick="uncashPlayer(${p.id})">↩ Undo Cash Out</button><button class="btn btn-cy btn-sm" style="flex:1" onclick="saveCashedStack(${p.id})">💾 Save Correction</button>`;
-      $('co-manual').parentElement.after(div);
-    }
-  } else {
-    $('co-manual').disabled=false;
-    const old=$('co-cashed-edit');if(old)old.remove();
-    const manual=$('co-manual');if(manual&&!manual.value)recalcCO();
-  }
+    if(qa) qa.style.display='none';
 
-  // ── Player quick actions (active only) ──
-  const qa=$('co-player-actions');
-  if(qa){
-    if(p.status==='active'){
+    // Populate the cashed summary
+    const val   = p.cashoutAmount||0;
+    const net   = parseFloat((val-ti(p)).toFixed(2));
+    const netEl = $('co-cashed-net');
+    const subEl = $('co-cashed-sub');
+    const detEl = $('co-cashed-detail');
+    if(netEl){ netEl.textContent=net===0?'$0.00':signed(net); netEl.className='co-net '+(net>0?'pos':net<0?'neg':''); }
+    if(subEl) subEl.textContent = net>0?'Profit 🏆':net<0?'Loss':'Break Even';
+    if(detEl) detEl.textContent = `Cashed ${fmt(val)} · Invested ${fmt(ti(p))}`;
+
+    // Wire undo / correct buttons fresh each time (fixes stale-ID bug)
+    const undoBtn = $('co-undo-btn');
+    const corrBtn = $('co-correct-btn');
+    const corrWrap= $('co-correction-wrap');
+    const corrInp = $('co-correction-inp');
+    const corrSave= $('co-correction-save');
+    if(corrWrap) corrWrap.style.display='none'; // reset correction panel
+    if(corrInp)  corrInp.value='';
+    if(undoBtn)  undoBtn.onclick=()=>uncashPlayer(p.id);
+    if(corrBtn)  corrBtn.onclick=()=>{
+      if(!corrWrap) return;
+      const open=corrWrap.style.display==='none';
+      corrWrap.style.display=open?'block':'none';
+      if(open&&corrInp) corrInp.value=(p.cashoutAmount||0).toFixed(2);
+    };
+    if(corrSave) corrSave.onclick=()=>saveCashedStack(p.id);
+
+  } else {
+    // ── ACTIVE VIEW ───────────────────────────────────────────────────────
+    $('co-form-seat').textContent = `Seat ${p.seat} · Active · In ${fmt(ti(p))}`;
+
+    if(cashedState)  cashedState.style.display='none';
+    if(stackSection) stackSection.style.display='block';
+
+    // Known stack quick-use button
+    const stackEl=$('co-known-stack'), useBtn=$('co-use-stack-btn');
+    if(p.currentStack>0){
+      if(stackEl) stackEl.textContent=fmt(p.currentStack);
+      if(useBtn)  useBtn.style.display='flex';
+    } else {
+      if(useBtn)  useBtn.style.display='none';
+    }
+
+    // Build chip inputs
+    buildCOChipInputs(p);
+
+    const manual=$('co-manual');
+    if(manual){ manual.disabled=false; if(!manual.value) recalcCO(); }
+
+    // Player quick actions
+    if(qa){
       qa.style.display='block';
       qa.innerHTML=`
-        <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:8px;padding-top:4px;border-top:1px solid var(--br)">Player Actions</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
-          <button class="btn btn-au btn-sm" onclick="coQuickAddon(${p.id})">↺ Add-On / Re-Buy</button>
-          <button class="btn btn-cy btn-sm" onclick="openChipsForPlayer(${p.id})">📷 Chip Counter</button>
-        </div>
-        <button class="btn btn-sm btn-full" style="border-color:rgba(255,69,96,.3);color:var(--neg);font-weight:700;padding:10px 0" onclick="bustPlayerZero(${p.id})">💀 Bust — Cash Out at $0</button>`;
-    } else {
-      qa.style.display='none';
+        <div style="padding-top:12px;border-top:1px solid var(--br)">
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Player Actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
+            <button class="btn btn-au btn-sm" onclick="coQuickAddon(${p.id})">↺ Add-On / Re-Buy</button>
+            <button class="btn btn-cy btn-sm" onclick="openChipsForPlayer(${p.id})">📷 Chip Counter</button>
+          </div>
+          <button class="btn btn-sm btn-full" style="border-color:rgba(255,69,96,.3);color:var(--neg);font-weight:700;padding:10px 0" onclick="bustPlayerZero(${p.id})">💀 Bust at $0</button>
+        </div>`;
     }
   }
 }
@@ -2515,7 +2676,7 @@ function renderCOTxnLog(p){
   const editable = coEditMode;
   let html='';
   // Buy-in row
-  html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--br)">
+  html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;${p.addOns.length?'border-bottom:1px solid var(--br)':''}">
     <span class="atag bi" style="flex-shrink:0">BUY-IN</span>
     ${editable
       ? `<input type="number" value="${p.buyin}" min="0" step="0.10" style="width:70px;background:var(--s1);border:1px solid var(--brc);border-radius:4px;padding:3px 6px;color:var(--cy);font-family:'DM Mono',monospace;font-size:12px;outline:none" onchange="editBuyIn(${p.id},this.value)">`
@@ -2524,7 +2685,8 @@ function renderCOTxnLog(p){
   </div>`;
   // Add-on rows
   p.addOns.forEach((a,i)=>{
-    html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--br)">
+    const isLast=i===p.addOns.length-1;
+    html+=`<div style="display:flex;align-items:center;gap:7px;padding:6px 0;${isLast?'':'border-bottom:1px solid var(--br)'}">
       <span class="atag rb" style="flex-shrink:0">${a.type.toUpperCase().slice(0,6)}</span>
       ${editable
         ? `<input type="number" value="${a.amount}" min="0" step="0.10" style="width:70px;background:var(--s1);border:1px solid var(--brc);border-radius:4px;padding:3px 6px;color:var(--au);font-family:'DM Mono',monospace;font-size:12px;outline:none" onchange="editAddOn(${p.id},${i},this.value)">`
@@ -2533,8 +2695,9 @@ function renderCOTxnLog(p){
       ${editable?`<button onclick="deleteAddOn(${p.id},${i})" style="background:none;border:none;color:var(--neg);cursor:pointer;font-size:14px;padding:0 2px;line-height:1">×</button>`:''}
     </div>`;
   });
-  log.innerHTML=html||'<div style="font-size:11px;color:var(--i4);padding:6px 0">No transactions</div>';
-  $('co-total-in').textContent=fmt(ti(p));
+  log.innerHTML=html||'<div style="font-size:11px;color:var(--i4);padding:6px 0">Buy-in only</div>';
+  // Update both invest bar and any visible total
+  const ti_el=$('co-total-in');if(ti_el)ti_el.textContent=fmt(ti(p));
 
   // Edit button label
   const editBtn=$('co-edit-btn');
@@ -2578,14 +2741,44 @@ function deleteAddOn(id,idx){
 
 function buildCOChipInputs(p){
   const grid=$('co-chip-inputs');if(!grid)return;
-  grid.innerHTML=DENOMS.map(d=>`
-    <div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r4)">
-      <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
-      <span style="font-size:10px;color:var(--i3);flex:1">${d.name}</span>
-      <input type="number" id="co-c-${d.id}" value="0" min="0"
-        style="width:46px;background:var(--s2);border:1px solid var(--br);border-radius:4px;padding:4px 6px;color:var(--cy);font-family:'DM Mono',monospace;font-size:12px;outline:none;text-align:center;caret-color:var(--cy)"
-        oninput="calcCOChips()">
-    </div>`).join('');
+  DENOMS.forEach(d=>{if(!coChipData[d.id])coChipData[d.id]={stacks:0,loose:0};});
+  grid.innerHTML=DENOMS.map(d=>{
+    const stk=coChipData[d.id]?.stacks||0;
+    const lse=coChipData[d.id]?.loose||0;
+    const tot=stk*10+lse;
+    return `<div class="co-chip-item">
+      <div class="co-chip-top">
+        <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
+        <span style="font-size:10px;color:var(--i3);flex:1">${d.name} · $${d.value.toFixed(2)}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--cy)" id="co-ctot-${d.id}">${tot} chips</span>
+      </div>
+      <div class="co-chip-ctrs">
+        <div class="co-chip-grp">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">×10</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','stacks',-1)">−</button>
+          <span class="co-chip-cnt" id="co-cs-${d.id}">${stk}</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','stacks',1)">+</button>
+        </div>
+        <div class="co-chip-grp">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">loose</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','loose',-1)">−</button>
+          <span class="co-chip-cnt" id="co-cl-${d.id}">${lse}</span>
+          <button class="co-chip-adj" onclick="adjCOChip('${d.id}','loose',1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  calcCOChips();
+}
+function adjCOChip(id,field,delta){
+  if(!coChipData[id])coChipData[id]={stacks:0,loose:0};
+  coChipData[id][field]=Math.max(0,(coChipData[id][field]||0)+delta);
+  const stk=coChipData[id].stacks||0;
+  const lse=coChipData[id].loose||0;
+  const tot=stk*10+lse;
+  const sEl=$(`co-cs-${id}`);if(sEl)sEl.textContent=stk;
+  const lEl=$(`co-cl-${id}`);if(lEl)lEl.textContent=lse;
+  const tEl=$(`co-ctot-${id}`);if(tEl)tEl.textContent=tot+' chips';
   calcCOChips();
 }
 
@@ -2615,16 +2808,19 @@ function coApplyScan(data){
   if(!data||!data.counts)return;
   const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   Object.entries(data.counts).forEach(([col,cnt])=>{
-    const inp=$(`co-c-${idMap[col]||col}`);
-    if(inp)inp.value=cnt;
+    const id=idMap[col]||col;
+    if(!coChipData[id])coChipData[id]={stacks:0,loose:0};
+    coChipData[id].stacks=Math.floor(cnt/10);
+    coChipData[id].loose=cnt%10;
   });
+  buildCOChipInputs(null);
   calcCOChips();
   toast(`Scanned: ${fmt(data.total)}`);
 }
 
 function calcCOChips(){
   let tot=0;
-  DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)tot+=(parseFloat(i.value)||0)*d.value;});
+  DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};tot+=(cd.stacks*10+cd.loose)*d.value;});
   tot=parseFloat(tot.toFixed(2));
   const ctEl=$('co-chip-total');if(ctEl)ctEl.textContent=fmt(tot);
   // Only override if user has actually entered chip counts (tot > 0)
@@ -2658,7 +2854,7 @@ function recalcCO(chipTot){
   }else{
     // Try chip inputs first
     let chipSum=0;
-    DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)chipSum+=(parseFloat(i.value)||0)*d.value;});
+    DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};chipSum+=(cd.stacks*10+cd.loose)*d.value;});
     chipSum=parseFloat(chipSum.toFixed(2));
     // Fall back to known stack if no chips entered
     if(chipSum>0) val=chipSum;
@@ -2690,17 +2886,20 @@ function recalcCO(chipTot){
 function selectCOPlayer(id){
   coSelectedId=id; coEditMode=false;
   const manual=$('co-manual');if(manual)manual.value='';
-  // Clear chip inputs
-  DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)i.value='0';});
+  coChipData={};
   const old=$('co-cashed-edit');if(old)old.remove();
   renderCashOut();
-  // After render, pre-populate chip total from player's current stack
   const p=G.players.find(q=>q.id===id);
   if(p&&p.status==='active'&&p.currentStack>0){
-    const ct=$('co-chip-total');
-    if(ct)ct.textContent=fmt(p.currentStack);
-    // Trigger recalc with the known stack as starting value so result shows immediately
+    const ct=$('co-chip-total');if(ct)ct.textContent=fmt(p.currentStack);
     recalcCO(p.currentStack);
+  }
+  // Mobile: scroll form card into view after player selected
+  if(window.innerWidth<=820){
+    setTimeout(()=>{
+      const fc=$('co-form-card');
+      if(fc) fc.scrollIntoView({behavior:'smooth',block:'start'});
+    },80);
   }
 }
 
@@ -2715,7 +2914,7 @@ function confirmCO(){
     if(manual&&manual.value!=='') val=parseFloat(manual.value)||0;
     else{
       let chipSum=0;
-      DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)chipSum+=(parseFloat(i.value)||0)*d.value;});
+      DENOMS.forEach(d=>{const cd=coChipData[d.id]||{stacks:0,loose:0};chipSum+=(cd.stacks*10+cd.loose)*d.value;});
       val=parseFloat(chipSum.toFixed(2));
       if(val===0&&p.currentStack>0) val=p.currentStack;
     }
@@ -2725,8 +2924,12 @@ function confirmCO(){
   p.status='cashed'; p.cashoutAmount=val; p.currentStack=0; delete p._pendingCOValue;
   addFeed(net>0?'🏆':'💸',`${p.name} cashed out`,`${fmt(val)} · Net ${net>=0?'+'+fmt(net):'−'+fmt(Math.abs(net))}`);
   coSelectedId=null; coEditMode=false; refresh(); renderCashOut();
-  setTimeout(()=>{const sl=$('settle-list');if(sl)sl.scrollIntoView({behavior:'smooth',block:'nearest'});},300);
   toast(net>0?`${p.name} wins ${fmt(net)} 🏆`:net<0?`${p.name} out — owes ${fmt(Math.abs(net))}`:`${p.name} breaks even`);
+  // Check if everyone is done
+  const stillActive=G.players.filter(q=>q.status==='active').length;
+  if(stillActive===0&&G.players.length>0){
+    setTimeout(()=>toast('🏁 Everyone\'s cashed out — ready to archive!',4000),600);
+  }
 }
 
 function uncashPlayer(id){
@@ -2740,13 +2943,14 @@ function uncashPlayer(id){
 
 function saveCashedStack(id){
   const p=G.players.find(q=>q.id===id);if(!p||p.status!=='cashed')return;
-  const manual=$('co-manual');
-  if(!manual||manual.value===''){toast('Enter a corrected amount');return;}
-  const val=parseFloat(parseFloat(manual.value).toFixed(2));
+  const inp=$('co-correction-inp');
+  if(!inp||inp.value===''){toast('Enter a corrected amount');return;}
+  const val=parseFloat(parseFloat(inp.value).toFixed(2));
   if(isNaN(val)||val<0){toast('Invalid amount');return;}
   const old=p.cashoutAmount||0;
   p.cashoutAmount=val;
   addFeed('✎',`${p.name} cashout corrected`,`${fmt(old)} → ${fmt(val)}`);
+  const wrap=$('co-correction-wrap');if(wrap)wrap.style.display='none';
   refresh(); renderCashOut();
   toast(`${p.name} updated to ${fmt(val)}`);
 }
@@ -2910,15 +3114,51 @@ function updateDenom(id,val){const d=DENOMS.find(d=>d.id===id);if(d){d.value=par
 function resetDenoms(){DENOMS=JSON.parse(JSON.stringify(DEFAULT_DENOMS));buildDenomUI();toast('Reset to default');}
 function buildMCGrid(){
   const g=$('mc-grid');if(!g)return;
-  g.innerHTML=DENOMS.map(d=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)">
-      <div style="width:16px;height:16px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
-      <span style="font-size:10px;color:var(--i3);flex:1">${d.name} ×$${d.value.toFixed(2)}</span>
-      <input style="width:52px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r4);padding:5px 7px;color:var(--cy);font-family:'DM Mono',monospace;font-size:13px;outline:none;text-align:center;caret-color:var(--cy)" type="number" id="mc-${d.id}" value="0" min="0" oninput="calcManual()">
-    </div>`).join('');
+  // Preserve existing counts or default to 0
+  DENOMS.forEach(d=>{if(!mcChipData[d.id])mcChipData[d.id]={stacks:0,loose:0};});
+  g.innerHTML=DENOMS.map(d=>{
+    const stk=mcChipData[d.id]?.stacks||0;
+    const lse=mcChipData[d.id]?.loose||0;
+    const tot=stk*10+lse;
+    return `<div style="display:flex;flex-direction:column;gap:6px;padding:8px 10px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r6)">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:12px;height:12px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
+        <span style="font-size:10px;color:var(--i3);flex:1">${d.name} · $${d.value.toFixed(2)}/chip</span>
+        <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--cy)" id="mc-tot-${d.id}">${tot} chips · ${fmt(tot*d.value)}</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div style="display:flex;align-items:center;gap:5px;flex:1">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">×10</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','stacks',-1)">−</button>
+          <span class="rchip-n" id="mc-s-${d.id}" style="color:${d.color}">${stk}</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','stacks',1)">+</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;flex:1">
+          <span style="font-size:9px;color:var(--i4);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">loose</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','loose',-1)">−</button>
+          <span class="rchip-n" id="mc-l-${d.id}" style="color:${d.color}">${lse}</span>
+          <button class="rchip-adj" onclick="adjMCChip('${d.id}','loose',1)">+</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  calcManual();
+}
+function adjMCChip(id,field,delta){
+  if(!mcChipData[id])mcChipData[id]={stacks:0,loose:0};
+  mcChipData[id][field]=Math.max(0,(mcChipData[id][field]||0)+delta);
+  const stk=mcChipData[id].stacks||0;
+  const lse=mcChipData[id].loose||0;
+  const tot=stk*10+lse;
+  const sEl=$(`mc-s-${id}`);if(sEl)sEl.textContent=stk;
+  const lEl=$(`mc-l-${id}`);if(lEl)lEl.textContent=lse;
+  const d=DENOMS.find(d=>d.id===id);
+  const tEl=$(`mc-tot-${id}`);if(tEl)tEl.textContent=`${tot} chips · ${d?fmt(tot*d.value):'?'}`;
+  calcManual();
 }
 function calcManual(){
-  let t=0;DENOMS.forEach(d=>{const i=$(`mc-${d.id}`);if(i)t+=(parseFloat(i.value)||0)*d.value;});
+  let t=0;
+  DENOMS.forEach(d=>{const cd=mcChipData[d.id]||{stacks:0,loose:0};t+=(cd.stacks*10+cd.loose)*d.value;});
   const mt=$('mc-total');if(mt)mt.textContent=fmt(t);
 }
 function handleFile(e){const f=e.target.files[0];if(f)processImg(f);}
@@ -2991,33 +3231,74 @@ async function runAI(dataUrl){
 }
 
 
-function showChipResult(r){
-  $('chip-loading').style.display='none';chipVal=r;
-  $('chip-total').textContent=fmt(r.total);
-  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e'};
-  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
-  $('chip-chips').innerHTML=r.counts?Object.entries(r.counts).filter(([,v])=>v>0).map(([col,cnt])=>{
-    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
-    const clr=chx[col]||'#fff';
-    return `<div class="rchip"><div class="rchip-dot" style="background:${clr}"></div><span class="rchip-l">${col} · $${d?d.value.toFixed(2):'?'}</span><button class="rchip-adj" onclick="adjustChip('${col}',-1)">−</button><span class="rchip-n" id="rchip-n-${col}" style="color:${clr}">${cnt}</span><button class="rchip-adj" onclick="adjustChip('${col}',1)">+</button></div>`;
-  }).join(''):'';
-  $('chip-desc').textContent=r.description||'';
-  $('chip-result').style.display='block';$('chip-actions').style.display='block';
-  populatePickers();toast(`Counted: ${fmt(r.total)}`);
-}
-function adjustChip(col,delta){
-  if(!chipVal||!chipVal.counts)return;
-  const next=Math.max(0,(chipVal.counts[col]||0)+delta);
-  chipVal.counts[col]=next;
-  const el=$('rchip-n-'+col);if(el)el.textContent=next;
+function _recalcChipVal(){
+  if(!chipVal)return;
   const idMap={red:'r',blue:'b',black:'bl',green:'g'};
   let t=0;
-  Object.entries(chipVal.counts).forEach(([c,cnt])=>{const d=DENOMS.find(d=>d.id===(idMap[c]||c));if(d)t+=cnt*d.value;});
+  Object.keys(chipVal.stacks||{}).forEach(col=>{
+    const stk=chipVal.stacks[col]||0;
+    const lse=(chipVal.loose||{})[col]||0;
+    chipVal.counts[col]=stk*10+lse;
+    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+    if(d) t+=chipVal.counts[col]*d.value;
+  });
   chipVal.total=parseFloat(t.toFixed(2));
+}
+function showChipResult(r){
+  $('chip-loading').style.display='none';
+  const chx={red:'#ef4444',blue:'#3b82f6',black:'#9ca3af',green:'#22c55e'};
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
+  // Convert AI raw counts into stacks-of-10 + loose model
+  chipVal={stacks:{},loose:{},counts:{},total:0};
+  if(r.counts){
+    Object.entries(r.counts).forEach(([col,cnt])=>{
+      chipVal.stacks[col]=Math.floor(cnt/10);
+      chipVal.loose[col]=cnt%10;
+      chipVal.counts[col]=cnt;
+    });
+  }
+  _recalcChipVal();
+  $('chip-total').textContent=fmt(chipVal.total);
+  $('chip-chips').innerHTML=Object.entries(chipVal.counts).filter(([,v])=>v>0).map(([col,cnt])=>{
+    const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+    const clr=chx[col]||'#fff';
+    const stk=chipVal.stacks[col]||0;
+    const lse=chipVal.loose[col]||0;
+    const tot=stk*10+lse;
+    const dval=d?fmt(tot*d.value):'?';
+    return `<div class="rchip">
+      <div class="rchip-top">
+        <div class="rchip-dot" style="background:${clr}"></div>
+        <span class="rchip-label">${col} · $${d?d.value.toFixed(2):'?'}/chip</span>
+        <div style="text-align:right"><span class="rchip-tot-v" id="rchip-tot-${col}" style="color:${clr}">${dval}</span><span class="rchip-tot-s" id="rchip-n-${col}">${tot} chips</span></div>
+      </div>
+      <div class="rchip-ctrs">
+        <div class="rchip-grp"><span class="rchip-glbl">stacks ×10</span><button class="rchip-adj" onclick="adjChip('${col}','stacks',-1)">−</button><span class="rchip-n" id="rchip-s-${col}" style="color:${clr}">${stk}</span><button class="rchip-adj" onclick="adjChip('${col}','stacks',1)">+</button></div>
+        <div class="rchip-grp"><span class="rchip-glbl">loose</span><button class="rchip-adj" onclick="adjChip('${col}','loose',-1)">−</button><span class="rchip-n" id="rchip-l-${col}" style="color:${clr}">${lse}</span><button class="rchip-adj" onclick="adjChip('${col}','loose',1)">+</button></div>
+      </div>
+    </div>`;
+  }).join('');
+  $('chip-desc').textContent=r.description||'';
+  $('chip-result').style.display='block';$('chip-actions').style.display='block';
+  populatePickers();toast(`Counted: ${fmt(chipVal.total)}`);
+}
+function adjChip(col,field,delta){
+  if(!chipVal)return;
+  if(!chipVal.stacks)chipVal.stacks={};
+  if(!chipVal.loose)chipVal.loose={};
+  chipVal[field][col]=Math.max(0,(chipVal[field][col]||0)+delta);
+  _recalcChipVal();
+  const tot=chipVal.counts[col]||0;
+  const sEl=$('rchip-s-'+col);if(sEl)sEl.textContent=chipVal.stacks[col]||0;
+  const lEl=$('rchip-l-'+col);if(lEl)lEl.textContent=chipVal.loose[col]||0;
+  const nEl=$('rchip-n-'+col);if(nEl)nEl.textContent=tot+' chips';
+  const idMap={red:'r',blue:'b',black:'bl',green:'g'};
+  const d=DENOMS.find(d=>d.id===(idMap[col]||col));
+  const tEl=$('rchip-tot-'+col);if(tEl)tEl.textContent=d?fmt(tot*d.value):'?';
   $('chip-total').textContent=fmt(chipVal.total);
 }
 function chipApply(action){if(!chipVal){toast('Scan chips first');return;}applyToPlayer(action,chipVal.total,'scan');}
-function mcApply(action){let t=0;DENOMS.forEach(d=>{const i=$(`mc-${d.id}`);if(i)t+=(parseFloat(i.value)||0)*d.value;});applyToPlayer(action,parseFloat(t.toFixed(2)),'manual');}
+function mcApply(action){let t=0;DENOMS.forEach(d=>{const cd=mcChipData[d.id]||{stacks:0,loose:0};t+=(cd.stacks*10+cd.loose)*d.value;});applyToPlayer(action,parseFloat(t.toFixed(2)),'manual');}
 function applyToPlayer(action,val,src){
   if(!selPlayer){toast('Select a player first');return;}
   const p=G.players.find(p=>p.id===selPlayer);if(!p){toast('Not found');return;}
@@ -3381,7 +3662,7 @@ async function askOracle(){
   if(!result)return;
 
   // Show loading state
-  result.style.cssText='display:block;border-radius:var(--r10);padding:14px;text-align:center;margin-top:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.3);transition:all .2s';
+  result.style.cssText='display:block;border-radius:var(--r10);padding:16px;text-align:center;margin-top:14px;background:rgba(168,85,247,.07);border:1px solid rgba(168,85,247,.3);transition:all .2s';
   verdictEl.textContent='🧙 Consulting...';
   verdictEl.style.color='#a855f7';
   reasonEl.textContent='The Wizard is thinking...';
@@ -3413,57 +3694,61 @@ async function askOracle(){
       {play:true, verdict:'♠ Suited. That\'s it.',             reason:'well it\'s suited Jay say right??? The conversation is over.'},
     ]:[];
     const pool=[
-        // classics
-        {play:true,  verdict:'✅ Yeah that\'s real',        reason: losers.length?`${losers[0].name} is steaming. Take their chips.`:'Table\'s calling wide. Get your money in.'},
-        {play:true,  verdict:'✅ Play it',                  reason: isLate?'Late night = loose table. They\'re calling with anything.':'This hand prints money. Don\'t get cute.'},
-        {play:true,  verdict:'✅ No brainer',               reason: isNewSession?'Early in the session — set the tone. Punish them.':isLongSession?'You\'ve been patient. Now make them pay.':'Position and pot odds say yes. Pop it.'},
-        {play:true,  verdict:'🔥 Ship it',                  reason:`${handStr.trim()} is a cooler disguise. They'll never put you on this.`},
-        {play:true,  verdict:'🃏 See a flop',               reason:'If you don\'t play this then maybe I can interest you in some tickets to the puss convention.'},
-        {play:true,  verdict:'✅ Yeah that\'s real',        reason:'If you fold this then I understand why dad is still getting milk.'},
-        {play:true,  verdict:'👀 Could be something',       reason: winners.length?`${winners[0].name} is up — they'll call wide. Use that.`:'Table\'s been passive. Steal it preflop.'},
-        {play:true,  verdict:'🔥 Ship it',                  reason:'Yeah play this and then min raise, for strength.'},
-        {play:true,  verdict:'🃏 Worth a look',             reason: suited?'well it\'s suited Jay say right??? Free money.':nPlayers>=5?'Multiway pots = implied odds. Just need one miracle card.':'First-in juice. They don\'t know what you\'re capable of.'},
-        {play:true,  verdict:'🤷 Just play it',             reason: isLongSession?'You\'ve been folding for 2 hours. Nobody expects this.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
-        {play:true,  verdict:'✅ Raise 2, for strength',    reason:'Play this bad hand and raise 2, for strength. It\'s called balance bro.'},
-        {play:true,  verdict:'🎰 Re-entry special',         reason:'Play this one if you\'re ready for another re-entry.'},
-        {play:true,  verdict:'💻 Bro just Google it',       reason:'You had to ask bro? They have free poker online if this is too spicy for you.'},
-        {play:true,  verdict:'💯 No way you lose',          reason:'No way you lose with this one bro. Trust.'},
-        {play:true,  verdict:'🐻 Does the pope poop in the woods?', reason:'Idk man, does the pope poop in the woods? The answer is yes. Play it.'},
-        {play:true,  verdict:'🤝 Easy game',                reason: nPlayers>4?`${nPlayers} players in and you\'re asking me? Ship it.`:'Heads up or not — this prints.'},
-        {play:true,  verdict:'🧠 Solver approved',          reason:'The solver said raise. I think. I didn\'t actually check but it seems right.'},
-        {play:true,  verdict:'📈 Equity is there',          reason:'You have at minimum 2 outs. That\'s basically a coin flip bro.'},
-        {play:true,  verdict:'🎯 This is the one',          reason: isLate?'It\'s late and you\'re asking the Wizard. Just play and see what happens.':'The Wizard sees great things. Or nothing. One of those.'},
-        {play:true,  verdict:'🤌 Chef\'s kiss',             reason:'Beautiful hand. Or is it? Doesn\'t matter. Get in there.'},
-        {play:true,  verdict:'👑 Premium feels',            reason:'This feels premium. Feelings are GTO. That\'s science.'},
-        {play:true,  verdict:'🏃 Run it',                   reason: losers.length?`${losers[0].name} already rebought once. Keep the pressure on.`:'They can\'t put you on this. Go.'},
-        {play:true,  verdict:'⚡ Get in there',             reason:'Sometimes you just gotta jump in the water. This is one of those times.'},
-        {play:true,  verdict:'🎲 Variance is your friend',  reason:'High variance hand, high variance advice. We\'re aligned bro.'},
-        {play:true,  verdict:'🔮 The Wizard says yes',      reason:'Look man, you consulted the Wizard. The Wizard said play. That\'s on you now.'},
-        {play:true,  verdict:'🧦 Dobby is free',            reason:'Master has given dobby a shizzy hand, dobby is freeeee. Ship it.'},
-        {play:true,  verdict:'💸 No wechat needed',         reason:'Don\'t need wechat to get paid here bro. Ship it.'},
-        {play:true,  verdict:'🤠 Cowboy up',                reason: suited?'Suited connectors in a home game? That\'s basically a straight flush already.':'You\'re playing a home game not the WSOP. Relax and ship it.'},
-        {play:true,  verdict:'💪 Trust the process',        reason:'The process is: pick cards, ask Wizard, play hand, lose money. Step 3.'},
-        {play:true,  verdict:'🌟 Star power',               reason: winners.length?`${winners[0].name} is running hot. Ride that table energy.`:'Good vibes only at this table tonight.'},
-        {play:true,  verdict:'🃏 Let\'s find out',          reason:'The only way to know if you win is to play bro. That\'s a Wizard exclusive insight.'},
-        {play:true,  verdict:'🎪 Home game mode',           reason:'This is a home game. The hand ranking is: whatever feels good > GTO.'},
-        // folds
-        {play:false, verdict:'🙅 Fold it',                  reason:'The table energy is off right now.'},
-        {play:false, verdict:'🙅 Fold it',                  reason:'You\'ve been running hot — protect it.'},
-        {play:false, verdict:'🙅 Fold it',                  reason:'I\'m getting a bad feeling about this one.'},
-        {play:false, verdict:'🙅 Fold it',                  reason: nPlayers>3&&players[rando]?`${players[rando].name} has been suspiciously quiet.`:'Someone\'s got a monster.'},
-        {play:false, verdict:'🙅 Fold it',                  reason: isLate?'It\'s late. Everyone\'s tilted. Including you.':'Trust your gut. Not the cards.'},
-        {play:false, verdict:'⏸ Sit this one out',          reason: isEarly?'Session is young. Wait for better spots.':nPlayers>=6?'Too many players in — someone hit this board hard.':'Save it for a better spot. This isn\'t it.'},
-        {play:false, verdict:'💀 Please fold',              reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. Even the Wizard has standards. Barely.`},
-        {play:false, verdict:'🫡 Respect the range',        reason: isLongSession?'Two hours in and you\'re thinking about playing THIS? Discipline.':'The GTO overlords are watching. You don\'t want this energy.'},
-        {play:false, verdict:'😬 Walk away',                reason:'The Wizard is seeing some stuff right now and none of it is good.'},
-        {play:false, verdict:'🧘 Patience bro',             reason:'A wise man once said wait for better spots. That man went broke at the river. Still — fold this.'},
-        {play:false, verdict:'💸 Save your chips',          reason: isLate?'You\'ve been in too many hands tonight. This one\'s a trap.':'Re-entry is always an option. Fold responsibly.'},
-        {play:false, verdict:'📉 Nope',                     reason: losers.length?`Even ${losers[0].name} wouldn\'t play this and they\'re steaming.`:'The Wizard consulted the data. The data said no. The Wizard agrees.'},
-        {play:false, verdict:'🚫 Hard no',                  reason:'You had to ask bro? The fact that you\'re asking tells you everything.'},
-        {play:false, verdict:'🕳️ Fold into the void',       reason:'This hand has a special destiny. That destiny is the muck.'},
-        {play:false, verdict:'🙈 Don\'t look at me',        reason:'You asked the Wizard for this. The Wizard says absolutely not and is embarrassed for you.'},
-        {play:false, verdict:'⚰️ R.I.P.',                   reason: nPlayers>4?'There\'s too many people in this pot. Somebody has it.':'Even in a dead pot this is a fold. Historic.'},
-        {play:false, verdict:'🤦 Bro',                      reason:`${handStr.trim()} and you\'re asking if you should play? We need to have a different conversation.`},
+        // ── PLAY ──
+        {play:true, verdict:'✅ Yeah that\'s real',         reason: losers.length?`${losers[0].name} is steaming — take their money now.`:'Table\'s calling wide tonight. Get your chips in.'},
+        {play:true, verdict:'🔥 Ship it',                   reason:`${handStr.trim()} is a cooler in disguise. Nobody\'s folding to you anyway.`},
+        {play:true, verdict:'🃏 See a flop',                reason:'If you don\'t play this then maybe I can interest you in some tickets to the puss convention.'},
+        {play:true, verdict:'✅ Yeah that\'s real',         reason:'If you fold this then I understand why dad is still getting milk.'},
+        {play:true, verdict:'✅ Raise 2, for strength',     reason:'Play this hand and raise 2, for strength. It\'s called balance. You wouldn\'t understand.'},
+        {play:true, verdict:'🎰 Re-entry incoming',         reason:'This one\'s got re-entry written all over it. But play it anyway.'},
+        {play:true, verdict:'💯 No way you lose',           reason: winners.length?`${winners[0].name} is hot — table energy is yours. Ride it.`:'No way you lose with this one bro. Trust the Wizard.'},
+        {play:true, verdict:'🤝 Easy game',                 reason: nPlayers>4?`${nPlayers} people and NONE of them know what you have. Ship.`:'Heads up or multiway — this hand doesn\'t care.'},
+        {play:true, verdict:'🧠 Solver approved',           reason:'I ran this through the solver. My phone died but I\'m pretty sure it said raise.'},
+        {play:true, verdict:'📈 Equity is there',           reason:'You have at least 2 outs. That\'s mathematically a coin flip bro.'},
+        {play:true, verdict:'🤌 Chef\'s kiss',              reason: isLate?'It\'s late, you\'re probably tilted, this is perfect for you.':'Beautiful setup. They won\'t see it coming.'},
+        {play:true, verdict:'👑 Premium feels',             reason:'Feelings are GTO now. That\'s the new meta. Play it.'},
+        {play:true, verdict:'🏃 Run it',                    reason: losers.length?`${losers[0].name} is already rebought in. Keep the pressure on.`:'Can\'t put you on this. Go now.'},
+        {play:true, verdict:'⚡ Jump in',                   reason: isNewSession?'Set the tone early. Play aggressive, apologize never.':'Sometimes you just gotta get in the water and see what bites.'},
+        {play:true, verdict:'🎲 Variance loves you',        reason:'High variance hand, high variance advice. We\'re cosmically aligned right now.'},
+        {play:true, verdict:'🔮 The coin says yes',         reason:'The coin landed. You\'ve asked the Wizard. This is out of your hands now.'},
+        {play:true, verdict:'🧦 Dobby is free',             reason:'Master has given dobby a shizzy hand, dobby is freeeee. All in.'},
+        {play:true, verdict:'💸 No wechat needed',          reason:'Don\'t need wechat to get paid here bro. Ship it and collect.'},
+        {play:true, verdict:'🤠 Cowboy up',                 reason: suited?'Home game suited hand? You\'re already showing a profit.':'This ain\'t the WSOP. Stop acting like it. Get in there.'},
+        {play:true, verdict:'💪 Trust the process',         reason:'Step 1: pick cards. Step 2: ask Wizard. Step 3: play. Step 4: profit. We\'re on step 3.'},
+        {play:true, verdict:'🌟 Good table energy',         reason: winners.length?`${winners[0].name} is running hot — don\'t fight the vibe.`:'Positive energy. Play into it.'},
+        {play:true, verdict:'🎪 Home game rules',           reason:'Hand strength ranking in this game: whatever the Wizard says > whatever you think.',},
+        {play:true, verdict:'🐸 Does the pope poop in the woods?', reason:'Idk man, does the pope poop in the woods? Correct answer: play the hand.'},
+        {play:true, verdict:'👀 Could be something',        reason: winners.length?`${winners[0].name} is calling everything right now. Use that.`:'Table\'s been folding all night. This is your spot.'},
+        {play:true, verdict:'🎯 This is it',                reason: isLongSession?'You\'ve waited 2 hours for a spot. This is your spot. Go.':'First instinct said play. First instinct is GTO. Trust it.'},
+        {play:true, verdict:'💀 Play or go home',           reason:'The Wizard doesn\'t hand out free passes. You asked, the coin said play. Play.'},
+        {play:true, verdict:'🃏 Worth a look',              reason: suited?'Suited means automatic equity bro. Basic poker math.':nPlayers>=5?'Multiway = implied odds. Get in there and hit something dumb.':'You have first-in advantage. Use it.'},
+        {play:true, verdict:'🤷 Obviously',                 reason: isLongSession?'You\'ve been folding so long the table forgot you\'re here. Wake them up.':'Look, do you want to WIN or do you want to be COMFORTABLE?'},
+        {play:true, verdict:'🃏 Let\'s find out',           reason:'The only way to know if you win is to actually play the hand. Revolutionary insight.'},
+        {play:true, verdict:'💻 Free poker exists',         reason:'You had to ask bro? There\'s free poker online if this is too spicy.'},
+        // ── FOLD ──
+        {play:false, verdict:'❌ Hard fold',                reason:'The table energy is completely off right now and you\'re about to feel it.'},
+        {play:false, verdict:'🙅 Sit this one out',         reason:'You\'ve been running hot — protect what you have. This isn\'t the spot.'},
+        {play:false, verdict:'🪦 The muck is calling',      reason:'This hand has one destiny. That destiny is face-down in front of the dealer.'},
+        {play:false, verdict:'⏸ Wait for it',              reason: nPlayers>3&&players[rando]?`${players[rando].name} has said literally nothing for 20 minutes. They have it.`:'Someone at this table is trapping. Don\'t walk into it.'},
+        {play:false, verdict:'🧘 Discipline',               reason: isLate?'It\'s late and your judgment left an hour ago. Fold this.':`${handStr.trim()} isn't as cute as you think it is.`},
+        {play:false, verdict:'⏸ Better spots ahead',       reason: isEarly?'Session is young. Let someone else lose their stack first.':nPlayers>=6?'Too many people in — at least two of them have a piece of this board.':'Save it. You\'ll thank me at the end of the night.'},
+        {play:false, verdict:'💀 Even I have standards',    reason:`${handStr.trim()} is ${tier.tier.toLowerCase()} energy. And this is coming from the guy who told you to shove 72o.`},
+        {play:false, verdict:'🫡 Respect the fold',         reason: isLongSession?'Two hours in, you\'re thinking about playing THIS? What happened to you?':'The GTO overlords are watching. They\'re already disappointed.'},
+        {play:false, verdict:'😬 Walk away slowly',         reason:'The Wizard is seeing some stuff. None of it is good. None of it involves you winning.'},
+        {play:false, verdict:'🧙 Trust the Wizard',         reason:'A wise man folded here. He\'s still in the game. Be the wise man.'},
+        {play:false, verdict:'💸 Protect your stack',       reason: isLate?'You\'ve played too many hands tonight. Every orbit is a chip leak now.':'Fold equity is real equity. You\'re building it right now.'},
+        {play:false, verdict:'📉 Nope',                     reason: losers.length?`Even ${losers[0].name} wouldn\'t play this and they\'re on their third buy-in.`:'The data said no. The Wizard agrees with the data for once.'},
+        {play:false, verdict:'🚫 Denied',                   reason:'The fact that you asked tells you everything. Trust that feeling. It\'s trying to save you.'},
+        {play:false, verdict:'🕳️ Into the void',            reason:'Fold it. Watch what the winner had. Realize you made the right call. Repeat.'},
+        {play:false, verdict:'🙈 Don\'t',                   reason:'You asked the Wizard. The Wizard is embarrassed on your behalf. Fold immediately.'},
+        {play:false, verdict:'⚰️ Fold or die',              reason: nPlayers>4?'There are too many hands out there. One of them has yours destroyed.':'Statistically this ends badly. The Wizard has seen this movie before.'},
+        {play:false, verdict:'🤦 Come on bro',              reason:`You\'re really asking about ${handStr.trim()}? We need to have a different conversation after the session.`},
+        {play:false, verdict:'🛑 Full stop',                reason: winners.length?`${winners[0].name} is going to call you and they have the best of it.`:'The pot isn\'t worth what you\'re about to lose.'},
+        {play:false, verdict:'🥶 Ice cold fold',            reason: isLongSession?'Honestly? You look tired. Sit this one out, get some water.':'Not every hand needs to be played. This is today\'s lesson.'},
+        {play:false, verdict:'🎭 Wrong hand, right fold',   reason:'This might be the best fold you make tonight. Write it down.'},
+        {play:false, verdict:'📡 Bad signal',               reason:'The Wizard is picking up bad vibes from this hand. Very scientific. Very real. Fold.'},
+        {play:false, verdict:'🌊 Ride it out',              reason: isLate?'Late night + this hand = ghost story. Let it pass.':'Table flow says wait. The Wizard flow says wait. Both flows agree.'},
+        {play:false, verdict:'🧊 Stay cold',                reason: suited?'Yeah it\'s suited but the Wizard says no. The coin has spoken.':nPlayers>=4?`${nPlayers} way pot and you want to enter with this?`:'This is a trap and you\'re asking the trap if it\'s a trap.'},
         ...suitedBonus,
       ];
     // ── Special overrides ──────────────────────────────────────────────────
@@ -3479,7 +3764,22 @@ async function askOracle(){
       verdict=`🃏 ${JACK_SAY[jackKicker]}`;
       reason=pick.reason;
     } else {
-      const pick=pool[Math.floor(r*pool.length)];
+      // ── Weighted bad-advice selection ──────────────────────────────────
+      // Good hands (score ≤ 18): 60% chance we tell them to FOLD (wrong)
+      // Bad hands  (score > 18): 60% chance we tell them to PLAY  (wrong)
+      // Overall ~60% of responses are suboptimal — close to 50/50 but tilted
+      const playPool=pool.filter(x=>x.play);
+      const foldPool=pool.filter(x=>!x.play);
+      const isGoodHand=scoreVal<=18;
+      // wrongBias=0.6 → 60% wrong advice; rightBias=0.4 → 40% sensible
+      const giveWrong=Math.random()<0.6;
+      let subPool;
+      if(isGoodHand){
+        subPool=giveWrong?foldPool:playPool; // good hand → wrong = fold
+      }else{
+        subPool=giveWrong?playPool:foldPool; // bad hand → wrong = play
+      }
+      const pick=subPool[Math.floor(Math.random()*subPool.length)];
       play=pick.play; verdict=pick.verdict; reason=pick.reason;
     }
   }
@@ -3491,16 +3791,16 @@ async function askOracle(){
 
   // Render verdict
   const color=play?'var(--ag)':'var(--neg)';
-  const bg=play?'rgba(57,255,20,.07)':'rgba(255,69,96,.07)';
-  const border=play?'rgba(57,255,20,.2)':'rgba(255,69,96,.2)';
+  const bg=play?'rgba(57,255,20,.06)':'rgba(255,69,96,.06)';
+  const border=play?'rgba(57,255,20,.22)':'rgba(255,69,96,.22)';
   result.style.background=bg;
   result.style.border=`1px solid ${border}`;
-  verdictEl.textContent=verdict;
-  verdictEl.style.color=color;
+
+  verdictEl.innerHTML=`<span class="ora-verdict-pill ${play?'play':'fold'}">${play?'▶ PLAY':'✕ FOLD'}</span><div style="margin-top:8px;font-size:15px;font-weight:700;color:${color}">${verdict}</div>`;
   reasonEl.textContent=reason;
 
   result.style.transform='scale(.97)';
-  setTimeout(()=>result.style.transform='scale(1)',120);
+  setTimeout(()=>result.style.transform='scale(1)',140);
   renderOracleHistory();
 }
 

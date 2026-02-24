@@ -4420,15 +4420,25 @@ function continueHand(){
 }
 
 async function getCoach(spot, played, isCorrect, grade){
-  return new Promise(function(resolve){
-    var msg;
-    if (isCorrect){
-      msg = "Nice hand. Your line looks solid for this position and stack depth.";
-    } else {
-      msg = "Think about position, SPR, and which worse hands call or better hands fold.";
-    }
-    resolve(msg);
-  });
+  const {correctAction,gtoEV,reasoning,heroEval,draws,villBet,potBB,spr,heroPos,villPos,currentStreet} = spot;
+  const handDesc = `${heroEval.name}${draws.length?' + '+draws.join(', '):''}`;
+  const betCtx = villBet>0?`, villain bet ${villBet}BB into ${potBB}BB pot`:'';
+  const question = isCorrect
+    ? `I ${played} with ${handDesc} on the ${currentStreet} (${heroPos} vs ${villPos}, SPR ${spr}${betCtx}). GTO says ${correctAction} and I got it right (${grade}). Why was this correct?`
+    : `I ${played} with ${handDesc} on the ${currentStreet} (${heroPos} vs ${villPos}, SPR ${spr}${betCtx}). GTO says ${correctAction} but I ${played} — grade ${grade}. What should I have been thinking about?`;
+  try {
+    const resp = await fetch('/api/wizard', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({question, context: 'poker trainer coaching — give short punchy analysis'})
+    });
+    if (!resp.ok) throw new Error('API ' + resp.status);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    return data.reason || data.verdict || reasoning;
+  } catch(e) {
+    return reasoning + (isCorrect ? ' — correct!' : '. You ' + played + '\'d — the better play is to ' + correctAction + '.');
+  }
 }
 
 function resetTrainer(){TR.played=0;TR.correct=0;TR.totalEV=0;TR.history=[];TR.currentSpot=null;TR.multiStreet=null;updateTRStats();newHand();}

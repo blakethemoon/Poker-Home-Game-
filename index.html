@@ -357,6 +357,8 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .co-txn-toggle:hover{background:var(--s3)}
 .co-txn-body{padding:0 13px 10px;display:none}
 .co-txn-body.open{display:block}
+.co-chip-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-radius:var(--r6);padding:2px 0;touch-action:manipulation}
+.co-chip-toggle:hover .co-stack-label{color:var(--cy)}
 .co-player-head{margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--br)}
 .co-player-head-name{font-family:'Instrument Serif',serif;font-size:26px;color:var(--i0);line-height:1;margin-bottom:3px}
 .co-player-head-meta{font-size:11px;color:var(--i3);display:flex;align-items:center;gap:8px}
@@ -876,33 +878,35 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
           <!-- ── STEP: Enter Final Stack (active players only) ── -->
           <div id="co-stack-section" class="co-stack-section">
 
-            <!-- Header: label + running chip total -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <!-- Header: always visible, taps to expand chip counters -->
+            <div class="co-chip-toggle" onclick="toggleCOChips()">
               <div class="co-stack-label" style="margin-bottom:0">Count Chips</div>
               <div style="display:flex;align-items:center;gap:8px">
                 <span class="mono cy" style="font-size:20px;font-weight:700;line-height:1" id="co-chip-total">—</span>
-                <button class="btn btn-ghost btn-xs" onclick="coClearChips()" title="Clear chip counts" style="font-size:13px;padding:4px 8px">↩</button>
+                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();coClearChips()" title="Clear" style="font-size:13px;padding:4px 8px">↩</button>
+                <span id="co-chip-chevron" style="font-size:13px;color:var(--i3);transition:transform .2s;display:inline-block">▾</span>
               </div>
             </div>
 
-            <!-- Quick-fill from last tracked stack -->
-            <button class="co-known-btn" id="co-use-stack-btn" onclick="useKnownStack()" style="display:none">
-              <div>
-                <div class="co-known-btn-label">Pre-fill from tracker</div>
-                <div style="font-size:10px;color:var(--i4);margin-top:1px">Last counted stack</div>
-              </div>
-              <span class="co-known-btn-val" id="co-known-stack">—</span>
-            </button>
+            <!-- Collapsible: denomination counters + scan -->
+            <div id="co-chip-collapse" style="display:none;margin-top:12px">
+              <!-- Quick-fill from last tracked stack -->
+              <button class="co-known-btn" id="co-use-stack-btn" onclick="useKnownStack()" style="display:none">
+                <div>
+                  <div class="co-known-btn-label">Pre-fill from tracker</div>
+                  <div style="font-size:10px;color:var(--i4);margin-top:1px">Last counted stack</div>
+                </div>
+                <span class="co-known-btn-val" id="co-known-stack">—</span>
+              </button>
+              <!-- Per-denomination chip counters -->
+              <div class="co-chip-row" id="co-chip-inputs"></div>
+              <!-- Scan option -->
+              <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:4px;font-size:12px" onclick="coCaptureChips()">📷 Scan with AI instead</button>
+              <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
+            </div>
 
-            <!-- Per-denomination chip counters -->
-            <div class="co-chip-row" id="co-chip-inputs"></div>
-
-            <!-- Scan option (secondary) -->
-            <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:10px;font-size:12px" onclick="coCaptureChips()">📷 Scan with AI instead</button>
-            <input type="file" id="co-scan-input" accept="image/*" capture="environment" style="display:none" onchange="coHandleScan(event)">
-
-            <!-- Manual dollar entry -->
-            <div class="co-divider"><span class="co-divider-txt">or type total directly</span></div>
+            <!-- Manual dollar entry — always visible -->
+            <div class="co-divider" style="margin-top:12px"><span class="co-divider-txt">or type total directly</span></div>
             <input class="co-manual-inp" type="number" id="co-manual" placeholder="$0.00" min="0" step="0.10" oninput="recalcCO()">
           </div>
 
@@ -2818,6 +2822,7 @@ function coApplyScan(data){
     coChipData[id]=cnt;
   });
   buildCOChipInputs(null);
+  toggleCOChips(true);
   calcCOChips();
   toast(`Scanned: ${fmt(data.total)}`);
 }
@@ -2843,6 +2848,14 @@ function useKnownStack(){
   if(manual){ manual.value=p.currentStack.toFixed(2); recalcCO(); }
   toast('Stack pre-filled');
 }
+function toggleCOChips(forceOpen){
+  const collapse=$('co-chip-collapse');
+  const chevron=$('co-chip-chevron');
+  if(!collapse)return;
+  const open=forceOpen!==undefined?forceOpen:(collapse.style.display==='none');
+  collapse.style.display=open?'block':'none';
+  if(chevron)chevron.style.transform=open?'rotate(180deg)':'';
+}
 function coClearChips(){
   coChipData={};
   DENOMS.forEach(d=>{
@@ -2851,6 +2864,7 @@ function coClearChips(){
   });
   const manual=$('co-manual');if(manual)manual.value='';
   const ct=$('co-chip-total');if(ct)ct.textContent='—';
+  toggleCOChips(false);
   const res=$('co-result');if(res)res.style.display='none';
   ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(id=>{const el=$(id);if(el)el.style.display='none';});
 }
@@ -2901,6 +2915,7 @@ function selectCOPlayer(id){
   coChipData={};
   const old=$('co-cashed-edit');if(old)old.remove();
   renderCashOut();
+  toggleCOChips(false);
   const p=G.players.find(q=>q.id===id);
   if(p&&p.status==='active'&&p.currentStack>0){
     recalcCO(p.currentStack);

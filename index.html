@@ -297,31 +297,33 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 
 /* ── CASH OUT PAGE ── */
 .co-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-.co-player-list{display:flex;flex-direction:column;gap:4px;max-height:44vh;overflow-y:auto;padding-right:3px}
-.co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:8px 12px;cursor:pointer;transition:all .12s}
+.co-right-col{display:flex;flex-direction:column;gap:0}
+.co-player-list{display:flex;flex-direction:column;gap:6px;max-height:44vh;overflow-y:auto;padding-right:3px}
+.co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:11px 14px;cursor:pointer;transition:all .12s;touch-action:manipulation;min-height:52px;display:flex;align-items:center}
 .co-player-card:hover{border-color:var(--brc);background:var(--s3)}
 .co-player-card.selected{border-color:var(--brc);background:var(--cy3)}
 .co-player-card.cashed{border-color:rgba(57,255,20,.2);background:var(--ag3)}
 .co-player-card.owes{border-color:rgba(255,69,96,.2)}
-.co-row{display:flex;align-items:center;gap:8px}
-.co-name{flex:1;font-size:13px;font-weight:600;color:var(--i0)}
-.co-status-badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:20px;border:1px solid;flex-shrink:0}
+.co-row{display:flex;align-items:center;gap:8px;width:100%}
+.co-name{flex:1;font-size:14px;font-weight:600;color:var(--i0)}
+.co-status-badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:20px;border:1px solid;flex-shrink:0}
 .csb-pending{border-color:rgba(255,178,0,.3);color:#ffb200;background:rgba(255,178,0,.08)}
 .csb-paid{border-color:rgba(57,255,20,.3);color:var(--ag);background:var(--ag3)}
 .csb-collect{border-color:rgba(255,69,96,.3);color:var(--neg);background:var(--neg3)}
-.settle-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:8px}
-.settle-name{flex:1;font-size:16px;font-weight:600;color:var(--i0)}
+.settle-row{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:8px;touch-action:manipulation}
+.settle-name{flex:1;font-size:15px;font-weight:600;color:var(--i0)}
 .settle-amt{font-family:'DM Mono',monospace;font-size:18px;font-weight:500}
-.settle-check{width:22px;height:22px;border-radius:50%;border:2px solid var(--br);background:var(--s3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .12s;flex-shrink:0}
+.settle-check{width:36px;height:36px;border-radius:50%;border:2px solid var(--br);background:var(--s3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .12s;flex-shrink:0;touch-action:manipulation}
 .settle-check.done{background:var(--ag);border-color:var(--ag);box-shadow:var(--glow-ag)}
-.settle-check.done::after{content:'✓';color:#030a02;font-weight:700;font-size:10px}
+.settle-check.done::after{content:'✓';color:#030a02;font-weight:700;font-size:13px}
+.co-end-btn{touch-action:manipulation}
 /* Cash out form clean layout */
 .co-invest-bar{display:flex;align-items:center;gap:8px;padding:10px 13px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);margin-bottom:10px}
 .co-invest-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3);flex:1}
 .co-stack-section{background:var(--s2);border:1px solid var(--brc);border-radius:var(--r10);padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
 .co-stack-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent)}
 .co-stack-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cy);margin-bottom:10px}
-.co-known-btn{width:100%;padding:10px 14px;background:rgba(0,212,255,.06);border:1px dashed rgba(0,212,255,.3);border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:all .12s;color:var(--i1)}
+.co-known-btn{width:100%;padding:13px 14px;background:rgba(0,212,255,.06);border:1px dashed rgba(0,212,255,.3);border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:all .12s;color:var(--i1);touch-action:manipulation;min-height:52px}
 .co-known-btn:hover{background:rgba(0,212,255,.12);border-color:var(--cy)}
 .co-known-btn-label{font-size:11px;color:var(--i3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .co-known-btn-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--cy)}
@@ -459,6 +461,37 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   /* Hide felt table card on mobile — phone is command center */
   #d-players-card{display:none!important}
   #d-share-card,#d-pnl-card{display:none!important}
+  /* ── CASH OUT MOBILE ── */
+  /* Remove internal scroll on player list — show all players */
+  .co-player-list{max-height:none;overflow-y:visible}
+  /* Bigger player cards */
+  .co-player-card{padding:13px 14px;min-height:56px}
+  .co-name{font-size:15px}
+  /* Scan button full height */
+  .co-scan-row .btn{padding:12px 14px;font-size:13px}
+  /* Chip count inputs bigger on mobile */
+  .co-chip-item input{width:56px!important;font-size:14px!important;padding:7px 6px!important}
+  /* Manual entry: bigger on mobile */
+  .co-manual-inp{font-size:28px;padding:14px}
+  /* Confirm buttons: proper thumb size */
+  #co-confirm-win .btn,#co-confirm-loss .btn,#co-confirm-neutral .btn{padding:16px!important;font-size:15px!important}
+  /* Cashed state undo/correct buttons */
+  #co-undo-btn,#co-correct-btn,#co-correction-save{padding:13px 10px!important;font-size:13px!important}
+  /* Settle check: already 36px but make row comfier */
+  .settle-row{padding:14px}
+  .settle-name{font-size:16px}
+  .settle-amt{font-size:20px}
+  /* Session closed banner: stack buttons vertically */
+  #co-closed-banner{flex-direction:column;align-items:stretch;gap:10px}
+  #co-closed-banner > div:last-child{display:flex;flex-direction:column;gap:7px}
+  #co-closed-banner .btn{padding:12px!important;font-size:13px!important;text-align:center}
+  /* Player quick action buttons */
+  #co-player-actions .btn{padding:13px 8px!important;font-size:13px!important}
+  /* Known stack button */
+  .co-known-btn{padding:14px!important;min-height:58px}
+  .co-known-btn-val{font-size:20px!important}
+  /* All-done banner */
+  #co-all-done-banner{padding:20px}
 }
 @media(max-width:480px){
   .wm-sub{display:none}
@@ -761,44 +794,25 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   </div>
 
   <div class="co-grid">
-    <!-- Left: player list + payout panel -->
+    <!-- Left: player list only -->
     <div>
-      <div class="card mb12">
+      <div class="card">
         <div class="chd">
-          <span class="ctitle cy">Session Players</span>
+          <span class="ctitle cy">Players</span>
           <div class="flex" style="gap:6px;align-items:center">
             <span id="co-summary" style="font-size:10px;color:var(--i3)"></span>
-            <button class="btn btn-ag btn-xs" id="co-close-btn" onclick="closeSession()">🏁 End Session</button>
+            <button class="btn btn-ag btn-sm co-end-btn" id="co-close-btn" onclick="closeSession()" style="touch-action:manipulation">🏁 End Session</button>
           </div>
         </div>
         <div id="co-player-list" class="co-player-list"></div>
       </div>
-
-      <!-- Payout panel -->
-      <div class="card card-cyan">
-        <div class="chd">
-          <span class="ctitle cy">Payouts</span>
-          <button class="btn btn-sm btn-xs" onclick="autoSettle()">Mark All Paid</button>
-        </div>
-        <div id="settle-empty" class="empty" style="padding:12px 0"><span class="empty-txt">Cash out players to see payouts</span></div>
-        <div id="settle-list"></div>
-      </div>
-
-      <!-- Archive prompt — shown when everyone is cashed out -->
-      <div id="co-all-done-banner" style="display:none;background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.3);border-radius:var(--r10);padding:16px;text-align:center;margin-top:12px">
-        <div style="font-size:20px;margin-bottom:6px">🏁</div>
-        <div style="font-size:14px;font-weight:700;color:var(--ag);margin-bottom:4px">Everyone's cashed out</div>
-        <div style="font-size:11px;color:var(--i3);margin-bottom:14px">Ready to wrap up the night?</div>
-        <button class="btn btn-ag btn-full" style="font-size:13px;padding:12px;font-weight:700" onclick="archiveAndClear()">Archive &amp; Clear Table</button>
-        <button class="btn btn-ghost btn-full" style="font-size:12px;margin-top:7px" onclick="keepPlayingCO()">Keep Playing</button>
-      </div>
     </div>
 
-    <!-- Right: cash out form -->
-    <div>
+    <!-- Right: cash out form + payout panel (correct mobile order) -->
+    <div class="co-right-col">
       <div class="card card-magenta" id="co-form-card">
         <div class="chd"><span class="ctitle mg">Cash Out</span></div>
-        <div id="co-no-selection" style="padding:28px 20px;text-align:center;color:var(--i3);font-size:13px">← Select a player to cash out</div>
+        <div id="co-no-selection" style="padding:28px 20px;text-align:center;color:var(--i3);font-size:13px">Select a player to cash out</div>
         <div id="co-form" style="display:none">
 
           <!-- Player Header -->
@@ -879,18 +893,37 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
           <!-- Confirm buttons -->
           <div id="co-confirm-win" style="display:none;margin-top:10px">
-            <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">✓ Confirm Payout</button>
+            <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">✓ Confirm Payout</button>
           </div>
           <div id="co-confirm-loss" style="display:none;margin-top:10px">
-            <button class="btn btn-neg btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
+            <button class="btn btn-neg btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
           </div>
           <div id="co-confirm-neutral" style="display:none;margin-top:10px">
-            <button class="btn btn-solid-cy btn-full" style="font-size:14px;padding:14px;font-weight:700" onclick="confirmCO()">Confirm Cash Out</button>
+            <button class="btn btn-solid-cy btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Cash Out</button>
           </div>
 
           <!-- Player quick actions: add-on, chips, bust (active only) -->
           <div id="co-player-actions" style="display:none;margin-top:14px"></div>
         </div>
+      </div>
+
+      <!-- Payout panel — below form so mobile order is correct -->
+      <div class="card card-cyan" style="margin-top:20px">
+        <div class="chd">
+          <span class="ctitle cy">Payouts</span>
+          <button class="btn btn-sm" onclick="autoSettle()" style="touch-action:manipulation">Mark All Paid</button>
+        </div>
+        <div id="settle-empty" class="empty" style="padding:12px 0"><span class="empty-txt">Cash out players to see payouts</span></div>
+        <div id="settle-list"></div>
+      </div>
+
+      <!-- Archive prompt — shown when everyone is cashed out -->
+      <div id="co-all-done-banner" style="display:none;background:rgba(57,255,20,.07);border:1px solid rgba(57,255,20,.3);border-radius:var(--r10);padding:18px;text-align:center;margin-top:16px">
+        <div style="font-size:24px;margin-bottom:8px">🏁</div>
+        <div style="font-size:15px;font-weight:700;color:var(--ag);margin-bottom:4px">Everyone's cashed out</div>
+        <div style="font-size:12px;color:var(--i3);margin-bottom:16px">Ready to wrap up the night?</div>
+        <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="archiveAndClear()">Archive &amp; Clear Table</button>
+        <button class="btn btn-ghost btn-full" style="font-size:13px;padding:12px;margin-top:8px;touch-action:manipulation" onclick="keepPlayingCO()">Keep Playing</button>
       </div>
     </div>
   </div>
@@ -2808,17 +2841,20 @@ function recalcCO(chipTot){
 function selectCOPlayer(id){
   coSelectedId=id; coEditMode=false;
   const manual=$('co-manual');if(manual)manual.value='';
-  // Clear chip inputs
   DENOMS.forEach(d=>{const i=$(`co-c-${d.id}`);if(i)i.value='0';});
   const old=$('co-cashed-edit');if(old)old.remove();
   renderCashOut();
-  // After render, pre-populate chip total from player's current stack
   const p=G.players.find(q=>q.id===id);
   if(p&&p.status==='active'&&p.currentStack>0){
-    const ct=$('co-chip-total');
-    if(ct)ct.textContent=fmt(p.currentStack);
-    // Trigger recalc with the known stack as starting value so result shows immediately
+    const ct=$('co-chip-total');if(ct)ct.textContent=fmt(p.currentStack);
     recalcCO(p.currentStack);
+  }
+  // Mobile: scroll form card into view after player selected
+  if(window.innerWidth<=820){
+    setTimeout(()=>{
+      const fc=$('co-form-card');
+      if(fc) fc.scrollIntoView({behavior:'smooth',block:'start'});
+    },80);
   }
 }
 

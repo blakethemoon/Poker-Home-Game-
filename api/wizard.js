@@ -101,8 +101,9 @@ module.exports = async (req, res) => {
 
     let result;
     try {
-      const clean = content.replace(/^```[a-z]*\n?/i, '').replace(/\n?```$/i, '').trim();
-      result = JSON.parse(clean);
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('no JSON object found');
+      result = JSON.parse(jsonMatch[0]);
     } catch (e) {
       res.status(500).json({ error: 'Could not parse wizard response', body: content });
       return;

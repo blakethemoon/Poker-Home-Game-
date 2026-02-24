@@ -3083,6 +3083,16 @@ function autoSettle(){
 }
 
 function closeSession(){
+  const all=G.players.filter(p=>p.status==='active'||p.status==='cashed'||p.status==='out');
+  const totalIn=all.reduce((s,p)=>s+ti(p),0);
+  const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
+  const activeStack=all.filter(p=>p.status==='active').reduce((s,p)=>s+p.currentStack,0);
+  const diff=parseFloat(((cashedOut+activeStack)-totalIn).toFixed(2));
+  if(Math.abs(diff)>0.02){
+    const dir=diff>0?'over by':'short by';
+    toast(`❌ Cash is ${dir} ${fmt(Math.abs(diff))} — fix it before closing`,5000);
+    return;
+  }
   const active=G.players.filter(p=>p.status==='active');
   if(active.length){
     if(!confirm(`${active.length} player${active.length!==1?'s':''} still active. Close anyway?`))return;

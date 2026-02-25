@@ -566,7 +566,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <div class="wm-logo" style="display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1;user-select:none">♠</div>
     <div>
       <div class="wm-name">Moon's</div>
-      <div class="wm-sub">Home Game</div>
+      <div class="wm-sub" id="wm-sub">Home Game</div>
     </div>
   </div>
   <div class="hs"><div class="hs-v" id="h-players">0</div><div class="hs-l">Players</div></div>
@@ -4702,6 +4702,7 @@ function refresh(){
   if(activeTab==='cashout') renderCashOut();
   if(activeTab==='chips')   populatePickers();
   if(activeTab==='hands')   renderHands();
+  scheduleCloudSave(); // keep all devices in sync on every state change
 }
 
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
@@ -4711,8 +4712,20 @@ let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout((
 
 /* ══ CLOUD SYNC (Vercel KV) ══ */
 let _cloudTimer=null;
+let _lastCloudSave=0; // epoch ms of most recent save — used to avoid overwriting newer local state
+
+function setSyncStatus(state){
+  const sub=$('wm-sub');if(!sub)return;
+  if(state==='saving') sub.textContent='Home Game · ☁ saving…';
+  else if(state==='ok')  sub.textContent='Home Game · ☁ synced';
+  else if(state==='err') sub.textContent='Home Game · ☁ offline';
+  else                   sub.textContent='Home Game';
+}
+
 function scheduleCloudSave(){clearTimeout(_cloudTimer);_cloudTimer=setTimeout(cloudSave,1500);}
 async function cloudSave(){
+  _lastCloudSave=Date.now();
+  setSyncStatus('saving');
   try{
     await fetch('/api/state',{
       method:'POST',
@@ -4722,10 +4735,33 @@ async function cloudSave(){
         history:JSON.parse(localStorage.getItem('moonsHistory')||'[]'),
         invite:INVITE,
         rsvps:RSVPS,
-        oracle:oracleLog
+        oracle:oracleLog,
+        // Live session — the part that makes cross-device sync work
+        session:{
+          G:{
+            players:G.players,
+            hands:G.hands,
+            dumbHands:G.dumbHands,
+            feed:G.feed,
+            nextId:G.nextId,
+            settings:G.settings,
+            start:G.start?G.start.toISOString():null
+          },
+          sessionActive,
+          sessionStartTime:sessionStartTime?sessionStartTime.toISOString():null,
+          sessionClosed,
+          sessionClosedAt:sessionClosedAt?sessionClosedAt.toISOString():null,
+          DENOMS,
+          _savedAt:_lastCloudSave
+        }
       })
     });
-  }catch(e){console.warn('Cloud save failed:',e);}
+    setSyncStatus('ok');
+    setTimeout(()=>setSyncStatus(null),5000);
+  }catch(e){
+    console.warn('Cloud save failed:',e);
+    setSyncStatus('err');
+  }
 }
 async function cloudLoad(){
   try{
@@ -4750,11 +4786,43 @@ async function cloudLoad(){
     if(Array.isArray(data.oracle)){
       oracleLog=data.oracle;localStorage.setItem('oracleLog',JSON.stringify(oracleLog));
     }
+    // ── Live session sync ──
+    if(data.session&&typeof data.session==='object'){
+      const s=data.session;
+      const remoteSavedAt=s._savedAt||0;
+      // Only apply if the cloud state is newer than our last local save
+      // (prevents overwriting host's in-progress edits with stale data)
+      if(remoteSavedAt>_lastCloudSave){
+        if(s.G){
+          G.players    = s.G.players    || [];
+          G.hands      = s.G.hands      || [];
+          G.dumbHands  = s.G.dumbHands  || [];
+          G.feed       = s.G.feed       || [];
+          G.nextId     = s.G.nextId     || 1;
+          if(s.G.settings) G.settings=s.G.settings;
+          G.start = s.G.start ? new Date(s.G.start) : new Date();
+        }
+        if(typeof s.sessionActive==='boolean') sessionActive=s.sessionActive;
+        sessionStartTime = s.sessionStartTime ? new Date(s.sessionStartTime) : null;
+        if(typeof s.sessionClosed==='boolean') sessionClosed=s.sessionClosed;
+        sessionClosedAt  = s.sessionClosedAt  ? new Date(s.sessionClosedAt)  : null;
+        if(Array.isArray(s.DENOMS)) DENOMS=s.DENOMS;
+        // Restart session timer if session is active and timer isn't running
+        if(sessionActive&&!timerInterval){
+          timerInterval=setInterval(tickTimer,1000);
+        }
+        changed=true;
+        setSyncStatus('ok');
+        setTimeout(()=>setSyncStatus(null),4000);
+      }
+    }
     if(changed){
+      refresh();
       renderDash();
-      if(activeTab==='players')renderPlayerPanel();
-      if(activeTab==='sessions')renderSessions();
-      if(activeTab==='invite')renderInvite();
+      if(activeTab==='players')  renderPlayerPanel();
+      if(activeTab==='sessions') renderSessions();
+      if(activeTab==='invite')   renderInvite();
+      if(activeTab==='cashout')  renderCashOut();
       toast('☁ Synced');
     }
   }catch(e){console.warn('Cloud load failed, using local:',e);}
@@ -4775,6 +4843,9 @@ if(_urlInvite){
   cloudLoad();
   toast("Moon's — let's play",2000);
 }
+
+// Poll every 7 seconds so phone and desktop stay in sync automatically
+setInterval(cloudLoad, 7000);
 
 // Register service worker for PWA / offline support
 if('serviceWorker' in navigator){

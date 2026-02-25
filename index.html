@@ -565,6 +565,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <button id="nav-trainer"  class="nvb"    onclick="goTab('trainer',this)">Train</button>
   <button id="nav-invite"   class="nvb"    onclick="goTab('invite',this)">Invite</button>
   <button id="nav-sessions" class="nvb"    onclick="goTab('sessions',this)">History</button>
+  <button id="nav-settings" class="nvb"    onclick="goTab('settings',this)">Settings</button>
 </nav>
 
 <main class="content">
@@ -1519,6 +1520,10 @@ const TR = {played:0,correct:0,totalEV:0,history:[],currentSpot:null,multiStreet
 let INVITE = JSON.parse(localStorage.getItem('moonsInvite')||'{}');
 let RSVPS   = JSON.parse(localStorage.getItem('moonsRSVPs') ||'[]');
 
+// Host lock
+let hostPIN = localStorage.getItem('hostPIN') || '';
+let hostUnlocked = !hostPIN; // auto-unlocked when no PIN is set
+
 // Cash out tracking
 let coSelectedId = null;
 let settleChecked = {}; // playerId -> bool
@@ -1565,6 +1570,7 @@ function goTab(name,el){
   if(name==='invite')  renderInvite();
   if(name==='sessions') renderSessions();
   if(name==='history') renderSessions();
+  if(name==='settings') renderSettings();
 }
 
 /* ═══════════════════════════════
@@ -3867,25 +3873,82 @@ function clearHistory(){
 }
 
 /* ═══════════════════════════════
-   INVITE
+   SETTINGS TAB
 ═══════════════════════════════ */
-function getInviteURL(id){
-  const base=window.location.href.split('?')[0].split('#')[0];
-  return `${base}?invite=${id}`;
+function renderSettings(){
+  // Populate game fields from current state
+  const sh=$('set-host'); if(sh) sh.value=G.settings.hostName||'';
+  const ssb=$('set-sb');  if(ssb) ssb.value=G.settings.sb;
+  const sbb=$('set-bb');  if(sbb) sbb.value=G.settings.bb;
+  const sbi=$('set-bi');  if(sbi) sbi.value=G.settings.defaultBuyin;
+  const sst=$('set-seats');if(sst) sst.value=G.settings.seats;
+  const sg=$('set-game'); if(sg)  sg.value=G.settings.game;
+
+  const status=$('set-lock-status');
+  const ui=$('set-pin-ui');
+  if(!status||!ui) return;
+
+  if(!hostPIN){
+    status.innerHTML='<span style="color:var(--i3)">Off</span>';
+    ui.innerHTML=`
+      <div class="fg"><label class="lbl">New PIN (4–8 digits)</label>
+        <input class="inp" type="password" id="set-new-pin" placeholder="e.g. 1234" maxlength="8" inputmode="numeric"></div>
+      <div class="fg"><label class="lbl">Confirm PIN</label>
+        <input class="inp" type="password" id="set-confirm-pin" placeholder="Repeat PIN" maxlength="8" inputmode="numeric"></div>
+      <button class="btn btn-full" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#a855f7" onclick="setHostPIN()">Enable Host Lock</button>`;
+  } else if(hostUnlocked){
+    status.innerHTML='<span style="color:var(--ag)">Unlocked this session</span>';
+    ui.innerHTML=`
+      <div style="background:var(--ag3);border:1px solid rgba(57,255,20,.2);border-radius:var(--r8);padding:10px 12px;font-size:12px;color:var(--ag);margin-bottom:12px">Host mode active — all-time stats visible</div>
+      <button class="btn btn-neg btn-full" onclick="clearHostPIN()">Remove PIN</button>`;
+  } else {
+    status.innerHTML='<span style="color:var(--neg)">Locked</span>';
+    ui.innerHTML=`
+      <div style="background:var(--neg3);border:1px solid rgba(255,69,96,.2);border-radius:var(--r8);padding:10px 12px;font-size:12px;color:var(--neg);margin-bottom:12px">All-time stats hidden until you unlock</div>
+      <div class="fg"><label class="lbl">Enter PIN</label>
+        <input class="inp" type="password" id="set-unlock-pin" placeholder="PIN" maxlength="8" inputmode="numeric" onkeydown="if(event.key==='Enter')unlockHostPIN()"></div>
+      <button class="btn btn-full" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#a855f7" onclick="unlockHostPIN()">Unlock</button>`;
+  }
+}
+function setHostPIN(){
+  const a=($('set-new-pin')||{}).value?.trim();
+  const b=($('set-confirm-pin')||{}).value?.trim();
+  if(!a||a.length<4){toast('PIN must be at least 4 digits');return;}
+  if(a!==b){toast('PINs do not match');return;}
+  hostPIN=a; hostUnlocked=true;
+  localStorage.setItem('hostPIN',a);
+  toast('Host lock enabled ✓');
+  renderSettings();
+}
+function unlockHostPIN(){
+  const v=($('set-unlock-pin')||{}).value?.trim();
+  if(v===hostPIN){
+    hostUnlocked=true;
+    if($('set-unlock-pin'))$('set-unlock-pin').value='';
+    toast('Host mode unlocked ✓');
+    renderSettings();
+    if(activeTab==='sessions'||activeTab==='history') renderSessions();
+  } else {
+    toast('Incorrect PIN');
+  }
+}
+function clearHostPIN(){
+  if(!confirm('Remove host PIN? All-time stats will be visible to anyone who opens the app.'))return;
+  hostPIN=''; hostUnlocked=true;
+  localStorage.removeItem('hostPIN');
+  toast('Host lock removed');
+  renderSettings();
 }
 
 function openSettings(){
-  $('set-host').value=G.settings.hostName||'blake';
-  $('set-sb').value=G.settings.sb;$('set-bb').value=G.settings.bb;
-  $('set-bi').value=G.settings.defaultBuyin;$('set-seats').value=G.settings.seats;$('set-game').value=G.settings.game;
-  om('m-settings');
+  goTab('settings',$('nav-settings'));
 }
 function doSaveSettings(){
   G.settings.hostName=($('set-host').value||'blake').trim().toLowerCase();
   G.settings.sb=parseFloat($('set-sb').value)||0.10;G.settings.bb=parseFloat($('set-bb').value)||0.10;
   G.settings.defaultBuyin=parseFloat($('set-bi').value)||10;
   G.settings.seats=parseInt($('set-seats').value)||10;G.settings.game=$('set-game').value;
-  cm('m-settings');refresh();toast('Settings saved');
+  refresh();toast('Settings saved');
 }
 
 /* ═══════════════════════════════
@@ -4072,28 +4135,36 @@ function selectSession(id, render=true){
       `:''}
     </div>
 
-    <!-- Per-player career view -->
-    <div class="card">
-      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:10px">Career Stats — Players from This Session</div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        ${s.players.map(p=>{
-          const pSessions=hist.filter(h=>h.players.some(pl=>pl.name===p.name));
-          const pNet=pSessions.flatMap(h=>h.players.filter(pl=>pl.name===p.name&&pl.cashout!=null)).reduce((a,pl)=>a+(pl.cashout-pl.buyin),0);
-          const pDumb=allDumb.filter(d=>d.winner===p.name);
-          return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s2);border-radius:var(--r8);border:1px solid var(--br)">
-            <div style="width:32px;height:32px;border-radius:50%;background:var(--s3);border:2px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--i2);flex-shrink:0">${p.name.charAt(0)}</div>
-            <div style="flex:1">
-              <div style="font-size:12px;font-weight:700;color:var(--i0)">${p.name}</div>
-              <div style="font-size:11px;color:var(--i3);margin-top:2px">${pSessions.length} sessions${pDumb.length?` · 🤡 ${pDumb.length} dumb win${pDumb.length!==1?'s':''}`:''}</div>
-            </div>
-            <div style="text-align:right">
-              <div style="font-size:13px;font-weight:700;color:${pNet>0?'var(--ag)':pNet<0?'var(--neg)':'var(--i2)'}">${pNet>0?'+':pNet<0?'-':''}${fmt(Math.abs(pNet))}</div>
-              <div style="font-size:11px;color:var(--i3)">all-time</div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
+    <!-- Per-player career view (host-locked) -->
+    ${hostPIN&&!hostUnlocked
+      ? `<div class="card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:26px;margin-bottom:8px">🔒</div>
+          <div style="font-size:13px;font-weight:700;color:var(--i0);margin-bottom:4px">All-Time Stats Locked</div>
+          <div style="font-size:12px;color:var(--i3);margin-bottom:14px">Enter your PIN in Settings to view career data</div>
+          <button class="btn btn-sm" style="background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#a855f7" onclick="goTab('settings',$('nav-settings'))">Go to Settings</button>
+        </div>`
+      : `<div class="card">
+          <div style="font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--i3);text-transform:uppercase;margin-bottom:10px">Career Stats — Players from This Session</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${s.players.map(p=>{
+              const pSessions=hist.filter(h=>h.players.some(pl=>pl.name===p.name));
+              const pNet=pSessions.flatMap(h=>h.players.filter(pl=>pl.name===p.name&&pl.cashout!=null)).reduce((a,pl)=>a+(pl.cashout-pl.buyin),0);
+              const pDumb=allDumb.filter(d=>d.winner===p.name);
+              return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:var(--s2);border-radius:var(--r8);border:1px solid var(--br)">
+                <div style="width:32px;height:32px;border-radius:50%;background:var(--s3);border:2px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--i2);flex-shrink:0">${p.name.charAt(0)}</div>
+                <div style="flex:1">
+                  <div style="font-size:12px;font-weight:700;color:var(--i0)">${p.name}</div>
+                  <div style="font-size:11px;color:var(--i3);margin-top:2px">${pSessions.length} sessions${pDumb.length?` · 🤡 ${pDumb.length} dumb win${pDumb.length!==1?'s':''}`:''}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-size:13px;font-weight:700;color:${pNet>0?'var(--ag)':pNet<0?'var(--neg)':'var(--i2)'}">${pNet>0?'+':pNet<0?'-':''}${fmt(Math.abs(pNet))}</div>
+                  <div style="font-size:11px;color:var(--i3)">all-time</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`
+    }
   `;
 }
 

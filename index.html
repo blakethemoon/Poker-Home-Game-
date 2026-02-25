@@ -1507,6 +1507,14 @@ let ROSTER_DB = (JSON.parse(localStorage.getItem('moonsRoster')||'[]')).map(r=>
 );
 function saveRosterDB(){localStorage.setItem('moonsRoster',JSON.stringify(ROSTER_DB));scheduleCloudSave();}
 function getRosterEntry(name){return ROSTER_DB.find(r=>r.name===name);}
+// Fuzzy match: exact (case-insensitive) first, then first-name-only match
+function findRosterMatch(input){
+  const q=(input||'').trim().toLowerCase();
+  if(!q) return null;
+  return ROSTER_DB.find(r=>r.name.toLowerCase()===q)
+      || ROSTER_DB.find(r=>r.name.toLowerCase().startsWith(q+' '))
+      || null;
+}
 function upsertRoster(name,patch={}){
   let r=getRosterEntry(name);
   if(!r){r={name,lastSeen:null,nextSession:null,notes:''};ROSTER_DB.push(r);}
@@ -1520,9 +1528,10 @@ const TR = {played:0,correct:0,totalEV:0,history:[],currentSpot:null,multiStreet
 let INVITE = JSON.parse(localStorage.getItem('moonsInvite')||'{}');
 let RSVPS   = JSON.parse(localStorage.getItem('moonsRSVPs') ||'[]');
 
-// Host lock
-let hostPIN = localStorage.getItem('hostPIN') || '';
-let hostUnlocked = !hostPIN; // auto-unlocked when no PIN is set
+// Host lock — default PIN is 6969 until changed in Settings
+if(!localStorage.getItem('hostPIN')) localStorage.setItem('hostPIN','6969');
+let hostPIN = localStorage.getItem('hostPIN');
+let hostUnlocked = false; // always locked on page load
 
 // Cash out tracking
 let coSelectedId = null;
@@ -2448,7 +2457,19 @@ function openAdd(presetSeat){
 }
 
 function openAddAtSeat(seatNum){ openAdd(seatNum); }
-function ap_name_change(){/* roster lookup could go here */}
+function ap_name_change(){
+  const inp=$('ap-name');
+  const val=inp.value;
+  const q=val.trim().toLowerCase();
+  if(q.length<2) return;
+  // Only auto-complete when the typed value looks like a first name (no space yet)
+  if(val.includes(' ')) return;
+  const match=findRosterMatch(q);
+  if(match&&match.name.toLowerCase()!==q){
+    inp.value=match.name;
+    inp.setSelectionRange(val.length,match.name.length);
+  }
+}
 
 function quickAddFromModal(name){
   const freeSeat=Array.from({length:G.settings.seats},(_,i)=>i+1).find(s=>!G.players.some(p=>p.seat===s&&p.status==='active'));
@@ -2484,10 +2505,13 @@ function quickAddFromRoster(name){
 }
 
 function doAddPlayer(){
-  const name=$('ap-name').value.trim();
+  const raw=$('ap-name').value.trim();
+  if(!raw){toast('Enter a name');return;}
+  // Resolve partial/first-name input to full roster name
+  const match=findRosterMatch(raw);
+  const name=match?match.name:raw;
   const buyin=parseFloat($('ap-buyin').value)||G.settings.defaultBuyin;
   const seat=parseInt($('ap-seat').value);
-  if(!name){toast('Enter a name');return;}
   G.players.push({id:G.nextId++,name,buyin,addOns:[],addOnTotal:0,seat,status:'active',currentStack:buyin,cashoutAmount:null,joinedAt:new Date()});
   upsertRoster(name);
   addFeed('♠',`${name} bought in`,`${fmt(buyin)} · Seat ${seat}`);

@@ -523,7 +523,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 }
 @media(min-width:1100px){
   .content{padding:24px 32px}
-  .chip-grid{grid-template-columns:minmax(0,640px) minmax(0,480px)}
+  .chip-grid{grid-template-columns:4fr 3fr}
   .dash-grid{grid-template-columns:1fr 340px}
   .trainer-grid{grid-template-columns:1fr 340px}
 }
@@ -1401,7 +1401,8 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <div class="card" style="border-color:rgba(255,69,96,.2)">
       <div class="chd"><span class="ctitle" style="color:var(--neg)">Danger Zone</span></div>
       <p style="font-size:12px;color:var(--i3);margin-bottom:10px">Permanent — cannot be undone.</p>
-      <button class="btn btn-neg btn-full" onclick="clearHistory()">Clear All Session History</button>
+      <button class="btn btn-neg btn-full" onclick="clearHistory()" style="margin-bottom:8px">Clear All Session History</button>
+      <button class="btn btn-neg btn-full" onclick="factoryReset()">Wipe All Data &amp; Reset</button>
     </div>
 
   </div>
@@ -1502,6 +1503,14 @@ const DEFAULT_DENOMS = [
   {id:'g', name:'Green', color:'#22c55e', value:5.00},
 ];
 let DENOMS = JSON.parse(JSON.stringify(DEFAULT_DENOMS));
+
+// ── Fresh-start migration: wipe local data when db version bumps ──
+const APP_VERSION='moons-db-v2';
+if(localStorage.getItem('moonsVersion')!==APP_VERSION){
+  ['moonsRoster','moonsInvite','moonsRSVPs','hostPIN','moonsHistory','oracleLog']
+    .forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem('moonsVersion',APP_VERSION);
+}
 
 // Persistent player roster (all-time) — stored as objects
 let ROSTER_DB = (JSON.parse(localStorage.getItem('moonsRoster')||'[]')).map(r=>
@@ -4199,6 +4208,13 @@ function clearHistory(){
   if(!confirm('Clear all session history? This cannot be undone.'))return;
   localStorage.removeItem('moonsHistory');
   renderSessions();
+}
+
+function factoryReset(){
+  if(!confirm('Wipe ALL data — roster, history, settings, everything? This cannot be undone.'))return;
+  ['moonsRoster','moonsInvite','moonsRSVPs','hostPIN','moonsHistory','oracleLog','moonsVersion']
+    .forEach(k=>localStorage.removeItem(k));
+  location.reload();
 }
 /* ═══════════════════════════════
    INVITE

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06040f">
+<title>Moon's — You're Invited</title>
+<link rel="apple-touch-icon" href="/icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cy:#00d4ff;--mg:#ff006e;--ag:#39ff14;--au:#e8b84b;
+  --neg:#ff4560;--pur:#a855f7;
+  --s0:#06040f;--s1:#0d0a1a;--s2:#121020;--s3:#1a172e;
+  --br:rgba(255,255,255,.07);--brc:rgba(0,212,255,.25);
+  --i0:#f0ecff;--i2:#9d98b8;--i3:#5c5878;--i4:#2e2c42;
+  --glow-cy:0 0 14px rgba(0,212,255,.7);
+  --glow-ag:0 0 14px rgba(57,255,20,.7);
+  --r8:8px;--r12:12px;--r16:16px;--r24:24px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100vh;background:var(--s0);color:var(--i0);font-family:'Syne',sans-serif;-webkit-font-smoothing:antialiased}
+
+/* ── BG ── */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.orb{position:absolute;border-radius:50%;mix-blend-mode:screen;animation:drift var(--t,22s) ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--dx,20px),var(--dy,-15px)) scale(1.08)}}
+.grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:48px 48px}
+.scanline{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none}
+
+/* ── KEYFRAMES ── */
+@keyframes sweep{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes logopulse{0%,100%{box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 18px rgba(168,85,247,.45)}50%{box-shadow:0 0 0 3px rgba(168,85,247,.95),0 0 36px rgba(168,85,247,.75),0 0 70px rgba(168,85,247,.15)}}
+@keyframes nameglow{0%,100%{text-shadow:0 0 28px rgba(0,212,255,.25)}50%{text-shadow:0 0 50px rgba(0,212,255,.75),0 0 90px rgba(0,212,255,.12)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.5)}}
+@keyframes cardglow{0%,100%{box-shadow:inset 0 0 30px rgba(0,212,255,.04)}50%{box-shadow:inset 0 0 40px rgba(0,212,255,.1),0 0 20px rgba(0,212,255,.06)}}
+@keyframes heroshine{0%,100%{text-shadow:0 0 40px rgba(0,212,255,.3),0 2px 0 rgba(0,0,0,.6)}50%{text-shadow:0 0 70px rgba(0,212,255,.6),0 0 120px rgba(168,85,247,.2),0 2px 0 rgba(0,0,0,.6)}}
+@keyframes agglow{0%,100%{text-shadow:0 0 12px rgba(57,255,20,.35)}50%{text-shadow:0 0 28px rgba(57,255,20,.9),0 0 56px rgba(57,255,20,.14)}}
+@keyframes mgglow{0%,100%{text-shadow:0 0 12px rgba(255,0,110,.3)}50%{text-shadow:0 0 28px rgba(255,0,110,.85),0 0 56px rgba(255,0,110,.12)}}
+
+/* ── LAYOUT ── */
+#wrap{position:relative;z-index:1;max-width:520px;margin:0 auto;padding:24px 18px 60px}
+
+/* ── HEADER ── */
+.hdr{display:flex;align-items:center;gap:12px;margin-bottom:36px;animation:fadeUp .3s ease both}
+.logo{width:52px;height:52px;border-radius:14px;object-fit:contain;flex-shrink:0;animation:logopulse 2.8s ease-in-out infinite}
+.brand-name{font-family:'Instrument Serif',serif;font-size:26px;animation:nameglow 3.5s ease-in-out infinite}
+.brand-sub{font-size:10px;color:var(--i3);letter-spacing:.12em;text-transform:uppercase;margin-top:2px}
+
+/* ── HERO CARD ── */
+.hero{background:var(--s1);border:1px solid var(--brc);border-radius:var(--r16);padding:30px 24px;text-align:center;margin-bottom:20px;position:relative;overflow:hidden;animation:fadeUp .35s .05s ease both, cardglow 4s ease-in-out infinite}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);background-size:200%;animation:sweep 5s linear infinite}
+.hero-spade{font-size:36px;margin-bottom:10px;opacity:.6}
+.hero-title{font-family:'Instrument Serif',serif;font-size:36px;line-height:1.1;margin-bottom:8px;animation:heroshine 3.5s ease-in-out infinite}
+.hero-meta{font-size:13px;color:var(--i2);line-height:1.8;font-family:'DM Mono',monospace}
+.hero-note{margin-top:14px;padding:10px 14px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:var(--r8);font-size:12px;color:var(--i3);line-height:1.6;text-align:left}
+.hero-chips{display:flex;justify-content:center;gap:12px;margin-top:20px;flex-wrap:wrap}
+.hero-chip{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:12px 20px;text-align:center;min-width:80px}
+.hero-chip-v{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;line-height:1}
+.hero-chip-l{font-size:10px;color:var(--i3);letter-spacing:.07em;text-transform:uppercase;margin-top:4px}
+.cy{color:var(--cy)}.ag{color:var(--ag)}.neg{color:var(--neg)}.au{color:var(--au)}
+
+/* ── RSVP FORM ── */
+.rsvp-card{background:var(--s1);border:1px solid rgba(168,85,247,.3);border-radius:var(--r16);padding:24px;margin-bottom:20px;animation:fadeUp .4s .1s ease both;position:relative;overflow:hidden}
+.rsvp-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(168,85,247,.5),transparent);background-size:200%;animation:sweep 5s linear infinite 1s}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pur,#a855f7);margin-bottom:16px}
+.inp{width:100%;padding:12px 14px;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);color:var(--i0);font-family:'Syne',sans-serif;font-size:14px;outline:none;transition:border-color .14s}
+.inp:focus{border-color:rgba(168,85,247,.5)}
+.inp::placeholder{color:var(--i3)}
+.fg{margin-bottom:14px}
+.lbl{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--i3);margin-bottom:6px}
+
+/* ── STATUS BUTTONS ── */
+.status-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px}
+.sb{border:1px solid var(--br);border-radius:var(--r8);padding:14px 8px;background:var(--s2);cursor:pointer;text-align:center;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--i2);transition:all .15s;touch-action:manipulation}
+.sb:hover{background:var(--s3)}
+.sb.sel-in{border-color:var(--ag);background:rgba(57,255,20,.08);color:var(--ag);animation:agglow 2s ease-in-out infinite}
+.sb.sel-maybe{border-color:var(--au);background:rgba(232,184,75,.08);color:var(--au)}
+.sb.sel-out{border-color:var(--neg);background:rgba(255,69,96,.08);color:var(--neg)}
+.sb-emoji{font-size:20px;display:block;margin-bottom:4px}
+
+/* ── SUBMIT BUTTON ── */
+.btn-submit{width:100%;padding:16px;border:none;border-radius:var(--r8);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;letter-spacing:.05em;cursor:pointer;margin-top:6px;transition:all .15s;touch-action:manipulation}
+.btn-submit.active{background:var(--pur,#a855f7);color:#fff}
+.btn-submit.inactive{background:var(--s3);color:var(--i3);cursor:default}
+.btn-submit.active:hover{filter:brightness(1.1)}
+
+/* ── RESPONSES ── */
+.responses-card{background:var(--s1);border:1px solid var(--br);border-radius:var(--r16);padding:24px;animation:fadeUp .45s .15s ease both}
+.rsvp-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--br)}
+.rsvp-item:last-child{border-bottom:none}
+.rsvp-emoji{font-size:20px;flex-shrink:0}
+.rsvp-name{flex:1;font-size:14px;font-weight:600}
+.rsvp-badge{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:20px}
+.badge-in{color:var(--ag);border:1px solid rgba(57,255,20,.3);background:rgba(57,255,20,.06)}
+.badge-maybe{color:var(--au);border:1px solid rgba(232,184,75,.3);background:rgba(232,184,75,.06)}
+.badge-out{color:var(--neg);border:1px solid rgba(255,69,96,.3);background:rgba(255,69,96,.06)}
+.empty-txt{font-size:13px;color:var(--i3);text-align:center;padding:16px 0;display:block}
+.spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--pur,#a855f7);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(18,16,32,.96);border:1px solid rgba(255,255,255,.1);border-radius:var(--r8);padding:11px 18px;font-size:13px;color:var(--i0);backdrop-filter:blur(12px);z-index:999;opacity:0;transition:all .2s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── FOOTER ── */
+.footer{text-align:center;margin-top:32px;font-size:11px;color:var(--i4);letter-spacing:.06em}
+.footer a{color:var(--cy);text-decoration:none;opacity:.6}
+
+@media(max-width:420px){
+  .hero-title{font-size:28px}
+  .status-btns{gap:8px}
+  .sb{padding:12px 6px;font-size:11px}
+}
+</style>
+</head>
+<body>
+<div id="bg">
+  <div class="orb" style="width:500px;height:500px;background:radial-gradient(circle,rgba(0,212,255,.06),transparent 70%);top:-100px;left:-100px;--t:25s;--dx:30px;--dy:20px"></div>
+  <div class="orb" style="width:400px;height:400px;background:radial-gradient(circle,rgba(168,85,247,.07),transparent 70%);bottom:-80px;right:-80px;--t:20s;--dx:-25px;--dy:-18px"></div>
+  <div class="grid-overlay"></div>
+  <div class="scanline"></div>
+</div>
+
+<div id="wrap">
+  <!-- Header -->
+  <div class="hdr">
+    <img class="logo" src="/icon.svg" alt="Moon's">
+    <div>
+      <div class="brand-name">Moon's</div>
+      <div class="brand-sub">Home Game</div>
+    </div>
+  </div>
+
+  <!-- Hero — invite details (populated by JS) -->
+  <div class="hero" id="hero">
+    <div class="hero-spade">♠</div>
+    <div class="hero-title" id="hero-title">Loading…</div>
+    <div class="hero-meta" id="hero-meta"></div>
+    <div class="hero-chips" id="hero-chips"></div>
+    <div class="hero-note" id="hero-note" style="display:none"></div>
+  </div>
+
+  <!-- RSVP Form -->
+  <div class="rsvp-card" id="rsvp-card">
+    <div class="section-title">Your RSVP</div>
+    <div class="fg">
+      <label class="lbl">Your Name</label>
+      <input class="inp" id="guest-name" type="text" placeholder="Enter your name…" autocomplete="given-name" autocorrect="off">
+    </div>
+    <div class="fg">
+      <label class="lbl">Are you in?</label>
+      <div class="status-btns">
+        <button class="sb" id="btn-in"    onclick="setStatus('in')">   <span class="sb-emoji">🤙</span>I'm In</button>
+        <button class="sb" id="btn-maybe" onclick="setStatus('maybe')"><span class="sb-emoji">🤔</span>Maybe</button>
+        <button class="sb" id="btn-out"   onclick="setStatus('out')">  <span class="sb-emoji">😢</span>Can't</button>
+      </div>
+    </div>
+    <button class="btn-submit inactive" id="submit-btn" onclick="submitRSVP()">Send Response</button>
+    <div id="submit-msg" style="text-align:center;font-size:12px;color:var(--i3);margin-top:10px;min-height:18px"></div>
+  </div>
+
+  <!-- Responses -->
+  <div class="responses-card">
+    <div class="section-title">Responses</div>
+    <div id="rsvp-list"><span class="empty-txt">Loading responses…</span></div>
+  </div>
+
+  <div class="footer">Powered by <a href="/">Moon's Home Game</a></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let inviteData = null;
+let rsvps = [];
+let selectedStatus = null;
+let submitting = false;
+
+function toast(msg, duration=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), duration);
+}
+
+function fmt(n){ return '$'+n.toFixed(2).replace(/\.00$/,''); }
+
+function setStatus(s){
+  selectedStatus = s;
+  ['in','maybe','out'].forEach(k=>{
+    const btn=document.getElementById('btn-'+k);
+    btn.className='sb'+(s===k?' sel-'+k:'');
+  });
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn(){
+  const name=document.getElementById('guest-name').value.trim();
+  const btn=document.getElementById('submit-btn');
+  if(name && selectedStatus){
+    btn.className='btn-submit active';
+  } else {
+    btn.className='btn-submit inactive';
+  }
+}
+document.getElementById('guest-name').addEventListener('input', updateSubmitBtn);
+
+function renderInvite(invite){
+  if(!invite || !invite.name){ return; }
+  document.title = invite.name + ' — Moon\'s';
+  document.getElementById('hero-title').textContent = invite.name;
+
+  const parts=[];
+  if(invite.date){
+    const dt=new Date(invite.date+'T'+(invite.time||'20:00'));
+    parts.push(dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}));
+    if(invite.time) parts.push(dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}));
+  } else { parts.push('Date TBD'); }
+  if(invite.loc) parts.push(invite.loc);
+  document.getElementById('hero-meta').textContent = parts.join('  ·  ');
+
+  const chips=[];
+  if(invite.buyin) chips.push(`<div class="hero-chip"><div class="hero-chip-v au">${fmt(invite.buyin)}</div><div class="hero-chip-l">Buy-In</div></div>`);
+  if(invite.max)   chips.push(`<div class="hero-chip"><div class="hero-chip-v cy">${invite.max}</div><div class="hero-chip-l">Max Players</div></div>`);
+  document.getElementById('hero-chips').innerHTML = chips.join('');
+
+  if(invite.note){
+    const n=document.getElementById('hero-note');
+    n.textContent=invite.note; n.style.display='block';
+  }
+}
+
+function renderRSVPs(list){
+  const el=document.getElementById('rsvp-list');
+  if(!list||!list.length){ el.innerHTML='<span class="empty-txt">No responses yet — be the first!</span>'; return; }
+  const order={in:0,maybe:1,out:2};
+  const sorted=[...list].sort((a,b)=>order[a.status]-order[b.status]);
+  el.innerHTML=sorted.map(r=>{
+    const em={in:'🤙',maybe:'🤔',out:'😢'};
+    const bc={in:'badge-in',maybe:'badge-maybe',out:'badge-out'};
+    const lbl={in:"I'm In",maybe:'Maybe',out:"Can't Make It"};
+    return `<div class="rsvp-item">
+      <span class="rsvp-emoji">${em[r.status]}</span>
+      <span class="rsvp-name">${r.name}</span>
+      <span class="rsvp-badge ${bc[r.status]}">${lbl[r.status]}</span>
+    </div>`;
+  }).join('');
+}
+
+async function loadState(){
+  try{
+    const r=await fetch('/api/state');
+    if(!r.ok) throw new Error('Failed');
+    const {data}=await r.json();
+    if(!data) return;
+    inviteData = data.invite || null;
+    rsvps = Array.isArray(data.rsvps) ? data.rsvps : [];
+    renderInvite(inviteData);
+    renderRSVPs(rsvps);
+  }catch(e){
+    document.getElementById('hero-title').textContent="Moon's Night";
+    document.getElementById('hero-meta').textContent='Check the link and try again';
+    document.getElementById('rsvp-list').innerHTML='<span class="empty-txt">Couldn\'t load — check your connection</span>';
+  }
+}
+
+async function submitRSVP(){
+  if(submitting) return;
+  const name=document.getElementById('guest-name').value.trim();
+  if(!name){ toast('Enter your name first'); return; }
+  if(!selectedStatus){ toast('Pick a response'); return; }
+
+  submitting=true;
+  const btn=document.getElementById('submit-btn');
+  const msg=document.getElementById('submit-msg');
+  btn.innerHTML='<span class="spinner"></span>Sending…';
+  btn.className='btn-submit inactive';
+
+  try{
+    // Read-modify-write: preserve all other state
+    const r=await fetch('/api/state');
+    const {data}=await r.json();
+    const fullData = data || {};
+    let list = Array.isArray(fullData.rsvps) ? fullData.rsvps : [];
+    list = list.filter(x=>x.name!==name); // update if exists
+    list.push({name, status:selectedStatus, time:new Date().toISOString()});
+    fullData.rsvps = list;
+
+    await fetch('/api/state',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(fullData)
+    });
+
+    rsvps=list;
+    renderRSVPs(rsvps);
+    const labels={in:"You're in! See you at the table 🤙",maybe:'Got it — hope you can make it 🤔',out:"No worries, maybe next time 😢"};
+    msg.textContent = labels[selectedStatus];
+    msg.style.color = selectedStatus==='in'?'var(--ag)':selectedStatus==='maybe'?'var(--au)':'var(--i3)';
+    btn.innerHTML='✓ Response Sent';
+    btn.className='btn-submit active';
+    toast(labels[selectedStatus]);
+
+    // Update counts in hero
+    const counts={in:rsvps.filter(x=>x.status==='in').length,maybe:rsvps.filter(x=>x.status==='maybe').length,out:rsvps.filter(x=>x.status==='out').length};
+    const chipsEl=document.getElementById('hero-chips');
+    const existing=chipsEl.querySelector('[data-buyin]');
+    // refresh hero chips with counts
+    const invite=inviteData||{};
+    let chips='';
+    if(invite.buyin) chips+=`<div class="hero-chip"><div class="hero-chip-v au">${fmt(invite.buyin)}</div><div class="hero-chip-l">Buy-In</div></div>`;
+    if(counts.in)    chips+=`<div class="hero-chip"><div class="hero-chip-v ag">${counts.in}</div><div class="hero-chip-l">Coming</div></div>`;
+    if(counts.maybe) chips+=`<div class="hero-chip"><div class="hero-chip-v au">${counts.maybe}</div><div class="hero-chip-l">Maybe</div></div>`;
+    chipsEl.innerHTML=chips;
+
+  }catch(e){
+    toast('Something went wrong — try again');
+    btn.innerHTML='Send Response';
+    btn.className='btn-submit active';
+  }
+  submitting=false;
+}
+
+loadState();
+// Refresh responses every 15s so late RSVPs appear
+setInterval(()=>loadState().then(()=>{}), 15000);
+</script>
+</body>
+</html>

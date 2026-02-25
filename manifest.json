@@ -1,0 +1,20 @@
+{
+  "name": "Moon's Home Game",
+  "short_name": "Moon's",
+  "description": "Poker home game manager — track stacks, buy-ins, and cash-outs",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06040f",
+  "theme_color": "#06040f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["games", "utilities"],
+  "lang": "en-US"
+}

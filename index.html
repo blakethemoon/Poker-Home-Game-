@@ -7,6 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Moon's">
 <meta name="theme-color" content="#06040f">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon.svg">
 <title>Moon's Home Game</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -4731,6 +4733,11 @@ if(_urlInvite){
   setTimeout(renderDash,80);
   cloudLoad();
   toast("Moon's — let's play",2000);
+}
+
+// Register service worker for PWA / offline support
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/sw.js').catch(()=>{});
 }
 </script>
 </body>

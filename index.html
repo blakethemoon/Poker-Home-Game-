@@ -1422,6 +1422,34 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div id="set-pin-ui"></div>
     </div>
 
+    <!-- Google Sheets Backup -->
+    <div class="card" style="border-color:rgba(34,197,94,.2)">
+      <div class="chd">
+        <span class="ctitle" style="color:#22c55e">Google Sheets Backup</span>
+        <span id="set-sheets-status" style="font-size:11px"></span>
+      </div>
+      <p style="font-size:12px;color:var(--i3);margin-bottom:12px;line-height:1.7">Logs every buy-in and add-on to a Google Sheet in real time. One-time setup:</p>
+      <ol style="font-size:12px;color:var(--i3);line-height:1.9;padding-left:18px;margin-bottom:12px">
+        <li>Open your Google Sheet → <b>Extensions → Apps Script</b></li>
+        <li>Paste this code and click <b>Save</b>:<br>
+          <textarea readonly onclick="this.select()" style="width:100%;margin-top:6px;padding:8px;background:var(--c1);color:var(--i2);border:1px solid var(--c3);border-radius:6px;font-family:monospace;font-size:10px;resize:none;line-height:1.5" rows="7">function doPost(e){
+  var s=SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var p=e.parameter;
+  s.appendRow([new Date(p.time),p.event,p.session,p.player,'Seat '+p.seat,Number(p.amount)||'',p.type,p.notes]);
+  return ContentService.createTextOutput('ok');
+}</textarea>
+        </li>
+        <li>Click <b>Deploy → New deployment</b> → type: <b>Web app</b></li>
+        <li>Set <b>Execute as: Me</b>, <b>Who has access: Anyone</b> → Deploy</li>
+        <li>Copy the web app URL and paste it below</li>
+      </ol>
+      <div class="fg">
+        <label class="lbl">Apps Script Web App URL</label>
+        <input class="inp" type="url" id="set-sheets-url" placeholder="https://script.google.com/macros/s/..." style="font-size:11px">
+      </div>
+      <button class="btn btn-full" style="background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:#22c55e" onclick="saveSheetsUrl()">Save &amp; Send Test Row</button>
+    </div>
+
     <!-- Danger Zone -->
     <div class="card" style="border-color:rgba(255,69,96,.2)">
       <div class="chd"><span class="ctitle" style="color:var(--neg)">Danger Zone</span></div>
@@ -1569,6 +1597,9 @@ if(!localStorage.getItem('hostPIN')) localStorage.setItem('hostPIN','6969');
 let hostPIN = localStorage.getItem('hostPIN');
 let hostUnlocked = false; // always locked on page load
 
+// Google Sheets backup URL (set in Settings)
+let SHEETS_URL = localStorage.getItem('moonsSheetsUrl') || '';
+
 // Cash out tracking
 let coSelectedId = null;
 let settleChecked = {}; // playerId -> bool
@@ -1711,6 +1742,7 @@ function doQuickAddon(){
   p.addOns.push({amount:amt,type,time:new Date()});
   p.addOnTotal+=amt; p.currentStack+=amt;
   addFeed('↺',`${p.name} ${type}`,`+${fmt(amt)} → ${fmt(p.currentStack)}`);
+  sheetLog('add-on',{player:p.name,seat:p.seat,amount:amt,type});
   cm('m-quick-action'); refresh(); toast(`${p.name} +${fmt(amt)}`);
 }
 
@@ -1858,6 +1890,7 @@ function preSessionQuickAdd(name){
     cashoutAmount:null,joinedAt:new Date()
   });
   upsertRoster(name);
+  sheetLog('buy-in',{player:name,seat:freeSeat,amount:G.settings.defaultBuyin,type:'buy-in'});
   renderPreRoster();
   toast(`${name} → Seat ${freeSeat}`);
 }
@@ -2423,6 +2456,7 @@ function doAddon(id){
   p.addOns.push({amount:amt,type:'add-on',time:new Date()});
   p.addOnTotal+=amt;p.currentStack+=amt;
   addFeed('↺',`${p.name} add-on`,`+${fmt(amt)} → ${fmt(p.currentStack)}`);
+  sheetLog('add-on',{player:p.name,seat:p.seat,amount:amt,type:'add-on'});
   refresh();renderPlayerPanel();toast(`${p.name} +${fmt(amt)}`);
 }
 function doUpdateStack(id){
@@ -2513,6 +2547,7 @@ function quickAddFromModal(name){
   G.players.push({id:G.nextId++,name,buyin:G.settings.defaultBuyin,addOns:[],addOnTotal:0,seat:freeSeat,status:'active',currentStack:G.settings.defaultBuyin,cashoutAmount:null,joinedAt:new Date()});
   upsertRoster(name);
   addFeed('♠',`${name} bought in`,`${fmt(G.settings.defaultBuyin)} · Seat ${freeSeat}`);
+  sheetLog('buy-in',{player:name,seat:freeSeat,amount:G.settings.defaultBuyin,type:'buy-in'});
   refresh();
   // Re-render the modal to remove added player from chips
   const available=ROSTER_DB.filter(r=>!G.players.some(p=>p.name===r.name&&p.status==='active'));
@@ -2537,6 +2572,7 @@ function quickAddFromRoster(name){
   G.players.push({id:G.nextId++,name,buyin:G.settings.defaultBuyin,addOns:[],addOnTotal:0,seat:freeSeat,status:'active',currentStack:G.settings.defaultBuyin,cashoutAmount:null,joinedAt:new Date()});
   upsertRoster(name);
   addFeed('♠',`${name} bought in`,`${fmt(G.settings.defaultBuyin)} · Seat ${freeSeat}`);
+  sheetLog('buy-in',{player:name,seat:freeSeat,amount:G.settings.defaultBuyin,type:'buy-in'});
   refresh();renderPlayerPanel();toast(`${name} → Seat ${freeSeat}`);
 }
 
@@ -2551,6 +2587,7 @@ function doAddPlayer(){
   G.players.push({id:G.nextId++,name,buyin,addOns:[],addOnTotal:0,seat,status:'active',currentStack:buyin,cashoutAmount:null,joinedAt:new Date()});
   upsertRoster(name);
   addFeed('♠',`${name} bought in`,`${fmt(buyin)} · Seat ${seat}`);
+  sheetLog('buy-in',{player:name,seat,amount:buyin,type:'buy-in'});
   cm('m-add');refresh();toast(`${name} → Seat ${seat}`);
 }
 /* ═══════════════════════════════
@@ -3664,6 +3701,7 @@ function liveQuickAdd(name){
   });
   upsertRoster(name);
   addFeed('♠',`${name} joined`,`Seat ${freeSeat} · ${fmt(G.settings.defaultBuyin)}`);
+  sheetLog('buy-in',{player:name,seat:freeSeat,amount:G.settings.defaultBuyin,type:'buy-in'});
   refresh(); renderLiveRoster();
   toast(`${name} → Seat ${freeSeat}`);
 }
@@ -3951,6 +3989,12 @@ function renderSettings(){
   const sst=$('set-seats');if(sst) sst.value=G.settings.seats;
   const sg=$('set-game'); if(sg)  sg.value=G.settings.game;
 
+  const su=$('set-sheets-url');   if(su) su.value=SHEETS_URL;
+  const ss=$('set-sheets-status');
+  if(ss) ss.innerHTML=SHEETS_URL
+    ?'<span style="color:var(--ag)">Active</span>'
+    :'<span style="color:var(--i3)">Off</span>';
+
   const status=$('set-lock-status');
   const ui=$('set-pin-ui');
   if(!status||!ui) return;
@@ -4016,6 +4060,18 @@ function doSaveSettings(){
   G.settings.defaultBuyin=parseFloat($('set-bi').value)||10;
   G.settings.seats=parseInt($('set-seats').value)||10;G.settings.game=$('set-game').value;
   refresh();toast('Settings saved');
+}
+function saveSheetsUrl(){
+  const url=($('set-sheets-url').value||'').trim();
+  SHEETS_URL=url;
+  if(url){localStorage.setItem('moonsSheetsUrl',url);}else{localStorage.removeItem('moonsSheetsUrl');}
+  if(url){
+    sheetLog('test',{player:'Test Player',seat:1,amount:G.settings.defaultBuyin,type:'setup',notes:'Google Sheets connected'});
+    toast('Saved — test row sent to your sheet');
+  } else {
+    toast('Google Sheets backup disabled');
+  }
+  renderSettings();
 }
 
 /* ═══════════════════════════════
@@ -4766,6 +4822,19 @@ function setSyncStatus(state){
   else if(state==='ok')  sub.textContent='Home Game · ☁ synced';
   else if(state==='err') sub.textContent='Home Game · ☁ offline';
   else                   sub.textContent='Home Game';
+}
+
+// ── Google Sheets backup ──
+// Fires-and-forgets a row to a Google Apps Script web app URL.
+// Uses no-cors so there's no CORS preflight; response is not read.
+function sheetLog(event, {player='', seat='', amount='', type='', notes=''}={}){
+  if(!SHEETS_URL)return;
+  const params=new URLSearchParams({
+    event, player, seat, amount, type, notes,
+    session: G.settings.hostName||'host',
+    time: new Date().toISOString()
+  });
+  fetch(SHEETS_URL,{method:'POST',mode:'no-cors',body:params}).catch(()=>{});
 }
 
 // ── Local persistence (instant, survives refresh on the same device) ──

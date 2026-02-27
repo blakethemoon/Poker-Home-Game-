@@ -563,10 +563,10 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 <!-- TOPBAR -->
 <header class="topbar">
   <div class="wm" style="margin-right:auto">
-    <div class="wm-logo" style="display:flex;align-items:center;justify-content:center;font-size:28px;line-height:1;user-select:none">♠</div>
+    <img class="wm-logo" src="/icon.svg" alt="Moon's">
     <div>
       <div class="wm-name">Moon's</div>
-      <div class="wm-sub">Home Game</div>
+      <div class="wm-sub" id="wm-sub">Home Game</div>
     </div>
   </div>
   <div class="hs"><div class="hs-v" id="h-players">0</div><div class="hs-l">Players</div></div>
@@ -1185,6 +1185,13 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div class="share-box mb4">
         <a id="inv-share-url" href="#" target="_blank" style="flex:1;font-size:11px;color:var(--cy);font-family:'DM Mono',monospace;word-break:break-all;text-decoration:underline;opacity:.8">—</a>
         <button class="btn btn-cy btn-xs" onclick="copyInviteLink()">Copy</button>
+      </div>
+
+      <!-- Import RSVP players into current session -->
+      <div class="card card-cyan mb12" id="import-rsvps-card" style="display:none">
+        <div class="chd"><span class="ctitle cy">Add RSVPs to Session</span></div>
+        <p style="font-size:12px;color:var(--i3);margin-bottom:12px;line-height:1.6" id="import-rsvps-desc">Players who said "I'm In" can be added directly to the current session.</p>
+        <button class="btn btn-solid-cy btn-full" onclick="importRSVPs()">♠ Add All "I'm In" Players</button>
       </div>
 
       <!-- RSVPs -->
@@ -4246,7 +4253,9 @@ function factoryReset(){
 ═══════════════════════════════ */
 function getInviteURL(id){
   const base=window.location.href.split('?')[0].split('#')[0];
-  return `${base}?invite=${id}`;
+  // Point guests to the standalone invite landing page
+  const root=base.replace(/\/[^/]*$/, ''); // strip filename if any
+  return `${root}/invite.html`;
 }
 
 function renderInvite(){
@@ -4274,6 +4283,16 @@ function renderInvite(){
   const maybes=RSVPS.filter(r=>r.status==='maybe').length;
   const outs=RSVPS.filter(r=>r.status==='out').length;
   $('inv-in-count').textContent=ins;$('inv-maybe-count').textContent=maybes;$('inv-out-count').textContent=outs;
+  // Show import card when there are "in" responses
+  const importCard=$('import-rsvps-card');
+  if(importCard){
+    importCard.style.display=ins>0?'block':'none';
+    const desc=$('import-rsvps-desc');
+    if(desc&&ins>0){
+      const names=RSVPS.filter(r=>r.status==='in').map(r=>r.name).join(', ');
+      desc.textContent=`${ins} player${ins!==1?'s':''} said "I'm In": ${names}`;
+    }
+  }
 
   const rl=$('rsvp-list'),re=$('rsvp-empty');
   if(!RSVPS.length){re.style.display='block';rl.innerHTML='';}
@@ -4324,6 +4343,29 @@ function removeRSVP(name){
   RSVPS=RSVPS.filter(r=>r.name!==name);
   localStorage.setItem('moonsRSVPs',JSON.stringify(RSVPS));scheduleCloudSave();
   renderInvite();toast(`Removed ${name}`);
+}
+
+function importRSVPs(){
+  const ins=RSVPS.filter(r=>r.status==='in');
+  if(!ins.length){toast('No "I\'m In" responses to add');return;}
+  let added=0;
+  ins.forEach(r=>{
+    if(!G.players.some(p=>p.name===r.name&&p.status==='active')){
+      const freeSeat=Array.from({length:G.settings.seats},(_,i)=>i+1)
+        .find(s=>!G.players.some(p=>p.seat===s&&p.status==='active'));
+      if(!freeSeat){toast('No open seats — some players not added');return;}
+      G.players.push({id:G.nextId++,name:r.name,buyin:G.settings.defaultBuyin,addOns:[],addOnTotal:0,seat:freeSeat,status:'active',currentStack:G.settings.defaultBuyin,cashoutAmount:null,joinedAt:new Date()});
+      upsertRoster(r.name);
+      addFeed('♠',`${r.name} bought in (from invite)`,`${fmt(G.settings.defaultBuyin)} · Seat ${freeSeat}`);
+      added++;
+    }
+  });
+  if(added>0){
+    refresh();
+    toast(`Added ${added} player${added!==1?'s':''} to session ✓`);
+  } else {
+    toast('All "I\'m In" players are already in the session');
+  }
 }
 
 /* ═══════════════════════════════
@@ -4702,6 +4744,7 @@ function refresh(){
   if(activeTab==='cashout') renderCashOut();
   if(activeTab==='chips')   populatePickers();
   if(activeTab==='hands')   renderHands();
+  scheduleCloudSave(); // keep all devices in sync on every state change
 }
 
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
@@ -4711,8 +4754,20 @@ let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout((
 
 /* ══ CLOUD SYNC (Vercel KV) ══ */
 let _cloudTimer=null;
+let _lastCloudSave=0; // epoch ms of most recent save — used to avoid overwriting newer local state
+
+function setSyncStatus(state){
+  const sub=$('wm-sub');if(!sub)return;
+  if(state==='saving') sub.textContent='Home Game · ☁ saving…';
+  else if(state==='ok')  sub.textContent='Home Game · ☁ synced';
+  else if(state==='err') sub.textContent='Home Game · ☁ offline';
+  else                   sub.textContent='Home Game';
+}
+
 function scheduleCloudSave(){clearTimeout(_cloudTimer);_cloudTimer=setTimeout(cloudSave,1500);}
 async function cloudSave(){
+  _lastCloudSave=Date.now();
+  setSyncStatus('saving');
   try{
     await fetch('/api/state',{
       method:'POST',
@@ -4722,10 +4777,33 @@ async function cloudSave(){
         history:JSON.parse(localStorage.getItem('moonsHistory')||'[]'),
         invite:INVITE,
         rsvps:RSVPS,
-        oracle:oracleLog
+        oracle:oracleLog,
+        // Live session — the part that makes cross-device sync work
+        session:{
+          G:{
+            players:G.players,
+            hands:G.hands,
+            dumbHands:G.dumbHands,
+            feed:G.feed,
+            nextId:G.nextId,
+            settings:G.settings,
+            start:G.start?G.start.toISOString():null
+          },
+          sessionActive,
+          sessionStartTime:sessionStartTime?sessionStartTime.toISOString():null,
+          sessionClosed,
+          sessionClosedAt:sessionClosedAt?sessionClosedAt.toISOString():null,
+          DENOMS,
+          _savedAt:_lastCloudSave
+        }
       })
     });
-  }catch(e){console.warn('Cloud save failed:',e);}
+    setSyncStatus('ok');
+    setTimeout(()=>setSyncStatus(null),5000);
+  }catch(e){
+    console.warn('Cloud save failed:',e);
+    setSyncStatus('err');
+  }
 }
 async function cloudLoad(){
   try{
@@ -4750,11 +4828,43 @@ async function cloudLoad(){
     if(Array.isArray(data.oracle)){
       oracleLog=data.oracle;localStorage.setItem('oracleLog',JSON.stringify(oracleLog));
     }
+    // ── Live session sync ──
+    if(data.session&&typeof data.session==='object'){
+      const s=data.session;
+      const remoteSavedAt=s._savedAt||0;
+      // Only apply if the cloud state is newer than our last local save
+      // (prevents overwriting host's in-progress edits with stale data)
+      if(remoteSavedAt>_lastCloudSave){
+        if(s.G){
+          G.players    = s.G.players    || [];
+          G.hands      = s.G.hands      || [];
+          G.dumbHands  = s.G.dumbHands  || [];
+          G.feed       = s.G.feed       || [];
+          G.nextId     = s.G.nextId     || 1;
+          if(s.G.settings) G.settings=s.G.settings;
+          G.start = s.G.start ? new Date(s.G.start) : new Date();
+        }
+        if(typeof s.sessionActive==='boolean') sessionActive=s.sessionActive;
+        sessionStartTime = s.sessionStartTime ? new Date(s.sessionStartTime) : null;
+        if(typeof s.sessionClosed==='boolean') sessionClosed=s.sessionClosed;
+        sessionClosedAt  = s.sessionClosedAt  ? new Date(s.sessionClosedAt)  : null;
+        if(Array.isArray(s.DENOMS)) DENOMS=s.DENOMS;
+        // Restart session timer if session is active and timer isn't running
+        if(sessionActive&&!timerInterval){
+          timerInterval=setInterval(tickTimer,1000);
+        }
+        changed=true;
+        setSyncStatus('ok');
+        setTimeout(()=>setSyncStatus(null),4000);
+      }
+    }
     if(changed){
+      refresh();
       renderDash();
-      if(activeTab==='players')renderPlayerPanel();
-      if(activeTab==='sessions')renderSessions();
-      if(activeTab==='invite')renderInvite();
+      if(activeTab==='players')  renderPlayerPanel();
+      if(activeTab==='sessions') renderSessions();
+      if(activeTab==='invite')   renderInvite();
+      if(activeTab==='cashout')  renderCashOut();
       toast('☁ Synced');
     }
   }catch(e){console.warn('Cloud load failed, using local:',e);}
@@ -4775,6 +4885,9 @@ if(_urlInvite){
   cloudLoad();
   toast("Moon's — let's play",2000);
 }
+
+// Poll every 7 seconds so phone and desktop stay in sync automatically
+setInterval(cloudLoad, 7000);
 
 // Register service worker for PWA / offline support
 if('serviceWorker' in navigator){

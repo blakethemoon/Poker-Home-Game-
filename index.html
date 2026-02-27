@@ -4244,7 +4244,7 @@ function clearHistory(){
 
 function factoryReset(){
   if(!confirm('Wipe ALL data — roster, history, settings, everything? This cannot be undone.'))return;
-  ['moonsRoster','moonsInvite','moonsRSVPs','hostPIN','moonsHistory','oracleLog','moonsVersion']
+  ['moonsRoster','moonsInvite','moonsRSVPs','hostPIN','moonsHistory','oracleLog','moonsVersion','moonsSession']
     .forEach(k=>localStorage.removeItem(k));
   location.reload();
 }
@@ -4744,7 +4744,10 @@ function refresh(){
   if(activeTab==='cashout') renderCashOut();
   if(activeTab==='chips')   populatePickers();
   if(activeTab==='hands')   renderHands();
-  if(!_applyingCloudData) scheduleCloudSave(); // only save when WE changed something
+  if(!_applyingCloudData){
+    saveLocal();          // instant localStorage backup — survives refresh
+    scheduleCloudSave();  // async cloud push — syncs other devices
+  }
 }
 
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
@@ -4763,6 +4766,42 @@ function setSyncStatus(state){
   else if(state==='ok')  sub.textContent='Home Game · ☁ synced';
   else if(state==='err') sub.textContent='Home Game · ☁ offline';
   else                   sub.textContent='Home Game';
+}
+
+// ── Local persistence (instant, survives refresh on the same device) ──
+function saveLocal(){
+  try{
+    localStorage.setItem('moonsSession',JSON.stringify({
+      G:{players:G.players,hands:G.hands,dumbHands:G.dumbHands,feed:G.feed,nextId:G.nextId,settings:G.settings,start:G.start?G.start.toISOString():null},
+      sessionActive,
+      sessionStartTime:sessionStartTime?sessionStartTime.toISOString():null,
+      sessionClosed,
+      sessionClosedAt:sessionClosedAt?sessionClosedAt.toISOString():null,
+      DENOMS
+    }));
+  }catch(e){}
+}
+function loadLocal(){
+  try{
+    const raw=localStorage.getItem('moonsSession');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(s.G){
+      G.players   =s.G.players   ||[];
+      G.hands     =s.G.hands     ||[];
+      G.dumbHands =s.G.dumbHands ||[];
+      G.feed      =s.G.feed      ||[];
+      G.nextId    =s.G.nextId    ||1;
+      if(s.G.settings)G.settings=s.G.settings;
+      G.start=s.G.start?new Date(s.G.start):new Date();
+    }
+    if(typeof s.sessionActive==='boolean')sessionActive=s.sessionActive;
+    sessionStartTime=s.sessionStartTime?new Date(s.sessionStartTime):null;
+    if(typeof s.sessionClosed==='boolean')sessionClosed=s.sessionClosed;
+    sessionClosedAt=s.sessionClosedAt?new Date(s.sessionClosedAt):null;
+    if(Array.isArray(s.DENOMS))DENOMS=s.DENOMS;
+    if(sessionActive&&!timerInterval)timerInterval=setInterval(tickTimer,1000);
+  }catch(e){}
 }
 
 function scheduleCloudSave(){clearTimeout(_cloudTimer);_cloudTimer=setTimeout(cloudSave,1500);}
@@ -4858,6 +4897,7 @@ async function cloudLoad(){
       }
     }
     if(changed){
+      saveLocal(); // keep localStorage in sync with what we just received
       _applyingCloudData=true;
       refresh();
       renderDash();
@@ -4874,16 +4914,20 @@ async function cloudLoad(){
 
 const today=new Date().toISOString().split('T')[0];
 const dinv=$('inv-date');if(dinv&&!dinv.value)dinv.value=today;
+
+// Restore session from localStorage immediately — no network needed.
+// cloudLoad() below will then override with fresher cloud data if available.
+loadLocal();
 updateNavState();
+renderDash();
+
 const _urlInvite=new URLSearchParams(window.location.search).get('invite');
 if(_urlInvite){
   cloudLoad().then(()=>{
     goTab('invite',$('nav-invite'));
-    // Pre-fill guest name if somehow known (no-op if blank)
     toast("You're viewing an invite — RSVP below!",4000);
   });
 }else{
-  setTimeout(renderDash,80);
   cloudLoad();
   toast("Moon's — let's play",2000);
 }

@@ -4744,7 +4744,7 @@ function refresh(){
   if(activeTab==='cashout') renderCashOut();
   if(activeTab==='chips')   populatePickers();
   if(activeTab==='hands')   renderHands();
-  scheduleCloudSave(); // keep all devices in sync on every state change
+  if(!_applyingCloudData) scheduleCloudSave(); // only save when WE changed something
 }
 
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
@@ -4754,7 +4754,8 @@ let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout((
 
 /* ══ CLOUD SYNC (Vercel KV) ══ */
 let _cloudTimer=null;
-let _lastCloudSave=0; // epoch ms of most recent save — used to avoid overwriting newer local state
+let _lastCloudSave=0;      // epoch ms of our most recent save
+let _applyingCloudData=false; // true while applying received data — prevents re-save loop
 
 function setSyncStatus(state){
   const sub=$('wm-sub');if(!sub)return;
@@ -4829,12 +4830,12 @@ async function cloudLoad(){
       oracleLog=data.oracle;localStorage.setItem('oracleLog',JSON.stringify(oracleLog));
     }
     // ── Live session sync ──
+    // Apply remote session whenever WE haven't saved in the last 4 s.
+    // This avoids both clock-skew problems and overwriting in-progress host edits.
     if(data.session&&typeof data.session==='object'){
-      const s=data.session;
-      const remoteSavedAt=s._savedAt||0;
-      // Only apply if the cloud state is newer than our last local save
-      // (prevents overwriting host's in-progress edits with stale data)
-      if(remoteSavedAt>_lastCloudSave){
+      const timeSinceOurSave = Date.now() - _lastCloudSave;
+      if(timeSinceOurSave > 4000){
+        const s=data.session;
         if(s.G){
           G.players    = s.G.players    || [];
           G.hands      = s.G.hands      || [];
@@ -4849,22 +4850,23 @@ async function cloudLoad(){
         if(typeof s.sessionClosed==='boolean') sessionClosed=s.sessionClosed;
         sessionClosedAt  = s.sessionClosedAt  ? new Date(s.sessionClosedAt)  : null;
         if(Array.isArray(s.DENOMS)) DENOMS=s.DENOMS;
-        // Restart session timer if session is active and timer isn't running
-        if(sessionActive&&!timerInterval){
-          timerInterval=setInterval(tickTimer,1000);
-        }
+        if(sessionActive&&!timerInterval) timerInterval=setInterval(tickTimer,1000);
+        if(!sessionActive&&timerInterval){ clearInterval(timerInterval); timerInterval=null; }
         changed=true;
         setSyncStatus('ok');
         setTimeout(()=>setSyncStatus(null),4000);
       }
     }
     if(changed){
+      _applyingCloudData=true;
       refresh();
       renderDash();
+      updateNavState();
       if(activeTab==='players')  renderPlayerPanel();
       if(activeTab==='sessions') renderSessions();
       if(activeTab==='invite')   renderInvite();
       if(activeTab==='cashout')  renderCashOut();
+      _applyingCloudData=false;
       toast('☁ Synced');
     }
   }catch(e){console.warn('Cloud load failed, using local:',e);}

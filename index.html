@@ -2103,10 +2103,7 @@ let activeTab = 'dash', selPlayer = null, selPlayerId = null, chipVal = null, co
 const $ = id => document.getElementById(id);
 const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const ti = p => p.buyin + p.addOnTotal;
-const fmt = n => {
-  const a=Math.abs(n);
-  return '$'+(a>=100?a.toFixed(2):a.toFixed(2));
-};
+const fmt = n => '$'+Math.abs(n).toFixed(2);
 const signed = n => (n>=0?'+':'−')+fmt(n);
 const clock  = d => d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
 function om(id){$(id).classList.add('on')}
@@ -3173,7 +3170,8 @@ function renderCashOut(){
   const totalIn=G.players.reduce((s,p)=>s+ti(p),0);
   const cashedCount=G.players.filter(p=>p.status==='cashed').length;
   const co=$('co-summary');
-  if(co) co.textContent=`${cashedCount}/${all.length} cashed · ${fmt(totalIn)} in play`;
+  const stillIn=parseFloat((totalIn-G.players.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0)).toFixed(2));
+  if(co) co.textContent=`${cashedCount}/${all.length} cashed · ${fmt(stillIn)} still in play`;
 
   cpl.innerHTML=all.sort((a,b)=>a.seat-b.seat).map(p=>{
     let badge='',cardCls='';
@@ -3576,6 +3574,11 @@ function confirmCO(){
     }
   }
   val=parseFloat(val.toFixed(2));
+  // Conservation check: total cashouts can't exceed total buy-ins
+  const _totalIn=G.players.reduce((s,q)=>s+ti(q),0);
+  const _alreadyCO=G.players.filter(q=>q.status==='cashed'&&q.id!==p.id).reduce((s,q)=>s+(q.cashoutAmount||0),0);
+  const _remaining=parseFloat((_totalIn-_alreadyCO).toFixed(2));
+  if(val>_remaining+0.01){toast(`⚠️ Only ${fmt(_remaining)} in chips remain — can't cash out ${fmt(val)}`);return;}
   const net=parseFloat((val-ti(p)).toFixed(2));
   p.status='cashed'; p.cashoutAmount=val; p.currentStack=0; delete p._pendingCOValue;
   addFeed(net>0?'🏆':'💸',`${p.name} cashed out`,`${fmt(val)} · Net ${net>=0?'+'+fmt(net):'−'+fmt(Math.abs(net))}`);
@@ -3724,18 +3727,21 @@ function autoSettle(){
 
 function closeSession(){
   const all=G.players.filter(p=>p.status==='active'||p.status==='cashed'||p.status==='out');
-  const totalIn=all.reduce((s,p)=>s+ti(p),0);
-  const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
-  const activeStack=all.filter(p=>p.status==='active').reduce((s,p)=>s+p.currentStack,0);
-  const diff=parseFloat(((cashedOut+activeStack)-totalIn).toFixed(2));
-  if(Math.abs(diff)>0.02){
-    const dir=diff>0?'over by':'short by';
-    toast(`❌ Cash is ${dir} ${fmt(Math.abs(diff))} — fix it before closing`,5000);
-    return;
-  }
   const active=G.players.filter(p=>p.status==='active');
+  // Warn about active players first — diff check is only valid once everyone is cashed out
   if(active.length){
     if(!confirm(`${active.length} player${active.length!==1?'s':''} still active. Close anyway?`))return;
+  }
+  // Only enforce balance check when all players have settled
+  if(!active.length){
+    const totalIn=all.reduce((s,p)=>s+ti(p),0);
+    const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
+    const diff=parseFloat((cashedOut-totalIn).toFixed(2));
+    if(Math.abs(diff)>0.02){
+      const dir=diff>0?'over by':'short by';
+      toast(`❌ Cash is ${dir} ${fmt(Math.abs(diff))} — fix it before closing`,5000);
+      return;
+    }
   }
   sessionClosed=true; sessionClosedAt=new Date();
   addFeed('🏁','Session closed',`${G.players.filter(p=>p.status==='cashed').length} players settled`);

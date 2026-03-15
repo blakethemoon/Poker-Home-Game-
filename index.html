@@ -3609,6 +3609,10 @@ function saveCashedStack(id){
   if(!inp||inp.value===''){toast('Enter a corrected amount');return;}
   const val=parseFloat(parseFloat(inp.value).toFixed(2));
   if(isNaN(val)||val<0){toast('Invalid amount');return;}
+  const totalIn=G.players.reduce((s,q)=>s+ti(q),0);
+  const alreadyCashedOut=G.players.filter(q=>q.status==='cashed'&&q.id!==id).reduce((s,q)=>s+(q.cashoutAmount||0),0);
+  const remaining=parseFloat((totalIn-alreadyCashedOut).toFixed(2));
+  if(val>remaining+0.01){toast(`⚠️ Only ${fmt(remaining)} in chips remain`);return;}
   const old=p.cashoutAmount||0;
   p.cashoutAmount=val;
   addFeed('✎',`${p.name} cashout corrected`,`${fmt(old)} → ${fmt(val)}`);
@@ -5858,6 +5862,16 @@ function confirmCOSheet(){
   if(!p) return;
   const val = parseFloat($('co-sheet-input').value);
   if(isNaN(val)||val<0){ toast('Enter a valid amount'); return; }
+  // Conservation check: total cashouts can't exceed total buy-ins
+  const totalIn = G.players.reduce((s,q)=>s+ti(q),0);
+  const alreadyCashedOut = G.players
+    .filter(q=>(q.status==='cashed')&&q.id!==p.id)
+    .reduce((s,q)=>s+(q.cashoutAmount||0),0);
+  const remainingChips = parseFloat((totalIn - alreadyCashedOut).toFixed(2));
+  if(val > remainingChips + 0.01){
+    toast(`⚠️ Only ${fmt(remainingChips)} in chips remain — can't cash out ${fmt(val)}`);
+    return;
+  }
   // Typo guard: warn if cashout is more than 3x total invested
   if(val > ti(p) * 3 && val > 50){
     customConfirm(`${p.name} cashing out ${fmt(val)} — that's ${Math.round(val/ti(p))}x their buy-in. Correct?`, ()=>_doCOConfirm(p, val));

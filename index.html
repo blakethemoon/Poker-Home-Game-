@@ -1409,6 +1409,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div class="fg"><label class="lbl">Game Type</label>
         <select class="sel" id="set-game"><option>NL HOLD'EM</option><option>PLO</option><option>MIXED</option></select>
       </div>
+      <div class="fg"><label class="lbl">Anthropic API Key <span style="font-weight:400;opacity:.6">(for AI chip scanner)</span></label><input class="inp" type="password" id="set-apikey" placeholder="sk-ant-..." autocomplete="off"></div>
       <button class="btn btn-solid-cy btn-full" onclick="doSaveSettings()">Save Settings</button>
     </div>
 
@@ -1509,6 +1510,15 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
 
 <div class="toast" id="toast"></div>
+<div id="m-confirm" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;display:none">
+  <div style="background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:24px;max-width:320px;width:90%;text-align:center">
+    <p id="m-confirm-msg" style="margin:0 0 20px;font-size:15px;line-height:1.5"></p>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-neg btn-full" id="m-confirm-yes">Confirm</button>
+      <button class="btn btn-full" onclick="document.getElementById('m-confirm').style.display='none'">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script>
 /* ═══════════════════════════════
@@ -1516,7 +1526,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 ═══════════════════════════════ */
 const G = {
   players:[], hands:[], dumbHands:[], feed:[], nextId:1,
-  settings:{sb:0.10,bb:0.10,defaultBuyin:10,seats:10,game:"NL HOLD'EM",hostName:'blake'},
+  settings:{sb:0.10,bb:0.10,defaultBuyin:10,seats:10,game:"NL HOLD'EM",hostName:'blake',apiKey:''},
   start:new Date()
 };
 
@@ -1526,6 +1536,7 @@ const DEFAULT_DENOMS = [
   {id:'b', name:'Blue',  color:'#3b82f6', value:0.50},
   {id:'bl',name:'Black', color:'#6b7280', value:1.00},
   {id:'g', name:'Green', color:'#22c55e', value:5.00},
+  {id:'pu',name:'Purple',color:'#a855f7', value:25.00},
 ];
 let DENOMS = JSON.parse(JSON.stringify(DEFAULT_DENOMS));
 
@@ -1584,6 +1595,7 @@ let activeTab = 'dash', selPlayer = null, selPlayerId = null, chipVal = null, co
    HELPERS
 ═══════════════════════════════ */
 const $ = id => document.getElementById(id);
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const ti = p => p.buyin + p.addOnTotal;
 const fmt = n => {
   const a=Math.abs(n);
@@ -1668,7 +1680,7 @@ function openQuickAddon(){
   // Build modal content inline
   const sl = document.getElementById('qa-player-sel');
   if(sl){
-    sl.innerHTML = act.map(p=>`<option value="${p.id}">${p.name} — ${fmt(p.currentStack)}</option>`).join('');
+    sl.innerHTML = act.map(p=>`<option value="${p.id}">${esc(p.name)} — ${fmt(p.currentStack)}</option>`).join('');
     $('qa-amount').value = G.settings.defaultBuyin;
     $('qa-type').value = 'rebuy';
     om('m-quick-action');
@@ -1683,7 +1695,7 @@ function openQuickBuyin(){
   if(!act.length){ toast('No active players'); return; }
   const sl = $('qa-player-sel');
   if(sl){
-    sl.innerHTML = act.map(p=>`<option value="${p.id}">${p.name} — ${fmt(p.currentStack)}</option>`).join('');
+    sl.innerHTML = act.map(p=>`<option value="${p.id}">${esc(p.name)} — ${fmt(p.currentStack)}</option>`).join('');
     $('qa-amount').value = G.settings.defaultBuyin;
     om('m-quick-action');
     $('qa-modal-title').textContent = 'Re-Buy';
@@ -1719,7 +1731,7 @@ function openQuickBust(){
   if(!act.length){ toast('No active players'); return; }
   const sl = $('qa-player-sel');
   if(sl){
-    sl.innerHTML = act.map(p=>`<option value="${p.id}">${p.name} — ${fmt(p.currentStack)}</option>`).join('');
+    sl.innerHTML = act.map(p=>`<option value="${p.id}">${esc(p.name)} — ${fmt(p.currentStack)}</option>`).join('');
     const td=$('qa-type-row');if(td)td.style.display='none';
     const ad=$('qa-amount-row');if(ad)ad.style.display='none';
     om('m-quick-action');
@@ -2432,11 +2444,21 @@ function doUpdateStack(id){
   addFeed('⟳',`${p.name} stack set`,`${fmt(old)} → ${fmt(nv)}`);
   refresh();renderPlayerPanel();toast(`${p.name}: ${fmt(nv)}`);
 }
+function customConfirm(msg, onYes){
+  const modal=$('m-confirm');
+  $('m-confirm-msg').textContent=msg;
+  modal.style.display='flex';
+  const btn=$('m-confirm-yes');
+  const handler=()=>{modal.style.display='none';btn.removeEventListener('click',handler);onYes();};
+  btn.replaceWith(btn.cloneNode(true));
+  $('m-confirm-yes').addEventListener('click',handler);
+}
 function doMarkOut(id){
-  if(!confirm('Mark as out (no cashout recorded)?'))return;
-  const p=G.players.find(p=>p.id===id);p.status='out';
-  addFeed('💀',`${p.name} busted`,`In: ${fmt(ti(p))}`);
-  selPlayerId=null;refresh();renderPlayerPanel();toast(`${p.name} out`);
+  customConfirm('Mark as out (no cashout recorded)?',()=>{
+    const p=G.players.find(p=>p.id===id);p.status='out';
+    addFeed('💀',`${p.name} busted`,`In: ${fmt(ti(p))}`);
+    selPlayerId=null;refresh();renderPlayerPanel();toast(`${p.name} out`);
+  });
 }
 function bustPlayerZero(id){
   const p=G.players.find(q=>q.id===id);if(!p)return;
@@ -3075,7 +3097,7 @@ function coQuickAddon(id){
   const sl=$('qa-player-sel');
   if(!sl){toast('Modal not ready');return;}
   const act=G.players.filter(q=>q.status==='active');
-  sl.innerHTML=act.map(q=>`<option value="${q.id}"${q.id===id?' selected':''}>${q.name} — ${fmt(q.currentStack)}</option>`).join('');
+  sl.innerHTML=act.map(q=>`<option value="${q.id}"${q.id===id?' selected':''}>${esc(q.name)} — ${fmt(q.currentStack)}</option>`).join('');
   $('qa-amount').value=G.settings.defaultBuyin;
   const tr=$('qa-type-row'),ar=$('qa-amount-row');
   if(tr)tr.style.display='';if(ar)ar.style.display='';
@@ -3550,7 +3572,7 @@ function openLogHand(preSelectId){
   const act=G.players.filter(p=>p.status==='active');
   if(!act.length){toast('Add players first');return;}
   const sel=$('lh-winner');
-  sel.innerHTML=act.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  sel.innerHTML=act.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if(preSelectId) Array.from(sel.options).forEach(o=>o.selected=parseInt(o.value)===preSelectId);
   $('lh-pot').value='';$('lh-note').value='';
   // Reset to A/A for clean start
@@ -3608,7 +3630,8 @@ function renderHands(){
   $('sh-big').textContent=big>0?fmt(big):'—';
   $('sh-win').textContent=tw.length>9?tw.slice(0,9)+'…':tw;
 
-  hl.innerHTML=[...G.hands].reverse().map(h=>{
+  hl.innerHTML=[...G.hands].reverse().map((h,ri)=>{
+    const origIdx=G.hands.length-1-ri;
     const tier=h.tier?HAND_TIERS.find(t=>t.tier===h.tier):null;
     const color=tier?.color||'var(--i2)';
     const emoji=h.tierEmoji||tier?.emoji||'🃏';
@@ -3618,18 +3641,26 @@ function renderHands(){
       <div style="font-size:22px;flex-shrink:0;line-height:1;margin-top:1px">${emoji}</div>
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:2px">
-          <span style="font-size:13px;font-weight:700;color:var(--i0)">${h.winner}</span>
+          <span style="font-size:13px;font-weight:700;color:var(--i0)">${esc(h.winner)}</span>
           ${handStr?`<span style="font-size:13px;font-weight:700;color:${color};font-family:'DM Mono',monospace">${handStr}</span>`:''}
         </div>
         ${h.tier?`<div style="font-size:9px;font-weight:700;letter-spacing:.1em;color:${color};text-transform:uppercase;margin-bottom:2px">${h.tier}</div>`:''}
-        ${h.note?`<div style="font-size:10px;color:var(--i3);font-style:italic">${h.note}</div>`:''}
+        ${h.note?`<div style="font-size:10px;color:var(--i3);font-style:italic">${esc(h.note)}</div>`:''}
         <div style="font-size:11px;color:var(--i4);margin-top:3px;font-family:'DM Mono',monospace">${clock(h.time)}</div>
       </div>
-      ${h.pot>0?`<div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--ag);flex-shrink:0">${fmt(h.pot)}</div>`:''}
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        ${h.pot>0?`<div style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--ag)">${fmt(h.pot)}</div>`:''}
+        <button onclick="deleteHand(${origIdx})" style="background:none;border:none;color:var(--neg);font-size:16px;cursor:pointer;padding:0;line-height:1;opacity:.6" title="Delete hand">✕</button>
+      </div>
     </div>`;
   }).join('');
 }
 
+function deleteHand(idx){
+  G.hands.splice(idx,1);
+  renderHands();
+  toast('Hand deleted');
+}
 function renderHandCards(c1,c2,suited){
   const suits=c1===c2?['♠','♥']:suited?['♠','♠']:['♠','♥'];
   return `${c1}${suits[0]}${c2}${suits[1]}`;
@@ -3933,12 +3964,6 @@ async function askOracle(){
   renderOracleHistory();
 }
 
-function clearHistory(){
-  if(!confirm('Clear all session history? This cannot be undone.'))return;
-  localStorage.removeItem('moonsHistory');
-  renderSessions();
-}
-
 /* ═══════════════════════════════
    SETTINGS TAB
 ═══════════════════════════════ */
@@ -3950,6 +3975,7 @@ function renderSettings(){
   const sbi=$('set-bi');  if(sbi) sbi.value=G.settings.defaultBuyin;
   const sst=$('set-seats');if(sst) sst.value=G.settings.seats;
   const sg=$('set-game'); if(sg)  sg.value=G.settings.game;
+  const sak=$('set-apikey'); if(sak) sak.value=G.settings.apiKey||'';
 
   const status=$('set-lock-status');
   const ui=$('set-pin-ui');
@@ -4015,6 +4041,7 @@ function doSaveSettings(){
   G.settings.sb=parseFloat($('set-sb').value)||0.10;G.settings.bb=parseFloat($('set-bb').value)||0.10;
   G.settings.defaultBuyin=parseFloat($('set-bi').value)||10;
   G.settings.seats=parseInt($('set-seats').value)||10;G.settings.game=$('set-game').value;
+  G.settings.apiKey=($('set-apikey').value||'').trim();
   refresh();toast('Settings saved');
 }
 
@@ -4237,9 +4264,10 @@ function selectSession(id, render=true){
 
 
 function clearHistory(){
-  if(!confirm('Clear all session history? This cannot be undone.'))return;
-  localStorage.removeItem('moonsHistory');
-  renderSessions();
+  customConfirm('Clear all session history? This cannot be undone.',()=>{
+    localStorage.removeItem('moonsHistory');
+    renderSessions();
+  });
 }
 
 function factoryReset(){
@@ -4720,7 +4748,7 @@ function renderTable(){
       const tot=ti(p);const pct=tot>0?p.currentStack/tot:1;
       let cls='occ';if(pct>=1.5)cls='occ big';else if(pct<=0.4)cls='occ sht';
       const sc=p.currentStack-tot>0?'up':p.currentStack-tot<0?'dn':'';
-      node.innerHTML=`<div class="sc ${cls}" style="max-width:${nW}px;padding:5px 4px"><div class="sn-num">S${seat}</div><div class="sn-name" style="max-width:${nW-8}px">${p.name}</div><div class="sn-stack ${sc}">${fmt(p.currentStack)}</div></div>`;
+      node.innerHTML=`<div class="sc ${cls}" style="max-width:${nW}px;padding:5px 4px"><div class="sn-num">S${seat}</div><div class="sn-name" style="max-width:${nW-8}px">${esc(p.name)}</div><div class="sn-stack ${sc}">${fmt(p.currentStack)}</div></div>`;
     }else{
       node.innerHTML=`<div class="sc emp" style="max-width:${nW}px;padding:5px 4px"><div class="sn-num">S${seat}</div><div class="sn-open">Open</div></div>`;
     }

@@ -1058,6 +1058,9 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <div id="overflow-backdrop" onclick="closeOverflow()"></div>
   <div id="overflow-panel">
     <div style="width:40px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 4px"></div>
+    <div class="overflow-item money" onclick="closeOverflow();goTab('cashout',$('nav-cashout'))">
+      <span class="ov-icon">💰</span> Cash Out Players
+    </div>
     <div class="overflow-item" onclick="closeOverflow();goTab('oracle',$('nav-oracle'))">
       <span class="ov-icon">🧙</span> Oracle — Should I Play This?
     </div>
@@ -2128,9 +2131,10 @@ function goTab(name,el){
     // Show back button
     const backBtn=$('nav-back-dealer'); if(backBtn) backBtn.style.display='';
   }
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.querySelectorAll('.view').forEach(v=>{ v.classList.remove('on'); v.style.display=''; });
   document.querySelectorAll('.nvb').forEach(b=>b.classList.remove('on'));
-  $(`view-${name}`).classList.add('on'); el.classList.add('on'); activeTab=name;
+  const targetView=$(`view-${name}`); if(targetView) targetView.classList.add('on');
+  if(el) el.classList.add('on'); activeTab=name;
   if(name==='dash')    renderDash();
   if(name==='players') renderPlayerPanel();
   if(name==='cashout') renderCashOut();

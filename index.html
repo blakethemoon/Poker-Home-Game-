@@ -957,7 +957,8 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <div class="bsheet-panel" onclick="event.stopPropagation()">
     <div class="bsheet-handle"></div>
     <div class="bsheet-title" id="player-sheet-name">Player</div>
-    <div class="bsheet-actions">
+    <!-- Active player actions -->
+    <div class="bsheet-actions" id="player-sheet-active-actions">
       <div class="bsheet-action" onclick="sheetRebuy()">
         <div class="ba-icon">↺</div>
         <div>Add-On</div>
@@ -969,6 +970,31 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div class="bsheet-action danger" onclick="sheetBust()">
         <div class="ba-icon">💀</div>
         <div>Bust Out</div>
+      </div>
+    </div>
+    <!-- Cashed/busted player actions -->
+    <div class="bsheet-actions" id="player-sheet-done-actions" style="display:none">
+      <div class="bsheet-action" onclick="sheetUndo()">
+        <div class="ba-icon">↩</div>
+        <div>Undo</div>
+      </div>
+      <div class="bsheet-action money" onclick="sheetReenter()">
+        <div class="ba-icon">🪑</div>
+        <div>Re-enter</div>
+      </div>
+      <div class="bsheet-action" onclick="sheetEditBuyin()">
+        <div class="ba-icon">✎</div>
+        <div>Edit Buy-In</div>
+      </div>
+    </div>
+    <!-- Edit buy-in inline form (hidden by default) -->
+    <div id="player-sheet-editbuyin" style="display:none;padding:0 16px 16px">
+      <label class="lbl">Total invested ($)</label>
+      <input class="inp" type="number" id="player-sheet-buyin-inp" step="0.50" min="0"
+        style="font-size:20px;padding:14px;text-align:center">
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="btn btn-solid-cy btn-full" onclick="confirmEditBuyin()">✓ Save</button>
+        <button class="btn btn-full" onclick="$('player-sheet-editbuyin').style.display='none'">Cancel</button>
       </div>
     </div>
   </div>
@@ -1049,6 +1075,9 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     </div>
     <div class="overflow-item" onclick="closeOverflow();goTab('settings',$('nav-settings'))">
       <span class="ov-icon">⚙️</span> Settings
+    </div>
+    <div class="overflow-item" id="overflow-reopen" style="display:none" onclick="closeOverflow();reopenSession();enterDealerMode();renderDealerView()">
+      <span class="ov-icon">↩</span> Reopen Session
     </div>
     <div class="overflow-item danger" onclick="closeOverflow();openEndNight()">
       <span class="ov-icon">🏁</span> End Night
@@ -5654,11 +5683,16 @@ function openPlayerSheet(id){
   const p = G.players.find(p=>p.id===id);
   if(!p) return;
   const invested = ti(p);
+  const active = p.status === 'active';
   const nameEl = $('player-sheet-name');
   if(nameEl){
-    nameEl.innerHTML = `${esc(p.name)} <span style="font-size:13px;color:var(--i3);font-weight:400">Seat ${p.seat}</span>
+    const statusLabel = p.status==='cashed' ? ' · cashed out' : p.status==='out' ? ' · busted' : '';
+    nameEl.innerHTML = `${esc(p.name)} <span style="font-size:13px;color:var(--i3);font-weight:400">Seat ${p.seat}${statusLabel}</span>
       <div class="bsheet-sub">In: ${fmt(invested)}${p.addOnTotal?` (incl. ${fmt(p.addOnTotal)} add-ons)`:''}</div>`;
   }
+  $('player-sheet-active-actions').style.display = active ? 'grid' : 'none';
+  $('player-sheet-done-actions').style.display  = active ? 'none' : 'grid';
+  $('player-sheet-editbuyin').style.display = 'none';
   const bd = $('player-sheet-backdrop');
   if(bd) bd.classList.add('open');
 }
@@ -5685,6 +5719,74 @@ function sheetBust(){
     refresh(); renderDealerView();
     toast(`${p.name} busted out`);
   });
+}
+
+function sheetUndo(){
+  const id = _sheetPlayerId;
+  closePlayerSheet();
+  const p = G.players.find(p=>p.id===id);
+  if(!p) return;
+  p.status='active'; p.cashoutAmount=null; p.currentStack=ti(p);
+  addFeed('↩',`${p.name} cash-out undone`,'Back to active');
+  refresh(); renderDealerView();
+  toast(`${p.name} back in`);
+  scheduleCloudSave();
+}
+function sheetReenter(){
+  const id = _sheetPlayerId;
+  closePlayerSheet();
+  const p = G.players.find(p=>p.id===id);
+  if(!p) return;
+  // Prompt for re-entry amount then add as new add-on, re-activate
+  _rebuySheetPlayerId = id;
+  $('rebuy-sheet-title').textContent = `Re-entry: ${p.name}`;
+  const inp = $('rebuy-sheet-input');
+  if(inp) inp.value = G.settings.defaultBuyin;
+  $('rebuy-sheet-backdrop').classList.add('open');
+  setTimeout(()=>{ if(inp) inp.focus(); }, 200);
+}
+function confirmRebuySheetReentry(){
+  // Called for re-entry — re-activates the player
+  const id = _rebuySheetPlayerId;
+  const p = G.players.find(p=>p.id===id);
+  if(!p) return;
+  const amt = parseFloat($('rebuy-sheet-input').value);
+  if(isNaN(amt)||amt<=0){ toast('Enter a valid amount'); return; }
+  p.addOns.push({amount:amt, type:'reentry', time:new Date()});
+  p.addOnTotal += amt;
+  p.cashoutAmount = null;
+  p.currentStack = amt;
+  p.status = 'active';
+  addFeed('🪑',`${p.name} re-entered`,`+${fmt(amt)}`);
+  closeRebuySheet();
+  refresh(); renderDealerView();
+  toast(`${p.name} back in for ${fmt(amt)}`);
+  scheduleCloudSave();
+}
+function sheetEditBuyin(){
+  const p = G.players.find(p=>p.id===_sheetPlayerId);
+  if(!p) return;
+  const inp = $('player-sheet-buyin-inp');
+  if(inp) inp.value = ti(p).toFixed(2);
+  $('player-sheet-active-actions').style.display = 'none';
+  $('player-sheet-done-actions').style.display = 'none';
+  $('player-sheet-editbuyin').style.display = 'block';
+}
+function confirmEditBuyin(){
+  const p = G.players.find(p=>p.id===_sheetPlayerId);
+  if(!p) return;
+  const newTotal = parseFloat($('player-sheet-buyin-inp').value);
+  if(isNaN(newTotal)||newTotal<0){ toast('Invalid amount'); return; }
+  const diff = newTotal - ti(p);
+  // Adjust via a synthetic add-on (positive) or negative correction
+  p.addOns.push({amount:diff, type:'correction', time:new Date()});
+  p.addOnTotal += diff;
+  if(p.status==='active') p.currentStack += diff;
+  addFeed('✎',`${p.name} buy-in corrected`,`Total in: ${fmt(newTotal)}`);
+  closePlayerSheet();
+  refresh(); renderDealerView();
+  toast(`${p.name} total in: ${fmt(newTotal)}`);
+  scheduleCloudSave();
 }
 
 // ── Cash-Out Sheet ──
@@ -5735,12 +5837,7 @@ function updateCOSheetPreview(){
   el.textContent = balanced ? 'Even ✓' : (net>0?'+':'')+fmt(net);
   el.style.color = balanced?'var(--i3)':net>0?'var(--ag)':'var(--neg)';
 }
-function confirmCOSheet(){
-  if(!_coSheetPlayerId) return;
-  const p = G.players.find(p=>p.id===_coSheetPlayerId);
-  if(!p) return;
-  const val = parseFloat($('co-sheet-input').value);
-  if(isNaN(val)||val<0){ toast('Enter a valid amount'); return; }
+function _doCOConfirm(p, val){
   const net = val - ti(p);
   p.status='cashed'; p.cashoutAmount=val; p.currentStack=0;
   addFeed('💰',`${p.name} cashed out`,`${fmt(val)} (${net>=0?'+':''}${fmt(net)})`);
@@ -5748,6 +5845,21 @@ function confirmCOSheet(){
   refresh(); renderDealerView();
   toast(`${p.name}: ${fmt(val)} (${net>=0?'+':''}${fmt(net)})`);
   scheduleCloudSave();
+  const next = G.players.find(q=>q.status==='active'&&q.id!==p.id);
+  if(next) setTimeout(()=>openCOSheet(next.id), 400);
+}
+function confirmCOSheet(){
+  if(!_coSheetPlayerId) return;
+  const p = G.players.find(p=>p.id===_coSheetPlayerId);
+  if(!p) return;
+  const val = parseFloat($('co-sheet-input').value);
+  if(isNaN(val)||val<0){ toast('Enter a valid amount'); return; }
+  // Typo guard: warn if cashout is more than 3x total invested
+  if(val > ti(p) * 3 && val > 50){
+    customConfirm(`${p.name} cashing out ${fmt(val)} — that's ${Math.round(val/ti(p))}x their buy-in. Correct?`, ()=>_doCOConfirm(p, val));
+    return;
+  }
+  _doCOConfirm(p, val);
 }
 
 // ── Rebuy Sheet ──
@@ -5776,6 +5888,8 @@ function confirmRebuySheet(){
   if(!_rebuySheetPlayerId) return;
   const p = G.players.find(p=>p.id===_rebuySheetPlayerId);
   if(!p) return;
+  // If player is cashed/busted, this is a re-entry — reactivate them
+  if(p.status !== 'active'){ confirmRebuySheetReentry(); return; }
   const amt = parseFloat($('rebuy-sheet-input').value);
   if(isNaN(amt)||amt<=0){ toast('Enter a valid amount'); return; }
   p.addOns.push({amount:amt, type:'rebuy', time:new Date()});
@@ -5824,7 +5938,11 @@ function pickerSelect(id){
 }
 
 // ── Overflow Menu ──
-function openOverflow(){ $('overflow-menu').classList.add('open'); }
+function openOverflow(){
+  const reopen = $('overflow-reopen');
+  if(reopen) reopen.style.display = sessionClosed ? 'flex' : 'none';
+  $('overflow-menu').classList.add('open');
+}
 function closeOverflow(){ $('overflow-menu').classList.remove('open'); }
 </script>
 </body>

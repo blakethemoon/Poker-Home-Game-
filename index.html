@@ -25,6 +25,7 @@
   --glow-cy:0 0 20px rgba(0,212,255,.35),0 0 40px rgba(0,212,255,.15);
   --glow-mg:0 0 20px rgba(255,0,110,.35),0 0 40px rgba(255,0,110,.15);
   --glow-ag:0 0 20px rgba(57,255,20,.35),0 0 40px rgba(57,255,20,.15);
+  --card:var(--s1);--bd:var(--br);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
@@ -548,6 +549,306 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 @media(min-width:1440px){
   .content{max-width:1480px;padding:28px 40px}
 }
+
+/* ── Dealer Mode Layout ── */
+#dealer-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--bd);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+#dealer-timer {
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  color: var(--cy);
+  font-weight: 700;
+}
+#dealer-game-name {
+  font-size: 13px;
+  color: var(--i3);
+  font-weight: 600;
+}
+#dealer-balance {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.dbal-item {
+  text-align: center;
+}
+.dbal-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--i4);
+  text-transform: uppercase;
+}
+.dbal-val {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  color: var(--i1);
+}
+.dbal-val.good { color: var(--ag); }
+.dbal-val.bad  { color: var(--neg); }
+
+/* ── Player List ── */
+#dealer-player-list {
+  padding: 8px 12px 120px;
+}
+.dpl-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  background: var(--card);
+  border: 1px solid var(--bd);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .12s;
+}
+.dpl-row:active { background: var(--s2); }
+.dpl-row.cashed { opacity: .5; }
+.dpl-seat {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--i4);
+  background: var(--s2);
+  border-radius: 6px;
+  padding: 2px 6px;
+  min-width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.dpl-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--i0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dpl-stack {
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--i1);
+}
+.dpl-net {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 48px;
+  text-align: right;
+  font-family: 'DM Mono', monospace;
+}
+.dpl-net.up   { color: var(--ag); }
+.dpl-net.dn   { color: var(--neg); }
+.dpl-net.even { color: var(--i4); }
+.dpl-divider {
+  text-align: center;
+  font-size: 11px;
+  color: var(--i4);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 10px 0 6px;
+}
+
+/* ── Bottom Dock ── */
+#dealer-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 200;
+  background: var(--bg);
+  border-top: 1px solid var(--bd);
+  padding: 10px 12px max(env(safe-area-inset-bottom), 10px);
+  display: flex;
+  gap: 8px;
+}
+.dock-btn {
+  flex: 1;
+  padding: 13px 4px;
+  border-radius: 12px;
+  border: 1px solid var(--bd);
+  background: var(--card);
+  color: var(--i1);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .1s;
+}
+.dock-btn:active { background: var(--s2); }
+.dock-btn .dock-icon { font-size: 20px; line-height: 1; }
+.dock-btn.primary {
+  background: var(--cy);
+  border-color: var(--cy);
+  color: #000;
+  font-weight: 800;
+}
+.dock-btn.primary:active { filter: brightness(.88); }
+
+/* ── Bottom Sheet ── */
+.bsheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 300;
+  display: none;
+}
+.bsheet-backdrop.open { display: block; }
+.bsheet-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 301;
+  background: var(--card);
+  border-top: 1px solid var(--bd);
+  border-radius: 20px 20px 0 0;
+  padding: 0 0 max(env(safe-area-inset-bottom), 20px);
+  transform: translateY(100%);
+  transition: transform .25s cubic-bezier(.32,1,.68,1);
+}
+.bsheet-backdrop.open .bsheet-panel { transform: translateY(0); }
+.bsheet-handle {
+  width: 40px;
+  height: 4px;
+  background: var(--bd);
+  border-radius: 2px;
+  margin: 12px auto 16px;
+}
+.bsheet-title {
+  padding: 0 20px 12px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--i0);
+}
+.bsheet-sub {
+  font-size: 12px;
+  color: var(--i3);
+  font-weight: 400;
+  margin-top: 2px;
+}
+.bsheet-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 0 16px 16px;
+}
+.bsheet-action {
+  padding: 16px 8px;
+  border-radius: 14px;
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  color: var(--i1);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.bsheet-action .ba-icon { font-size: 22px; margin-bottom: 4px; }
+.bsheet-action.danger { color: var(--neg); border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.06); }
+.bsheet-action.money  { color: var(--ag);  border-color: rgba(57,255,20,.3); background: rgba(57,255,20,.05); }
+
+/* ── Cash-Out Sheet ── */
+#co-sheet-result {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  text-align: center;
+  padding: 8px 0;
+  min-height: 44px;
+}
+.quick-amounts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 16px;
+}
+.qa-chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--bd);
+  background: var(--s2);
+  color: var(--i1);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+}
+.qa-chip:active { background: var(--cy); color: #000; }
+
+/* ── Overflow Menu ── */
+#overflow-menu {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+}
+#overflow-menu.open { display: block; }
+#overflow-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+}
+#overflow-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card);
+  border-top: 1px solid var(--bd);
+  border-radius: 20px 20px 0 0;
+  padding: 0 0 max(env(safe-area-inset-bottom), 20px);
+}
+.overflow-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--bd);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--i1);
+  -webkit-tap-highlight-color: transparent;
+}
+.overflow-item:last-child { border-bottom: none; }
+.overflow-item .ov-icon { font-size: 22px; width: 28px; text-align: center; }
+.overflow-item.danger { color: var(--neg); }
+
+/* ── Pre-session dealer view ── */
+#dealer-presession {
+  padding: 32px 20px;
+  text-align: center;
+}
+#dealer-presession .ps-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--i0);
+  margin-bottom: 6px;
+}
+#dealer-presession .ps-sub {
+  font-size: 14px;
+  color: var(--i3);
+  margin-bottom: 28px;
+}
 </style>
 </head>
 <body>
@@ -576,6 +877,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
 <!-- NAV -->
 <nav class="nav">
+  <button id="nav-back-dealer" class="nvb" style="color:var(--cy);display:none" onclick="enterDealerMode();if(sessionActive){$('dealer-presession').style.display='none';$('dealer-player-list').style.display='block';$('dealer-dock').style.display='flex';}renderDealerView()">← Game</button>
   <button id="nav-dash"     class="nvb on" onclick="goTab('dash',this)">Home</button>
   <button id="nav-players"  class="nvb"    onclick="goTab('players',this)">Players</button>
   <button id="nav-oracle"   class="nvb"    onclick="goTab('oracle',this)">Wizard</button>
@@ -589,6 +891,170 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 </nav>
 
 <main class="content">
+
+<!-- ═══════════════════════════════════════
+     DEALER MODE VIEW (replaces tab nav during live session)
+═══════════════════════════════════════ -->
+<div id="view-dealer" style="display:none">
+
+  <!-- Sticky Header -->
+  <div id="dealer-header">
+    <div>
+      <div id="dealer-game-name">MOON'S GAME</div>
+      <div id="dealer-timer">0:00</div>
+    </div>
+    <div id="dealer-balance">
+      <div class="dbal-item">
+        <div class="dbal-label">IN</div>
+        <div class="dbal-val" id="dbal-in">—</div>
+      </div>
+      <div class="dbal-item">
+        <div class="dbal-label">OUT</div>
+        <div class="dbal-val" id="dbal-out">—</div>
+      </div>
+      <div class="dbal-item">
+        <div class="dbal-label">DIFF</div>
+        <div class="dbal-val" id="dbal-diff">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pre-session state -->
+  <div id="dealer-presession">
+    <div class="ps-title">Ready to Deal?</div>
+    <div class="ps-sub">Add players, then start the session.</div>
+    <div id="dealer-presession-roster" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px"></div>
+    <button class="btn btn-solid-cy btn-full" style="max-width:280px;font-size:16px;padding:16px" onclick="dealerStartSession()">▶ Start Session</button>
+  </div>
+
+  <!-- Live player list -->
+  <div id="dealer-player-list" style="display:none"></div>
+
+</div>
+
+<!-- ── Bottom Dock (shown during live session) ── -->
+<div id="dealer-dock" style="display:none">
+  <button class="dock-btn primary" onclick="openAdd()">
+    <span class="dock-icon">＋</span>
+    <span>ADD</span>
+  </button>
+  <button class="dock-btn" onclick="openDockRebuy()">
+    <span class="dock-icon">↺</span>
+    <span>REBUY</span>
+  </button>
+  <button class="dock-btn" onclick="openDockCashOut()">
+    <span class="dock-icon">💰</span>
+    <span>CASH OUT</span>
+  </button>
+  <button class="dock-btn" onclick="openOverflow()">
+    <span class="dock-icon">⋯</span>
+    <span>MORE</span>
+  </button>
+</div>
+
+<!-- ── Player Action Bottom Sheet ── -->
+<div id="player-sheet-backdrop" class="bsheet-backdrop" onclick="closePlayerSheet()">
+  <div class="bsheet-panel" onclick="event.stopPropagation()">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title" id="player-sheet-name">Player</div>
+    <div class="bsheet-actions">
+      <div class="bsheet-action" onclick="sheetRebuy()">
+        <div class="ba-icon">↺</div>
+        <div>Add-On</div>
+      </div>
+      <div class="bsheet-action money" onclick="sheetCashOut()">
+        <div class="ba-icon">💰</div>
+        <div>Cash Out</div>
+      </div>
+      <div class="bsheet-action danger" onclick="sheetBust()">
+        <div class="ba-icon">💀</div>
+        <div>Bust Out</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Cash-Out Bottom Sheet ── -->
+<div id="co-sheet-backdrop" class="bsheet-backdrop" onclick="closeCOSheet()">
+  <div class="bsheet-panel" onclick="event.stopPropagation()">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title" id="co-sheet-title">Cash Out</div>
+    <div style="padding:0 16px 12px">
+      <div style="font-size:13px;color:var(--i3)" id="co-sheet-invested"></div>
+    </div>
+    <div style="padding:0 16px 14px">
+      <label class="lbl">How much did they walk with?</label>
+      <input class="inp" type="number" id="co-sheet-input" placeholder="$0.00" step="0.50" min="0"
+        oninput="updateCOSheetPreview()" style="font-size:20px;padding:14px;text-align:center">
+    </div>
+    <div class="quick-amounts" id="co-sheet-chips"></div>
+    <div id="co-sheet-result"></div>
+    <div style="padding:0 16px">
+      <button class="btn btn-solid-cy btn-full" style="font-size:16px;padding:16px" onclick="confirmCOSheet()">✓ Confirm Cash Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Rebuy Bottom Sheet ── -->
+<div id="rebuy-sheet-backdrop" class="bsheet-backdrop" onclick="closeRebuySheet()">
+  <div class="bsheet-panel" onclick="event.stopPropagation()">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title" id="rebuy-sheet-title">Add-On / Rebuy</div>
+    <div style="padding:0 16px 14px">
+      <label class="lbl">Amount</label>
+      <input class="inp" type="number" id="rebuy-sheet-input" placeholder="$0.00" step="0.50" min="0"
+        style="font-size:20px;padding:14px;text-align:center">
+    </div>
+    <div class="quick-amounts">
+      <span class="qa-chip" onclick="setRebuyAmount(5)">$5</span>
+      <span class="qa-chip" onclick="setRebuyAmount(10)">$10</span>
+      <span class="qa-chip" onclick="setRebuyAmount(20)">$20</span>
+      <span class="qa-chip" onclick="setRebuyAmount(25)">$25</span>
+      <span class="qa-chip" onclick="setRebuyAmount(50)">$50</span>
+    </div>
+    <div style="padding:0 16px">
+      <button class="btn btn-solid-cy btn-full" style="font-size:16px;padding:16px" onclick="confirmRebuySheet()">✓ Confirm Add-On</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Player Picker (for dock Cash Out / Rebuy when no player pre-selected) ── -->
+<div id="picker-sheet-backdrop" class="bsheet-backdrop" onclick="closePickerSheet()">
+  <div class="bsheet-panel" onclick="event.stopPropagation()">
+    <div class="bsheet-handle"></div>
+    <div class="bsheet-title" id="picker-sheet-title">Select Player</div>
+    <div id="picker-sheet-list" style="padding:0 12px 16px;max-height:50vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ── Overflow Menu ── -->
+<div id="overflow-menu">
+  <div id="overflow-backdrop" onclick="closeOverflow()"></div>
+  <div id="overflow-panel">
+    <div style="width:40px;height:4px;background:var(--bd);border-radius:2px;margin:12px auto 4px"></div>
+    <div class="overflow-item" onclick="closeOverflow();goTab('oracle',$('nav-oracle'))">
+      <span class="ov-icon">🧙</span> Oracle — Should I Play This?
+    </div>
+    <div class="overflow-item" onclick="closeOverflow();goTab('sessions',$('nav-sessions'))">
+      <span class="ov-icon">📋</span> Session History
+    </div>
+    <div class="overflow-item" onclick="closeOverflow();goTab('chips',$('nav-chips'))">
+      <span class="ov-icon">📷</span> Chip Scanner
+    </div>
+    <div class="overflow-item" onclick="closeOverflow();goTab('hands',$('nav-hands'))">
+      <span class="ov-icon">🃏</span> Hand Log
+    </div>
+    <div class="overflow-item" onclick="closeOverflow();goTab('invite',$('nav-invite'))">
+      <span class="ov-icon">📨</span> Invite Players
+    </div>
+    <div class="overflow-item" onclick="closeOverflow();goTab('settings',$('nav-settings'))">
+      <span class="ov-icon">⚙️</span> Settings
+    </div>
+    <div class="overflow-item danger" onclick="closeOverflow();openEndNight()">
+      <span class="ov-icon">🏁</span> End Night
+    </div>
+  </div>
+</div>
 
 <!-- ══ DASHBOARD ══ -->
 <div class="view on" id="view-dash">
@@ -1379,6 +1845,14 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <datalist id="roster-datalist"></datalist>
     </div>
     <div class="fg"><label class="lbl">Buy-In ($)</label><input class="inp" type="number" id="ap-buyin" placeholder="10" min="0.10" step="0.10"></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      <span class="qa-chip" onclick="$('ap-buyin').value=5">$5</span>
+      <span class="qa-chip" onclick="$('ap-buyin').value=10">$10</span>
+      <span class="qa-chip" onclick="$('ap-buyin').value=20">$20</span>
+      <span class="qa-chip" onclick="$('ap-buyin').value=25">$25</span>
+      <span class="qa-chip" onclick="$('ap-buyin').value=50">$50</span>
+      <span class="qa-chip" onclick="$('ap-buyin').value=100">$100</span>
+    </div>
     <div class="fg"><label class="lbl">Seat</label><select class="sel" id="ap-seat"></select></div>
     <div class="flex mt12">
       <button class="btn btn-solid-cy" style="flex:1" onclick="doAddPlayer()">Seat Player</button>
@@ -1614,6 +2088,17 @@ function toast(msg,dur=2600){
    TABS
 ═══════════════════════════════ */
 function goTab(name,el){
+  // If coming from dealer mode, show classic nav/topbar and hide dealer view
+  const dv=$('view-dealer');
+  const comingFromDealer = dv && dv.style.display!=='none';
+  if(comingFromDealer){
+    dv.style.display='none';
+    const nav=document.querySelector('nav.nav'); if(nav) nav.style.display='';
+    const tb=document.querySelector('.topbar'); if(tb) tb.style.display='';
+    const dock=$('dealer-dock'); if(dock) dock.style.display='none';
+    // Show back button
+    const backBtn=$('nav-back-dealer'); if(backBtn) backBtn.style.display='';
+  }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.querySelectorAll('.nvb').forEach(b=>b.classList.remove('on'));
   $(`view-${name}`).classList.add('on'); el.classList.add('on'); activeTab=name;
@@ -1644,6 +2129,13 @@ function startSession(){
   addFeed('▶','Session started','Timer running — good luck everyone 🃏');
   updateNavState();
   refresh();
+  // Enter dealer mode
+  $('dealer-presession').style.display = 'none';
+  const _dpl = $('dealer-player-list');
+  if(_dpl) _dpl.style.display = 'block';
+  const _dock = $('dealer-dock');
+  if(_dock) _dock.style.display = 'flex';
+  renderDealerView();
 }
 
 function updateNavState(){
@@ -1665,6 +2157,7 @@ function tickTimer(){
   el.textContent = h > 0
     ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
     : `${m}:${String(s).padStart(2,'0')}`;
+  if(sessionActive) renderDealerHeader();
 }
 
 function stopTimer(){
@@ -4776,6 +5269,7 @@ function refresh(){
     saveLocal();          // instant localStorage backup — survives refresh
     scheduleCloudSave();  // async cloud push — syncs other devices
   }
+  if($('view-dealer') && $('view-dealer').style.display !== 'none') renderDealerView();
 }
 
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('on')}));
@@ -4934,6 +5428,13 @@ async function cloudLoad(){
       if(activeTab==='sessions') renderSessions();
       if(activeTab==='invite')   renderInvite();
       if(activeTab==='cashout')  renderCashOut();
+      if($('view-dealer') && $('view-dealer').style.display!=='none') renderDealerView();
+      // Sync dealer live/presession state
+      if(sessionActive){
+        const _sdpl=$('dealer-player-list'); if(_sdpl) _sdpl.style.display='block';
+        const _sdock=$('dealer-dock'); if(_sdock) _sdock.style.display='flex';
+        const _spre=$('dealer-presession'); if(_spre) _spre.style.display='none';
+      }
       _applyingCloudData=false;
       toast('☁ Synced');
     }
@@ -4948,6 +5449,16 @@ const dinv=$('inv-date');if(dinv&&!dinv.value)dinv.value=today;
 loadLocal();
 updateNavState();
 renderDash();
+enterDealerMode();
+renderDealerView();
+// If a session was already active (restored from localStorage), show the live view
+if(sessionActive){
+  $('dealer-presession').style.display = 'none';
+  const _rdpl = $('dealer-player-list');
+  if(_rdpl) _rdpl.style.display = 'block';
+  const _rdock = $('dealer-dock');
+  if(_rdock) _rdock.style.display = 'flex';
+}
 
 const _urlInvite=new URLSearchParams(window.location.search).get('invite');
 if(_urlInvite){
@@ -4967,6 +5478,355 @@ setInterval(cloudLoad, 7000);
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('/sw.js').catch(()=>{});
 }
+
+/* ═══════════════════════════════
+   DEALER MODE
+═══════════════════════════════ */
+
+let _sheetPlayerId = null; // currently selected player for sheet actions
+let _pickerCallback = null; // callback after player pick
+
+function enterDealerMode(){
+  // Show dealer view, hide classic tab bar and views
+  const dv = $('view-dealer');
+  if(dv) dv.style.display = 'block';
+  // Hide nav bar
+  const nav = document.querySelector('nav.nav');
+  if(nav) nav.style.display = 'none';
+  // Hide topbar (replaced by dealer header)
+  const tb = document.querySelector('.topbar');
+  if(tb) tb.style.display = 'none';
+  // Hide all classic views except dealer
+  ['view-dash','view-players','view-cashout','view-oracle','view-chips',
+   'view-hands','view-trainer','view-invite','view-sessions','view-settings']
+    .forEach(id=>{ const el=$(id); if(el) el.style.display='none'; });
+}
+
+function exitDealerMode(){
+  const dv = $('view-dealer');
+  if(dv) dv.style.display = 'none';
+  const nav = document.querySelector('nav.nav');
+  if(nav) nav.style.display = '';
+  const tb = document.querySelector('.topbar');
+  if(tb) tb.style.display = '';
+  // Show dock off
+  const dock=$('dealer-dock'); if(dock) dock.style.display='none';
+}
+
+function dealerStartSession(){
+  startSession(); // existing function
+  $('dealer-presession').style.display = 'none';
+  $('dealer-player-list').style.display = 'block';
+  $('dealer-dock').style.display = 'flex';
+  renderDealerView();
+}
+
+function renderDealerView(){
+  renderDealerHeader();
+  renderDealerPlayerList();
+  renderDealerPresessionRoster();
+}
+
+function renderDealerHeader(){
+  // Timer
+  const timerEl = $('dealer-timer');
+  if(timerEl && sessionActive && sessionStartTime){
+    const s = Math.floor((Date.now() - new Date(sessionStartTime).getTime()) / 1000);
+    const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+    timerEl.textContent = h>0
+      ? `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+      : `${m}:${String(sec).padStart(2,'0')}`;
+  } else if(timerEl && !sessionActive){
+    timerEl.textContent = '—';
+  }
+
+  // Game name
+  const gnEl = $('dealer-game-name');
+  if(gnEl) gnEl.textContent = (G.settings.hostName ? G.settings.hostName.charAt(0).toUpperCase()+G.settings.hostName.slice(1) : 'MOON') + "'S GAME";
+
+  // Balance
+  const all = G.players;
+  if(!all.length){
+    const inEl=$('dbal-in'),outEl=$('dbal-out'),diffEl=$('dbal-diff');
+    if(inEl) inEl.textContent='—';
+    if(outEl) outEl.textContent='—';
+    if(diffEl){ diffEl.textContent='—'; diffEl.className='dbal-val'; }
+    return;
+  }
+  const totalIn = all.reduce((s,p)=>s+ti(p),0);
+  const cashedOut = all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
+  const active = all.filter(p=>p.status==='active').reduce((s,p)=>s+p.currentStack,0);
+  const accounted = cashedOut + active;
+  const diff = accounted - totalIn;
+  const balanced = Math.abs(diff) < 0.02;
+
+  const inEl=$('dbal-in'), outEl=$('dbal-out'), diffEl=$('dbal-diff');
+  if(inEl) inEl.textContent = fmt(totalIn);
+  if(outEl) outEl.textContent = fmt(cashedOut);
+  if(diffEl){
+    diffEl.textContent = balanced ? '✓' : (diff>0?'+':'')+fmt(diff);
+    diffEl.className = 'dbal-val ' + (balanced?'good':diff<0?'bad':'bad');
+  }
+}
+
+function renderDealerPresessionRoster(){
+  const el = $('dealer-presession-roster');
+  if(!el) return;
+  const seated = G.players.map(p=>p.name.toLowerCase());
+  const available = ROSTER_DB.filter(r=>!seated.includes(r.name.toLowerCase()));
+  el.innerHTML = available.slice(0,8).map(r=>
+    `<span style="background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;color:var(--cy)"
+      onclick="dealerQuickAddFromRoster('${esc(r.name)}')">${esc(r.name)}</span>`
+  ).join('');
+  // Show seated count
+  if(G.players.length){
+    el.innerHTML += `<div style="width:100%;text-align:center;font-size:12px;color:var(--i3);margin-top:8px">${G.players.length} seated</div>`;
+  }
+}
+
+function dealerQuickAddFromRoster(name){
+  const r = ROSTER_DB.find(r=>r.name.toLowerCase()===name.toLowerCase());
+  if(!r) return;
+  const seat = Array.from({length:G.settings.seats},(_,i)=>i+1)
+    .find(s=>!G.players.some(p=>p.status==='active'&&p.seat===s)) || G.players.length+1;
+  const p = {
+    id:G.nextId++, name:r.name,
+    buyin:G.settings.defaultBuyin, addOns:[], addOnTotal:0,
+    seat, status:'active',
+    currentStack:G.settings.defaultBuyin,
+    cashoutAmount:null, joinedAt:new Date()
+  };
+  G.players.push(p);
+  upsertRoster(r.name);
+  addFeed('🪑',`${p.name} joined`,`$${fmt(p.buyin)} — Seat ${seat}`);
+  refresh(); renderDealerView();
+  toast(`${p.name} added — ${fmt(p.buyin)}`);
+}
+
+function renderDealerPlayerList(){
+  const el = $('dealer-player-list');
+  if(!el) return;
+
+  const active = G.players.filter(p=>p.status==='active').sort((a,b)=>a.seat-b.seat);
+  const done   = G.players.filter(p=>p.status!=='active').sort((a,b)=>a.seat-b.seat);
+
+  let html = '';
+
+  active.forEach(p=>{
+    const net = p.currentStack - ti(p);
+    const netClass = net>0.01?'up':net<-0.01?'dn':'even';
+    const netStr = net>0.01?`↑+${fmt(net)}`:net<-0.01?`↓${fmt(net)}`:'—';
+    html += `<div class="dpl-row" onclick="openPlayerSheet(${p.id})">
+      <div class="dpl-seat">S${p.seat}</div>
+      <div class="dpl-name">${esc(p.name)}</div>
+      <div class="dpl-stack">${fmt(p.currentStack)}</div>
+      <div class="dpl-net ${netClass}">${netStr}</div>
+    </div>`;
+  });
+
+  if(done.length){
+    html += `<div class="dpl-divider">── cashed out / busted ──</div>`;
+    done.forEach(p=>{
+      const net = (p.cashoutAmount||0) - ti(p);
+      const netClass = net>0.01?'up':net<-0.01?'dn':'even';
+      const netStr = net>0.01?`+${fmt(net)}`:net<-0.01?`${fmt(net)}`:'even';
+      html += `<div class="dpl-row cashed" onclick="openPlayerSheet(${p.id})">
+        <div class="dpl-seat">S${p.seat}</div>
+        <div class="dpl-name">${esc(p.name)}</div>
+        <div class="dpl-stack">${p.status==='out'?'bust':fmt(p.cashoutAmount||0)}</div>
+        <div class="dpl-net ${netClass}">${netStr}</div>
+      </div>`;
+    });
+  }
+
+  if(!G.players.length){
+    html = `<div style="text-align:center;padding:40px 20px;color:var(--i4)">
+      <div style="font-size:40px;margin-bottom:12px">🃏</div>
+      <div style="font-size:15px">No players yet.<br>Tap ADD to seat someone.</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+// ── Player Bottom Sheet ──
+function openPlayerSheet(id){
+  _sheetPlayerId = id;
+  const p = G.players.find(p=>p.id===id);
+  if(!p) return;
+  const invested = ti(p);
+  const nameEl = $('player-sheet-name');
+  if(nameEl){
+    nameEl.innerHTML = `${esc(p.name)} <span style="font-size:13px;color:var(--i3);font-weight:400">Seat ${p.seat}</span>
+      <div class="bsheet-sub">In: ${fmt(invested)}${p.addOnTotal?` (incl. ${fmt(p.addOnTotal)} add-ons)`:''}</div>`;
+  }
+  const bd = $('player-sheet-backdrop');
+  if(bd) bd.classList.add('open');
+}
+function closePlayerSheet(){
+  const bd = $('player-sheet-backdrop');
+  if(bd) bd.classList.remove('open');
+}
+function sheetRebuy(){
+  closePlayerSheet();
+  openRebuySheet(_sheetPlayerId);
+}
+function sheetCashOut(){
+  closePlayerSheet();
+  openCOSheet(_sheetPlayerId);
+}
+function sheetBust(){
+  const id = _sheetPlayerId;
+  closePlayerSheet();
+  customConfirm('Mark as bust — no cashout recorded?', ()=>{
+    const p = G.players.find(p=>p.id===id);
+    if(!p) return;
+    p.status='out'; p.cashoutAmount=0;
+    addFeed('💀',`${p.name} busted`,`In: ${fmt(ti(p))}`);
+    refresh(); renderDealerView();
+    toast(`${p.name} busted out`);
+  });
+}
+
+// ── Cash-Out Sheet ──
+let _coSheetPlayerId = null;
+function openCOSheet(id){
+  _coSheetPlayerId = id;
+  const p = G.players.find(p=>p.id===id);
+  if(!p) return;
+  const invested = ti(p);
+  $('co-sheet-title').textContent = `Cash Out: ${p.name}`;
+  $('co-sheet-invested').textContent = `Total in: ${fmt(invested)}`;
+  const inp = $('co-sheet-input');
+  if(inp){ inp.value=''; }
+  $('co-sheet-result').textContent = '';
+  $('co-sheet-result').style.color = '';
+
+  // Build quick-amount chips
+  const amounts = [5,10,20,25,30,40,50,75,100].filter(a=>a<=invested*2.5);
+  // Always include invested amount itself
+  if(!amounts.includes(Math.round(invested))) amounts.push(Math.round(invested));
+  amounts.sort((a,b)=>a-b);
+  $('co-sheet-chips').innerHTML = amounts.map(a=>
+    `<span class="qa-chip" onclick="setCOAmount(${a})">$${a}</span>`
+  ).join('');
+
+  const bd = $('co-sheet-backdrop');
+  if(bd) bd.classList.add('open');
+  setTimeout(()=>{ if(inp) inp.focus(); }, 200);
+}
+function closeCOSheet(){
+  const bd = $('co-sheet-backdrop');
+  if(bd) bd.classList.remove('open');
+  _coSheetPlayerId = null;
+}
+function setCOAmount(n){
+  const inp = $('co-sheet-input');
+  if(inp){ inp.value=n; updateCOSheetPreview(); }
+}
+function updateCOSheetPreview(){
+  if(!_coSheetPlayerId) return;
+  const p = G.players.find(p=>p.id===_coSheetPlayerId);
+  if(!p) return;
+  const val = parseFloat($('co-sheet-input').value);
+  const el = $('co-sheet-result');
+  if(isNaN(val)){ el.textContent=''; return; }
+  const net = val - ti(p);
+  const balanced = Math.abs(net)<0.01;
+  el.textContent = balanced ? 'Even ✓' : (net>0?'+':'')+fmt(net);
+  el.style.color = balanced?'var(--i3)':net>0?'var(--ag)':'var(--neg)';
+}
+function confirmCOSheet(){
+  if(!_coSheetPlayerId) return;
+  const p = G.players.find(p=>p.id===_coSheetPlayerId);
+  if(!p) return;
+  const val = parseFloat($('co-sheet-input').value);
+  if(isNaN(val)||val<0){ toast('Enter a valid amount'); return; }
+  const net = val - ti(p);
+  p.status='cashed'; p.cashoutAmount=val; p.currentStack=0;
+  addFeed('💰',`${p.name} cashed out`,`${fmt(val)} (${net>=0?'+':''}${fmt(net)})`);
+  closeCOSheet();
+  refresh(); renderDealerView();
+  toast(`${p.name}: ${fmt(val)} (${net>=0?'+':''}${fmt(net)})`);
+  scheduleCloudSave();
+}
+
+// ── Rebuy Sheet ──
+let _rebuySheetPlayerId = null;
+function openRebuySheet(id){
+  _rebuySheetPlayerId = id;
+  const p = G.players.find(p=>p.id===id);
+  if(!p) return;
+  $('rebuy-sheet-title').textContent = `Add-On: ${p.name}`;
+  const inp = $('rebuy-sheet-input');
+  if(inp){ inp.value=G.settings.defaultBuyin; }
+  const bd = $('rebuy-sheet-backdrop');
+  if(bd) bd.classList.add('open');
+  setTimeout(()=>{ if(inp) inp.focus(); }, 200);
+}
+function closeRebuySheet(){
+  const bd = $('rebuy-sheet-backdrop');
+  if(bd) bd.classList.remove('open');
+  _rebuySheetPlayerId = null;
+}
+function setRebuyAmount(n){
+  const inp = $('rebuy-sheet-input');
+  if(inp) inp.value = n;
+}
+function confirmRebuySheet(){
+  if(!_rebuySheetPlayerId) return;
+  const p = G.players.find(p=>p.id===_rebuySheetPlayerId);
+  if(!p) return;
+  const amt = parseFloat($('rebuy-sheet-input').value);
+  if(isNaN(amt)||amt<=0){ toast('Enter a valid amount'); return; }
+  p.addOns.push({amount:amt, type:'rebuy', time:new Date()});
+  p.addOnTotal += amt;
+  p.currentStack += amt;
+  addFeed('↺',`${p.name} rebought`,`+${fmt(amt)} → In: ${fmt(ti(p))}`);
+  closeRebuySheet();
+  refresh(); renderDealerView();
+  toast(`${p.name} +${fmt(amt)}`);
+  scheduleCloudSave();
+}
+
+// ── Dock actions (when no player pre-selected) ──
+function openDockCashOut(){
+  const active = G.players.filter(p=>p.status==='active');
+  if(!active.length){ toast('No active players'); return; }
+  if(active.length===1){ openCOSheet(active[0].id); return; }
+  openPickerSheet('Cash Out', active, id=>openCOSheet(id));
+}
+function openDockRebuy(){
+  const active = G.players.filter(p=>p.status==='active');
+  if(!active.length){ toast('No active players'); return; }
+  if(active.length===1){ openRebuySheet(active[0].id); return; }
+  openPickerSheet('Add-On / Rebuy', active, id=>openRebuySheet(id));
+}
+
+// ── Player Picker ──
+function openPickerSheet(title, players, callback){
+  _pickerCallback = callback;
+  $('picker-sheet-title').textContent = title;
+  $('picker-sheet-list').innerHTML = players.map(p=>`
+    <div class="dpl-row" style="margin-bottom:4px" onclick="pickerSelect(${p.id})">
+      <div class="dpl-seat">S${p.seat}</div>
+      <div class="dpl-name">${esc(p.name)}</div>
+      <div class="dpl-stack">${fmt(p.currentStack)}</div>
+    </div>`).join('');
+  $('picker-sheet-backdrop').classList.add('open');
+}
+function closePickerSheet(){
+  $('picker-sheet-backdrop').classList.remove('open');
+  _pickerCallback = null;
+}
+function pickerSelect(id){
+  closePickerSheet();
+  if(_pickerCallback) _pickerCallback(id);
+}
+
+// ── Overflow Menu ──
+function openOverflow(){ $('overflow-menu').classList.add('open'); }
+function closeOverflow(){ $('overflow-menu').classList.remove('open'); }
 </script>
 </body>
 </html>

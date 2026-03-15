@@ -39,16 +39,6 @@ body{
   line-height:1.5;
 }
 
-/* Larger desktops / big monitors */
-@media (min-width:1440px){
-  html{ font-size:17px; }
-}
-
-/* Ultra-wide screens (like your screenshot) */
-@media (min-width:1920px){
-  html{ font-size:18px; }
-}
-
 /* BG */
 #bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
 .amb{position:absolute;border-radius:50%;filter:blur(110px);opacity:.055;animation:adrift var(--t,20s) ease-in-out infinite alternate;will-change:transform}
@@ -77,8 +67,6 @@ body{
 .nvb{flex-shrink:0;padding:12px 14px;background:none;border:none;border-bottom:2px solid transparent;color:var(--i3);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;letter-spacing:.04em;cursor:pointer;white-space:nowrap;transition:color .14s,border-color .14s;touch-action:manipulation}
 .nvb:hover{color:var(--i2)}.nvb.on{color:var(--au);border-bottom-color:var(--au)}
 
-/* CONTENT */
-/* CONTENT */
 /* CONTENT */
 .content{
   flex:1;
@@ -425,7 +413,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   <button class="nvb"       onclick="goTab('table',this)">Table</button>
   <button class="nvb"       onclick="goTab('chips',this)">Chip Counter</button>
   <button class="nvb"       onclick="goTab('hands',this)">Hands</button>
-  <button class="nvb"       onclick="goTab('trainer',this)">Preflop Trainer</button>
+  <button class="nvb"       onclick="goTab('trainer',this)">Trainer</button>
   <button class="nvb"       onclick="goTab('history',this)">History</button>
 </nav>
 
@@ -627,7 +615,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <div class="trainer-main">
       <div class="card">
         <div class="chd">
-          <span class="ctitle">Postflop Spot</span>
+          <span class="ctitle">Postflop Trainer</span>
           <div class="flex">
             <select class="sel" id="tr-street" style="font-size:11px;padding:5px 26px 5px 10px;width:auto">
               <option value="flop">Flop</option>
@@ -755,6 +743,11 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <option>NL HOLD'EM</option><option>PLO</option><option>MIXED</option>
       </select>
     </div>
+    <div class="fg">
+      <label class="lbl">API Key (Anthropic)</label>
+      <input class="inp" type="password" id="set-apikey" placeholder="sk-ant-…" autocomplete="off">
+      <div style="font-size:10px;color:var(--i3);margin-top:4px">Required for AI chip scanner &amp; trainer analysis</div>
+    </div>
     <div class="flex mt12">
       <button class="btn btn-au" style="flex:1" onclick="doSaveSettings()">Save</button>
       <button class="btn" onclick="cm('m-settings')">Cancel</button>
@@ -796,6 +789,17 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
   </div>
 </div>
 
+<div class="overlay" id="m-confirm">
+  <div class="modal" style="max-width:340px">
+    <div class="modal-title">Confirm <button class="mclose" onclick="cm('m-confirm')">✕</button></div>
+    <div id="m-confirm-msg" style="font-size:13px;color:var(--i2);margin-bottom:18px;line-height:1.6"></div>
+    <div class="flex">
+      <button class="btn btn-neg" style="flex:1" id="m-confirm-yes">Yes</button>
+      <button class="btn" style="flex:1" onclick="cm('m-confirm')">No</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -804,25 +808,54 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 ═══════════════════════════════════ */
 const G = {
   players:[], hands:[], feed:[], nextId:1,
-  settings:{sb:1,bb:2,defaultBuyin:10,seats:10,game:"NL HOLD'EM"},
+  settings:{sb:1,bb:2,defaultBuyin:10,seats:10,game:"NL HOLD'EM",apiKey:''},
   start:new Date()
 };
+/* ═══════════════════════════════════
+   SESSION PERSISTENCE
+═══════════════════════════════════ */
+function saveSession(){
+  localStorage.setItem('moonsSess', JSON.stringify(G));
+}
+function loadSession(){
+  try{
+    const raw=localStorage.getItem('moonsSess');
+    if(!raw)return;
+    const saved=JSON.parse(raw);
+    // Restore top-level date
+    if(saved.start)saved.start=new Date(saved.start);
+    // Restore player dates
+    if(saved.players){
+      saved.players.forEach(p=>{
+        if(p.joinedAt)p.joinedAt=new Date(p.joinedAt);
+        if(p.addOns)p.addOns.forEach(a=>{if(a.time)a.time=new Date(a.time);});
+      });
+    }
+    // Restore feed dates
+    if(saved.feed)saved.feed.forEach(f=>{if(f.time)f.time=new Date(f.time);});
+    // Restore hands dates
+    if(saved.hands)saved.hands.forEach(h=>{if(h.time)h.time=new Date(h.time);});
+    // Merge into G
+    Object.assign(G, saved);
+  }catch(e){console.warn('Session load failed:',e);}
+}
+
 
 // Chip denominations — editable, these are defaults
 const DEFAULT_DENOMS = [
-  {id:'r', name:'Red',   color:'#ef4444', dotCls:'r', value:0.10},
-  {id:'b', name:'Blue',  color:'#3b82f6', dotCls:'b', value:0.50},
-  {id:'bl',name:'Black', color:'#374151', dotCls:'bl',value:1.00},
-  {id:'g', name:'Green', color:'#22c55e', dotCls:'g', value:5.00},
-  {id:'w', name:'White', color:'#e5e7eb', dotCls:'w', value:0.05},
-  {id:'pk',name:'Pink',  color:'#ec4899', dotCls:'pk',value:2.50},
+  {id:'r', name:'Red',    color:'#ef4444', dotCls:'r',  value:0.10},
+  {id:'b', name:'Blue',   color:'#3b82f6', dotCls:'b',  value:0.50},
+  {id:'bl',name:'Black',  color:'#374151', dotCls:'bl', value:1.00},
+  {id:'g', name:'Green',  color:'#22c55e', dotCls:'g',  value:5.00},
+  {id:'w', name:'White',  color:'#e5e7eb', dotCls:'w',  value:0.05},
+  {id:'pk',name:'Pink',   color:'#ec4899', dotCls:'pk', value:2.50},
+  {id:'pu',name:'Purple', color:'#a855f7', dotCls:'pu', value:25.00},
 ];
 let denoms = JSON.parse(JSON.stringify(DEFAULT_DENOMS));
 
 let activeTab = 'dash';
 let chipVal   = null;
-let selPlayer = null;
-let selPlayerId = null; // for players panel
+let selPlayerId = null; // unified player selection for chip counter + players panel
 
 // Trainer state
 const TRAINER = {played:0,correct:0,totalEV:0,history:[],currentSpot:null};
@@ -831,6 +864,8 @@ const TRAINER = {played:0,correct:0,totalEV:0,history:[],currentSpot:null};
    HELPERS
 ═══════════════════════════════════ */
 const $  = id => document.getElementById(id);
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 const ti = p  => p.buyin + p.addOnTotal;
 const money = n => {
   const a = Math.abs(n);
@@ -843,6 +878,12 @@ function cm(id){$(id).classList.remove('on')}
 function toast(msg,dur=2400){
   const t=$('toast');t.textContent=msg;t.classList.add('on');
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('on'),dur);
+}
+function customConfirm(msg,onYes){
+  $('m-confirm-msg').textContent=msg;
+  const yesBtn=$('m-confirm-yes');
+  yesBtn.onclick=()=>{cm('m-confirm');onYes();};
+  om('m-confirm');
 }
 
 /* ═══════════════════════════════════
@@ -897,15 +938,17 @@ function renderDash(){
   if(!active.length){rEmp.style.display='block';rEl.innerHTML='';}
   else{
     rEmp.style.display='none';
-    rEl.innerHTML=`<div style="display:flex;flex-direction:column">
+    const hdr=`<div style="display:grid;grid-template-columns:28px 1fr 80px 80px 70px;gap:6px;padding:5px 6px 7px;border-bottom:1px solid var(--br);margin-bottom:2px"><span style="font-size:9px;letter-spacing:.08em;color:var(--i4)">S</span><span style="font-size:9px;letter-spacing:.08em;color:var(--i4)">Player</span><span style="font-size:9px;letter-spacing:.08em;color:var(--i4);text-align:right">Buy-In</span><span style="font-size:9px;letter-spacing:.08em;color:var(--i4);text-align:right">Stack</span><span style="font-size:9px;letter-spacing:.08em;color:var(--i4);text-align:right">P&L</span></div>`;
+    rEl.innerHTML=hdr+`<div style="display:flex;flex-direction:column">
       ${active.sort((a,b)=>a.seat-b.seat).map(p=>{
         const tot=ti(p),pnl=p.currentStack-tot;
         const ps=pnl===0?'—':signed(pnl),pc=pnl>0?'ppos':pnl<0?'pneg':'pneu';
-        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--br);cursor:pointer;transition:background .1s;border-radius:var(--r4);margin:0 -6px" onclick="openPlayerPanel(${p.id})" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background='transparent'">
-          <div style="width:22px;height:22px;border-radius:50%;background:var(--s3);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--i3);flex-shrink:0">${p.seat}</div>
-          <div style="flex:1;font-size:14px;font-weight:500;color:var(--i0);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</div>
-          <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--au)">${money(p.currentStack)}</div>
-          <div class="${pc}" style="min-width:54px;text-align:right">${ps}</div>
+        return `<div style="display:grid;grid-template-columns:28px 1fr 80px 80px 70px;gap:6px;align-items:center;padding:9px 6px;border-bottom:1px solid var(--br);cursor:pointer;transition:background .1s;border-radius:var(--r4);margin:0 -6px" onclick="openPlayerPanel(${p.id})" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background='transparent'">
+          <div style="width:22px;height:22px;border-radius:50%;background:var(--s3);border:1px solid var(--br);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;color:var(--i3)">${p.seat}</div>
+          <div style="font-size:14px;font-weight:500;color:var(--i0);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.name)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--i2);text-align:right">${money(tot)}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:13px;color:var(--au);text-align:right">${money(p.currentStack)}</div>
+          <div class="${pc}" style="text-align:right">${ps}</div>
         </div>`;
       }).join('')}
     </div>`;
@@ -920,7 +963,7 @@ function renderDash(){
     const tot=active.reduce((s,p)=>s+p.currentStack,0);
     sb.innerHTML=sorted.map((p,i)=>{
       const pct=tot>0?Math.round(p.currentStack/tot*100):0;
-      return `<div class="bar-row"><div class="bar-name">${p.name}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cols[i%cols.length]}"></div></div><div class="bar-pct">${pct}%</div></div>`;
+      return `<div class="bar-row"><div class="bar-name">${esc(p.name)}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${cols[i%cols.length]}"></div></div><div class="bar-pct">${pct}%</div></div>`;
     }).join('');
   }
 
@@ -933,7 +976,7 @@ function renderDash(){
     pb.innerHTML=sorted2.map(p=>{
       const net=p.currentStack-ti(p),pct=Math.round(Math.abs(net)/maxA*100);
       const col=net>=0?'var(--pos)':'var(--neg)';
-      return `<div class="bar-row"><div class="bar-name">${p.name}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><div class="bar-pct" style="color:${col}">${net>=0?'+':'-'}${money(Math.abs(net))}</div></div>`;
+      return `<div class="bar-row"><div class="bar-name">${esc(p.name)}</div><div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><div class="bar-pct" style="color:${col}">${net>=0?'+':'-'}${money(Math.abs(net))}</div></div>`;
     }).join('');
   }
   renderFeed();
@@ -969,7 +1012,7 @@ function renderPlayerPanel(){
       const sel=selPlayerId===p.id?'selected':'';
       return `<div class="pl-item ${sel}" id="pli-${p.id}" onclick="openPlayerPanel(${p.id})">
         <div class="pl-seat">${p.seat}</div>
-        <div class="pl-item-name">${p.name}</div>
+        <div class="pl-item-name">${esc(p.name)}</div>
         <div style="text-align:right">
           <div class="pl-item-stack">${money(p.currentStack)}</div>
           <div class="pl-item-pnl ${pc}" style="margin-top:1px">${pnl===0?'—':signed(pnl)}</div>
@@ -979,8 +1022,15 @@ function renderPlayerPanel(){
   }
   if(selPlayerId){
     const p=G.players.find(p=>p.id===selPlayerId&&p.status==='active');
-    if(p)renderPlayerDetail(p);
-    else{selPlayerId=null;$('pl-detail').style.display='none';$('pl-detail-empty').style.display='block';}
+    if(p){
+      $('pl-detail-empty').style.display='none';
+      $('pl-detail').style.display='block';
+      renderPlayerDetail(p);
+    }else{
+      selPlayerId=null;
+      $('pl-detail').style.display='none';
+      $('pl-detail-empty').style.display='block';
+    }
   }
 }
 
@@ -1007,7 +1057,7 @@ function renderPlayerDetail(p){
 
   $('pl-detail').innerHTML=`
     <div class="player-detail">
-      <div class="pd-name">${p.name}</div>
+      <div class="pd-name">${esc(p.name)}</div>
       <div class="pd-seat">
         <span>Seat ${p.seat}</span>
         <span class="pill pill-act">Active</span>
@@ -1133,7 +1183,7 @@ function doAddon(id){
   p.addOnTotal+=amt;
   p.currentStack+=amt;
   addFeed('↺',`${p.name} ${type}`,`+${money(amt)} · Stack ${money(p.currentStack)}`);
-  refresh();renderPlayerPanel();toast(`${p.name}: +${money(amt)} ${type}`);
+  saveSession();refresh();renderPlayerPanel();toast(`${p.name}: +${money(amt)} ${type}`);
 }
 function doUpdateStack(id){
   const nv=parseFloat($('pd-stack-val').value);
@@ -1141,7 +1191,7 @@ function doUpdateStack(id){
   const p=G.players.find(p=>p.id===id),old=p.currentStack;
   p.currentStack=nv;
   addFeed('⟳',`${p.name} stack updated`,`${money(old)} → ${money(nv)}`);
-  refresh();renderPlayerPanel();toast(`${p.name}: ${money(nv)}`);
+  saveSession();refresh();renderPlayerPanel();toast(`${p.name}: ${money(nv)}`);
 }
 function doPlayerCashout(id){
   const av=$('pd-co-amt').value;
@@ -1150,14 +1200,15 @@ function doPlayerCashout(id){
   const tot=ti(p),net=cv-tot;
   p.status='cashed';p.cashoutAmount=cv;p.currentStack=0;
   addFeed(net>=0?'🏆':'💸',`${p.name} cashed out`,`${money(cv)} · Net ${signed(net)}`);
-  selPlayerId=null;refresh();renderPlayerPanel();toast(`${p.name} cashes ${money(cv)}`);
+  saveSession();selPlayerId=null;refresh();renderPlayerPanel();toast(`${p.name} cashes ${money(cv)}`);
 }
 function doMarkOut(id){
   const p=G.players.find(p=>p.id===id);
-  if(!confirm(`Mark ${p.name} as busted out?`))return;
-  p.status='out';
-  addFeed('💀',`${p.name} busted out`,`Invested ${money(ti(p))}`);
-  selPlayerId=null;refresh();renderPlayerPanel();toast(`${p.name} is out`);
+  customConfirm(`Mark ${p.name} as busted out?`,()=>{
+    p.status='out';
+    addFeed('💀',`${p.name} busted out`,`Invested ${money(ti(p))}`);
+    saveSession();selPlayerId=null;refresh();renderPlayerPanel();toast(`${p.name} is out`);
+  });
 }
 
 /* ═══════════════════════════════════
@@ -1184,7 +1235,7 @@ function doAddPlayer(){
   if(!name){toast('Enter a name');return;}
   G.players.push({id:G.nextId++,name,buyin,addOns:[],addOnTotal:0,seat,status:'active',currentStack:stack,cashoutAmount:null,joinedAt:new Date()});
   addFeed('♠',`${name} bought in`,`${money(buyin)} · Seat ${seat}`);
-  cm('m-add');refresh();toast(`${name} seated at ${seat}`);
+  saveSession();cm('m-add');refresh();toast(`${name} seated at ${seat}`);
 }
 
 /* ═══════════════════════════════════
@@ -1212,7 +1263,7 @@ function renderTable(){
       const tot=ti(p),pnl=p.currentStack-tot,pct=tot>0?p.currentStack/tot:1;
       let cls='occ';if(pct>=1.5)cls='occ big';else if(pct<=0.4)cls='occ sht';
       const sc=pnl>0?'up':pnl<0?'dn':'';
-      node.innerHTML=`<div class="seat-chip ${cls}" style="max-width:${nodeW}px"><div class="sn-num">S${seat}</div><div class="sn-name" style="max-width:${nodeW-10}px">${p.name}</div><div class="sn-stack ${sc}">${money(p.currentStack)}</div></div>`;
+      node.innerHTML=`<div class="seat-chip ${cls}" style="max-width:${nodeW}px"><div class="sn-num">S${seat}</div><div class="sn-name" style="max-width:${nodeW-10}px">${esc(p.name)}</div><div class="sn-stack ${sc}">${money(p.currentStack)}</div></div>`;
     }else{
       node.innerHTML=`<div class="seat-chip emp" style="max-width:${nodeW}px"><div class="sn-num">S${seat}</div><div class="sn-open">Open</div></div>`;
     }
@@ -1228,7 +1279,7 @@ function renderSOV(){
   $('sov-body').innerHTML=active.map(p=>{
     const tot=ti(p),pnl=p.currentStack-tot,ps=pnl===0?'—':signed(pnl);
     const pc=pnl>0?'ppos':pnl<0?'pneg':'pneu';
-    return `<tr><td class="mono c-dim">${p.seat}</td><td><span class="pname">${p.name}</span></td><td class="mono">${money(p.buyin)}</td><td class="mono c-au">${money(p.currentStack)}</td><td><span class="${pc}">${ps}</span></td><td><button class="btn btn-xs" onclick="openPlayerPanel(${p.id})">Manage</button></td></tr>`;
+    return `<tr><td class="mono c-dim">${p.seat}</td><td><span class="pname">${esc(p.name)}</span></td><td class="mono">${money(p.buyin)}</td><td class="mono c-au">${money(p.currentStack)}</td><td><span class="${pc}">${ps}</span></td><td><button class="btn btn-xs" onclick="openPlayerPanel(${p.id})">Manage</button></td></tr>`;
   }).join('');
 }
 
@@ -1246,7 +1297,6 @@ function buildDenomUI(){
         onchange="updateDenom('${d.id}',this.value)" title="${d.name} value">
     </div>`).join('');
   buildMCInputs();
-  buildChipLegend();
 }
 function updateDenom(id,val){
   const d=denoms.find(d=>d.id===id);
@@ -1268,9 +1318,6 @@ function buildMCInputs(){
         <input class="mc-inp" type="number" id="mc-${d.id}" value="0" min="0" oninput="calcManual()">
       </div>
     </div>`).join('');
-}
-function buildChipLegend(){
-  // Update legend in header if present
 }
 function calcManual(){
   let total=0;
@@ -1299,6 +1346,7 @@ function processImg(file){
   r.readAsDataURL(file);
 }
 async function runAI(dataUrl){
+  if(!G.settings.apiKey){toast('Set your API key in Settings');return;}
   $('chip-loading').style.display='block';
   $('chip-result').style.display='none';
   $('chip-actions').style.display='none';
@@ -1307,7 +1355,7 @@ async function runAI(dataUrl){
   const denomDesc=denoms.map(d=>`${d.name.toUpperCase()}=$${d.value.toFixed(2)}`).join(', ');
   try{
     const resp=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
+      method:'POST',headers:{'Content-Type':'application/json','x-api-key':G.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',max_tokens:500,
         system:`You are a poker chip counter. Count chips by color.
@@ -1368,16 +1416,16 @@ function mcApply(action){
   applyToPlayer(action,parseFloat(total.toFixed(2)),'manual');
 }
 function applyToPlayer(action,val,src){
-  if(!selPlayer){toast('Select a player first');return;}
-  const p=G.players.find(p=>p.id===selPlayer);
+  if(!selPlayerId){toast('Select a player first');return;}
+  const p=G.players.find(p=>p.id===selPlayerId);
   if(!p){toast('Player not found');return;}
   if(action==='buyin'){p.buyin+=val;p.currentStack+=val;addFeed('♠',`${p.name} bought in (${src})`,`+${money(val)}`);}
   else if(action==='rebuy'){p.addOns.push({amount:val,type:'add-on',time:new Date()});p.addOnTotal+=val;p.currentStack+=val;addFeed('↺',`${p.name} add-on (${src})`,`+${money(val)} · Stack ${money(p.currentStack)}`);}
   else if(action==='stack'){const old=p.currentStack;p.currentStack=val;addFeed('⟳',`${p.name} stack set (${src})`,`${money(old)} → ${money(val)}`);}
-  refresh();toast(`Applied ${money(val)} to ${p.name}`);
+  saveSession();refresh();toast(`Applied ${money(val)} to ${p.name}`);
 }
 function openChipsForPlayer(id){
-  selPlayer=id;
+  selPlayerId=id;
   goTab('chips',document.querySelectorAll('.nvb')[3]);
 }
 function populatePickers(){
@@ -1386,14 +1434,14 @@ function populatePickers(){
     const pp=$(pid);if(!pp)return;
     if(!active.length){pp.innerHTML=`<div style="font-size:11px;color:var(--i4);padding:5px 0">No active players</div>`;return;}
     pp.innerHTML=active.map(p=>`
-      <div class="pp-row${selPlayer===p.id?' sel':''}" id="ppr-${pid}-${p.id}" onclick="selectPlayer(${p.id})">
-        <div class="pp-name">${p.name}</div>
+      <div class="pp-row${selPlayerId===p.id?' sel':''}" id="ppr-${pid}-${p.id}" onclick="selectPlayer(${p.id})">
+        <div class="pp-name">${esc(p.name)}</div>
         <div class="pp-stack">${money(p.currentStack)}</div>
       </div>`).join('');
   });
 }
 function selectPlayer(id){
-  selPlayer=id;
+  selPlayerId=id;
   document.querySelectorAll('.pp-row').forEach(r=>{r.classList.remove('sel');if(r.id.endsWith('-'+id))r.classList.add('sel');});
   toast(`${G.players.find(p=>p.id===id)?.name} selected`);
 }
@@ -1411,7 +1459,7 @@ function resetChip(){
 ═══════════════════════════════════ */
 function openLogHand(){
   const sel=$('lh-winner');
-  sel.innerHTML=G.players.filter(p=>p.status==='active').map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  sel.innerHTML=G.players.filter(p=>p.status==='active').map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
   if(!sel.options.length){toast('Add players first');return;}
   $('lh-pot').value='';$('lh-note').value='';om('m-hand');
 }
@@ -1424,7 +1472,11 @@ function doLogHand(){
   G.hands.push({type,winner:w?w.name:'?',pot,note,time:new Date()});
   const tn=type.split(' ').slice(1).join(' ');
   addFeed('★',`${tn} — ${w?w.name:'?'} wins`,`Pot: ${money(pot)}${note?' · '+note:''}`);
-  cm('m-hand');renderHands();updateHeader();toast(`Hand logged · ${money(pot)} pot`);
+  saveSession();cm('m-hand');renderHands();updateHeader();toast(`Hand logged · ${money(pot)} pot`);
+}
+function deleteHand(idx){
+  G.hands.splice(idx,1);
+  saveSession();renderHands();updateHeader();toast('Hand deleted');
 }
 function renderHands(){
   const list=$('hands-list'),emp=$('hands-empty');
@@ -1436,9 +1488,11 @@ function renderHands(){
   $('sh-count').textContent=G.hands.length;
   $('sh-big').textContent=big>0?money(big):'—';
   $('sh-win').textContent=topW.length>9?topW.slice(0,9)+'…':topW;
-  list.innerHTML=[...G.hands].reverse().map(h=>{
+  const reversed=[...G.hands].reverse();
+  list.innerHTML=reversed.map((h,ri)=>{
+    const origIdx=G.hands.length-1-ri;
     const em=h.type.split(' ')[0],tn=h.type.slice(em.length+1);
-    return `<div class="hand-entry"><div class="hand-emoji">${em}</div><div style="flex:1"><div class="hand-type">${tn}</div><div class="hand-winner">${h.winner}</div>${h.note?`<div class="hand-note">${h.note}</div>`:''}<div class="hand-when">${clock(h.time)}</div></div><div class="hand-pot">${money(h.pot)}</div></div>`;
+    return `<div class="hand-entry"><div class="hand-emoji">${em}</div><div style="flex:1"><div class="hand-type">${tn}</div><div class="hand-winner">${esc(h.winner)}</div>${h.note?`<div class="hand-note">${esc(h.note)}</div>`:''}<div class="hand-when">${clock(h.time)}</div></div><div style="display:flex;align-items:center;gap:8px"><div class="hand-pot">${money(h.pot)}</div><button class="btn btn-xs btn-neg" onclick="deleteHand(${origIdx})" title="Delete hand">✕</button></div></div>`;
   }).join('');
 }
 
@@ -1448,7 +1502,9 @@ function renderHands(){
 function openSettings(){
   $('set-sb').value=G.settings.sb;$('set-bb').value=G.settings.bb;
   $('set-bi').value=G.settings.defaultBuyin;$('set-seats').value=G.settings.seats;
-  $('set-game').value=G.settings.game;om('m-settings');
+  $('set-game').value=G.settings.game;
+  $('set-apikey').value=G.settings.apiKey||'';
+  om('m-settings');
 }
 function doSaveSettings(){
   G.settings.sb=parseFloat($('set-sb').value)||1;
@@ -1456,9 +1512,10 @@ function doSaveSettings(){
   G.settings.defaultBuyin=parseFloat($('set-bi').value)||10;
   G.settings.seats=parseInt($('set-seats').value)||10;
   G.settings.game=$('set-game').value;
+  G.settings.apiKey=$('set-apikey').value.trim();
   ['d-blinds','t-blinds'].forEach(id=>{const e=$(id);if(e)e.textContent=`$${G.settings.sb} / $${G.settings.bb}`;});
   ['d-game','t-game'].forEach(id=>{const e=$(id);if(e)e.textContent=G.settings.game;});
-  cm('m-settings');refresh();toast('Settings saved');
+  saveSession();cm('m-settings');refresh();toast('Settings saved');
 }
 
 /* ═══════════════════════════════════
@@ -1472,14 +1529,14 @@ function openEndNight(){
 }
 function doSaveEnd(){saveHistory();cm('m-end');resetGame();toast('Session saved — good game');}
 function doDiscardEnd(){cm('m-end');resetGame();toast('Table cleared');}
-function resetGame(){G.players=[];G.hands=[];G.feed=[];G.nextId=1;G.start=new Date();selPlayerId=null;selPlayer=null;refresh();}
+function resetGame(){G.players=[];G.hands=[];G.feed=[];G.nextId=1;G.start=new Date();selPlayerId=null;refresh();}
 function saveHistory(){
   const hist=JSON.parse(localStorage.getItem('moonsHistory')||'[]');
   hist.unshift({
     id:Date.now(),
     date:new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'}),
     time:clock(G.start),
-    players:G.players.map(p=>({name:p.name,buyin:ti(p),cashout:p.cashoutAmount,status:p.status})),
+    players:G.players.map(p=>({name:p.name,buyin:ti(p),cashout:p.cashoutAmount!=null?p.cashoutAmount:(p.status==='active'?p.currentStack:0),net:p.cashoutAmount!=null?p.cashoutAmount-ti(p):(p.status==='active'?p.currentStack-ti(p):-ti(p)),status:p.status})),
     handsCount:G.hands.length,
     totalPot:G.players.reduce((s,p)=>s+ti(p),0),
     biggestPot:G.hands.length?Math.max(...G.hands.map(h=>h.pot)):0
@@ -1498,12 +1555,18 @@ function renderHistory(){
   const tp=Object.keys(pc).sort((a,b)=>pc[b]-pc[a])[0]||'—';
   $('hs-top').textContent=tp.length>8?tp.slice(0,8)+'…':tp;
   $('hist-list').innerHTML=hist.map(s=>{
-    const wins=s.players.filter(p=>p.cashout!=null&&p.cashout>p.buyin).sort((a,b)=>(b.cashout-b.buyin)-(a.cashout-a.buyin));
-    const tw=wins[0];
-    return `<div class="hist-entry"><div class="hist-date">${s.date} · ${s.time}</div><div class="hist-title">${s.players.length} Players · ${money(s.totalPot)} Total</div><div class="hist-meta"><div class="hist-kv">${s.handsCount} hands</div>${s.biggestPot>0?`<div class="hist-kv">Biggest: <strong>${money(s.biggestPot)}</strong></div>`:''}${tw?`<div class="hist-kv">Winner: <strong>${tw.name} +${money(tw.cashout-tw.buyin)}</strong></div>`:''}</div></div>`;
+    const sorted=[...s.players].sort((a,b)=>(b.net||0)-(a.net||0));
+    const tw=sorted[0];
+    const topWinStr=tw&&(tw.net||0)>0?`Winner: <strong>${esc(tw.name)} +${money(tw.net)}</strong>`:'';
+    const plLines=sorted.map(p=>{
+      const nc=(p.net||0)>=0?'var(--pos)':'var(--neg)';
+      const ns=(p.net||0)>=0?'+'+money(p.net||0):'-'+money(Math.abs(p.net||0));
+      return `<span style="color:var(--i2)">${esc(p.name)}</span><span style="font-family:DM Mono,monospace;font-size:10px;color:${nc};margin-left:4px">${ns}</span>`;
+    }).map(l=>`<span style="margin-right:12px">${l}</span>`).join('');
+    return `<div class="hist-entry"><div class="hist-date">${s.date} · ${s.time}</div><div class="hist-title">${s.players.length} Players · ${money(s.totalPot)} Total${topWinStr?` · ${topWinStr}`:''}</div><div class="hist-meta"><div class="hist-kv">${s.handsCount} hands${s.biggestPot>0?` · Biggest: <strong>${money(s.biggestPot)}</strong>`:''}</div></div><div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--br);font-size:11px;display:flex;flex-wrap:wrap;gap:4px">${plLines}</div></div>`;
   }).join('');
 }
-function clearHistory(){if(!confirm('Clear all saved sessions?'))return;localStorage.removeItem('moonsHistory');renderHistory();toast('History cleared');}
+function clearHistory(){customConfirm('Clear all saved sessions?',()=>{localStorage.removeItem('moonsHistory');renderHistory();toast('History cleared');});}
 
 /* ═══════════════════════════════════
    POSTFLOP TRAINER
@@ -1753,12 +1816,17 @@ function trainerAction(action){
   fb.className='fb-analysis loading';
   $('feedback-box').classList.add('show');
 
-  getPostflopAI(TRAINER.currentSpot,action,correctAction,gtoEV,isCorrect,grade).then(txt=>{
-    fb.textContent=txt;fb.className='fb-analysis';
-  }).catch(()=>{
-    fb.textContent=reasoning+` You ${action==='fold'?'folded':'chose '+action}${isCorrect?' — correct!':' — the better line is to '+correctAction}.`;
+  if(!G.settings.apiKey){
+    fb.textContent=reasoning+` You ${action==='fold'?'folded':'chose '+action}${isCorrect?' — correct!':' — the better line is to '+correctAction}. Set API key in Settings for AI analysis.`;
     fb.className='fb-analysis';
-  });
+  }else{
+    getPostflopAI(TRAINER.currentSpot,action,correctAction,gtoEV,isCorrect,grade).then(txt=>{
+      fb.textContent=txt;fb.className='fb-analysis';
+    }).catch(()=>{
+      fb.textContent=reasoning+` You ${action==='fold'?'folded':'chose '+action}${isCorrect?' — correct!':' — the better line is to '+correctAction}.`;
+      fb.className='fb-analysis';
+    });
+  }
 
   updateTrainerStats();
   TRAINER.currentSpot=null;
@@ -1768,8 +1836,9 @@ async function getPostflopAI(spot,played,correct,ev,isCorrect,grade){
   const{heroHole,board,street,heroPos,villainPos,heroEval,draws,villainBet,potBB,bb,spr,potOdds,heroInPosition}=spot;
   const handStr=heroHole.map(c=>c.r+c.s).join('');
   const boardStr=board.map(c=>c.r+c.s).join(' ');
+  if(!G.settings.apiKey){throw new Error('No API key');}
   const resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',headers:{'Content-Type':'application/json'},
+    method:'POST',headers:{'Content-Type':'application/json','x-api-key':G.settings.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({
       model:'claude-sonnet-4-20250514',max_tokens:250,
       system:'You are a sharp poker coach. Analyze this postflop spot in 2-3 sentences. Be specific: mention hand strength, draws, position, pot odds, SPR, and whether betting/checking/calling/folding is correct and why. No fluff, no pleasantries.',
@@ -1827,6 +1896,7 @@ let rsz;window.addEventListener('resize',()=>{clearTimeout(rsz);rsz=setTimeout((
    INIT
 ═══════════════════════════════════ */
 buildBG();
+loadSession();
 buildDenomUI();
 setTimeout(renderDash,80);
 toast("Moon's — ready to deal");

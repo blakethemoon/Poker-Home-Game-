@@ -5514,11 +5514,10 @@ function exitDealerMode(){
 }
 
 function dealerStartSession(){
-  startSession(); // existing function
+  startSession(); // existing function — already calls renderDealerView()
   $('dealer-presession').style.display = 'none';
   $('dealer-player-list').style.display = 'block';
   $('dealer-dock').style.display = 'flex';
-  renderDealerView();
 }
 
 function renderDealerView(){

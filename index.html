@@ -1426,6 +1426,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 
             <!-- Manual dollar entry — always visible -->
             <div class="co-divider" style="margin-top:12px"><span class="co-divider-txt">or type total directly</span></div>
+            <div id="co-pot-remaining" style="display:none;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--cy);text-align:center;margin-bottom:7px;padding:4px 0;opacity:.85"></div>
             <input class="co-manual-inp" type="number" id="co-manual" placeholder="$0.00" min="0" step="0.10" oninput="recalcCO()">
           </div>
 
@@ -3181,13 +3182,13 @@ function renderCashOut(){
   const totalIn=G.players.reduce((s,p)=>s+ti(p),0);
   const cashedCount=G.players.filter(p=>p.status==='cashed').length;
   const co=$('co-summary');
-  const stillIn=parseFloat((totalIn-G.players.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0)).toFixed(2));
+  const stillIn=parseFloat((totalIn-G.players.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0)+(p.prevCashoutTotal||0),0)).toFixed(2));
   if(co) co.textContent=`${cashedCount}/${all.length} cashed · ${fmt(stillIn)} still in play`;
 
   cpl.innerHTML=all.sort((a,b)=>a.seat-b.seat).map(p=>{
     let badge='',cardCls='';
     if(p.status==='cashed'){
-      const net=(p.cashoutAmount||0)-ti(p);
+      const net=(p.cashoutAmount||0)+(p.prevCashoutTotal||0)-ti(p);
       badge=`<span class="co-status-badge ${net>=0?'csb-paid':'csb-collect'}">${net>0?'+'+(fmt(net)):net<0?'−'+fmt(Math.abs(net)):'Even'}</span>`;
       cardCls='cashed';
     }else if(p.status==='out'){
@@ -3276,6 +3277,7 @@ function populateCOForm(p){
     const corrSave= $('co-correction-save');
     if(corrWrap) corrWrap.style.display='none'; // reset correction panel
     if(corrInp)  corrInp.value='';
+    const remElC=$('co-pot-remaining');if(remElC)remElC.style.display='none';
     if(undoBtn)  undoBtn.onclick=()=>uncashPlayer(p.id);
     if(corrBtn)  corrBtn.onclick=()=>{
       if(!corrWrap) return;
@@ -3291,6 +3293,18 @@ function populateCOForm(p){
 
     if(cashedState)  cashedState.style.display='none';
     if(stackSection) stackSection.style.display='block';
+
+    // Remaining pot display + auto-fill for last active player
+    const _potTotalIn=G.players.reduce((s,q)=>s+ti(q),0);
+    const _potAlreadyCO=parseFloat(G.players.filter(q=>q.id!==p.id).reduce((s,q)=>s+(q.cashoutAmount||0)+(q.prevCashoutTotal||0),0).toFixed(2));
+    const _potRemaining=parseFloat((_potTotalIn-_potAlreadyCO).toFixed(2));
+    const remEl=$('co-pot-remaining');
+    if(remEl){remEl.style.display='block';remEl.textContent=`Pot remaining: ${fmt(_potRemaining)}`;}
+    const activePlayers=G.players.filter(q=>q.status==='active');
+    if(activePlayers.length===1&&activePlayers[0].id===p.id){
+      const manual=$('co-manual');
+      if(manual&&!manual.value){manual.value=_potRemaining.toFixed(2);setTimeout(recalcCO,0);}
+    }
 
     // Known stack quick-use button
     const stackEl=$('co-known-stack'), useBtn=$('co-use-stack-btn');
@@ -3626,7 +3640,7 @@ function saveCashedStack(id){
   const val=parseFloat(parseFloat(inp.value).toFixed(2));
   if(isNaN(val)||val<0){toast('Invalid amount');return;}
   const totalIn=G.players.reduce((s,q)=>s+ti(q),0);
-  const alreadyCashedOut=G.players.filter(q=>q.status==='cashed'&&q.id!==id).reduce((s,q)=>s+(q.cashoutAmount||0),0);
+  const alreadyCashedOut=G.players.filter(q=>q.status==='cashed'&&q.id!==id).reduce((s,q)=>s+(q.cashoutAmount||0)+(q.prevCashoutTotal||0),0);
   const remaining=parseFloat((totalIn-alreadyCashedOut).toFixed(2));
   if(val>remaining+0.01){toast(`⚠️ Only ${fmt(remaining)} in chips remain`);return;}
   const old=p.cashoutAmount||0;
@@ -3671,18 +3685,21 @@ function renderPayout(){
   if(!cashed.length){se.style.display='block';sl.innerHTML='';return;}
   se.style.display='none';
 
-  const winners=cashed.filter(p=>(p.cashoutAmount||0)>ti(p)).sort((a,b)=>((b.cashoutAmount||0)-ti(b))-((a.cashoutAmount||0)-ti(a)));
-  const losers =cashed.filter(p=>(p.cashoutAmount||0)<ti(p)).sort((a,b)=>((a.cashoutAmount||0)-ti(a))-((b.cashoutAmount||0)-ti(b)));
-  const evens  =cashed.filter(p=>(p.cashoutAmount||0)===ti(p));
+  // tot(p) = all money ever cashed out by this player (includes prior cashouts from re-entries)
+  const tot=p=>(p.cashoutAmount||0)+(p.prevCashoutTotal||0);
+
+  const winners=cashed.filter(p=>tot(p)>ti(p)).sort((a,b)=>(tot(b)-ti(b))-(tot(a)-ti(a)));
+  const losers =cashed.filter(p=>tot(p)<ti(p)).sort((a,b)=>(tot(a)-ti(a))-(tot(b)-ti(b)));
+  const evens  =cashed.filter(p=>tot(p)===ti(p));
 
   const makeRow=(p,label,color,actionWord)=>{
-    const net=(p.cashoutAmount||0)-ti(p);
+    const net=tot(p)-ti(p);
     const done=!!settleChecked[p.id];
     const absNet=Math.abs(net);
     return `<div class="settle-row" id="sr-${p.id}" style="${done?'opacity:.5':''}">
       <div style="flex:1">
         <div class="settle-name">${p.name}</div>
-        <div style="font-size:11px;color:var(--i3);margin-top:2px">In: ${fmt(ti(p))} · Out: ${fmt(p.cashoutAmount||0)}</div>
+        <div style="font-size:11px;color:var(--i3);margin-top:2px">In: ${fmt(ti(p))} · Out: ${fmt(tot(p))}</div>
       </div>
       <div style="text-align:right;margin-right:10px">
         <div class="settle-amt" style="color:${color}">${net===0?'Even':absNet>0?fmt(absNet):''}</div>
@@ -3707,7 +3724,7 @@ function renderPayout(){
 
   // Session closed summary with archive option
   if(sessionClosed){
-    const totalWon=winners.reduce((s,p)=>s+((p.cashoutAmount||0)-ti(p)),0);
+    const totalWon=winners.reduce((s,p)=>s+(tot(p)-ti(p)),0);
     html+=`<div style="margin-top:14px;padding:11px;background:var(--ag3);border:1px solid rgba(57,255,20,.18);border-radius:var(--r6);text-align:center">
       <div style="font-size:11px;font-weight:700;color:var(--ag);margin-bottom:3px">Session Complete 🏁</div>
       <div style="font-size:10px;color:var(--i3)">${cashed.length} players · ${fmt(totalWon)} total winnings</div>
@@ -3748,7 +3765,7 @@ function closeSession(){
   // Only enforce balance check when all players have settled
   if(!active.length){
     const totalIn=all.reduce((s,p)=>s+ti(p),0);
-    const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
+    const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0)+(p.prevCashoutTotal||0),0);
     const diff=parseFloat((cashedOut-totalIn).toFixed(2));
     if(Math.abs(diff)>0.02){
       const dir=diff>0?'over by':'short by';
@@ -3770,7 +3787,7 @@ function archiveAndClear(){
   // Check that money in = money out before archiving
   const all=G.players.filter(p=>p.status==='active'||p.status==='cashed'||p.status==='out');
   const totalIn=all.reduce((s,p)=>s+ti(p),0);
-  const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
+  const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0)+(p.prevCashoutTotal||0),0);
   const activeStack=all.filter(p=>p.status==='active').reduce((s,p)=>s+p.currentStack,0);
   const diff=Math.abs((cashedOut+activeStack)-totalIn);
   const activeCt=G.players.filter(p=>p.status==='active').length;

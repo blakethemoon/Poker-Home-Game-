@@ -3112,36 +3112,47 @@ function renderBalanceBar(){
   bar.style.display='block';
 
   const totalIn=all.reduce((s,p)=>s+ti(p),0);
-  const cashedOut=all.filter(p=>p.status==='cashed'||p.status==='out').reduce((s,p)=>s+(p.cashoutAmount||0),0);
-  const activeStack=all.filter(p=>p.status==='active').reduce((s,p)=>s+p.currentStack,0);
-  const accountedFor=cashedOut+activeStack;
-  const diff=accountedFor-totalIn; // should be 0 if math checks out
+  const cashedOut=parseFloat(all.reduce((s,p)=>s+(p.cashoutAmount||0)+(p.prevCashoutTotal||0),0).toFixed(2));
+  const activeCt=all.filter(p=>p.status==='active').length;
+  const stillInPlay=parseFloat((totalIn-cashedOut).toFixed(2));
 
   $('co-bal-in').textContent=fmt(totalIn);
   $('co-bal-out').textContent=fmt(cashedOut);
-  $('co-bal-active').textContent=fmt(activeStack);
+  $('co-bal-active').textContent=fmt(Math.max(stillInPlay,0));
 
   const diffEl=$('co-bal-diff');
   const statEl=$('co-bal-status');
   const fillEl=$('co-bal-fill');
 
-  const balanced=Math.abs(diff)<0.02;
-  if(balanced){
-    diffEl.textContent='✓ Balanced';
-    diffEl.style.color='var(--ag)';
-    diffEl.style.fontSize='16px';
-    statEl.textContent='money in = money out';
-    statEl.style.color='var(--ag)';
-    if(fillEl){fillEl.style.width='100%';fillEl.style.background='var(--ag)';}
-  } else {
-    const sign=diff>0?'+':'-';
-    diffEl.textContent=sign+fmt(Math.abs(diff));
-    diffEl.style.color=diff>0?'var(--ag)':'var(--neg)';
+  if(activeCt>0){
+    // Players still playing — show remaining chips, not a diff
+    diffEl.textContent=fmt(stillInPlay);
+    diffEl.style.color='var(--cy)';
     diffEl.style.fontSize='24px';
-    statEl.textContent=diff>0?'more cashed than bought in':'unaccounted chips';
-    statEl.style.color=diff>0?'var(--ag)':'var(--neg)';
-    const pct=totalIn>0?Math.min(accountedFor/totalIn,1):0;
-    if(fillEl){fillEl.style.width=(pct*100)+'%';fillEl.style.background=diff>0?'var(--ag)':'var(--neg)';}
+    statEl.textContent=`${activeCt} player${activeCt!==1?'s':''} still playing`;
+    statEl.style.color='var(--i3)';
+    const pct=totalIn>0?Math.min(cashedOut/totalIn,1):0;
+    if(fillEl){fillEl.style.width=(pct*100)+'%';fillEl.style.background='var(--cy)';}
+  } else {
+    // All settled — check true balance
+    const diff=parseFloat((cashedOut-totalIn).toFixed(2));
+    if(Math.abs(diff)<0.02){
+      diffEl.textContent='✓ Balanced';
+      diffEl.style.color='var(--ag)';
+      diffEl.style.fontSize='16px';
+      statEl.textContent='money in = money out';
+      statEl.style.color='var(--ag)';
+      if(fillEl){fillEl.style.width='100%';fillEl.style.background='var(--ag)';}
+    } else {
+      const sign=diff>0?'+':'-';
+      diffEl.textContent=sign+fmt(Math.abs(diff));
+      diffEl.style.color=diff>0?'var(--ag)':'var(--neg)';
+      diffEl.style.fontSize='24px';
+      statEl.textContent=diff>0?'more cashed than bought in':'unaccounted chips';
+      statEl.style.color=diff>0?'var(--ag)':'var(--neg)';
+      const pct=totalIn>0?Math.min(cashedOut/totalIn,1):0;
+      if(fillEl){fillEl.style.width=(pct*100)+'%';fillEl.style.background=diff>0?'var(--ag)':'var(--neg)';}
+    }
   }
 }
 
@@ -3574,9 +3585,11 @@ function confirmCO(){
     }
   }
   val=parseFloat(val.toFixed(2));
+  if(isNaN(val)||val<0){toast('Enter a valid amount');return;}
   // Conservation check: total cashouts can't exceed total buy-ins
+  // Include prevCashoutTotal so re-entrants' prior cashouts stay accounted for
   const _totalIn=G.players.reduce((s,q)=>s+ti(q),0);
-  const _alreadyCO=G.players.filter(q=>q.status==='cashed'&&q.id!==p.id).reduce((s,q)=>s+(q.cashoutAmount||0),0);
+  const _alreadyCO=parseFloat(G.players.filter(q=>q.id!==p.id).reduce((s,q)=>s+(q.cashoutAmount||0)+(q.prevCashoutTotal||0),0).toFixed(2));
   const _remaining=parseFloat((_totalIn-_alreadyCO).toFixed(2));
   if(val>_remaining+0.01){toast(`⚠️ Only ${fmt(_remaining)} in chips remain — can't cash out ${fmt(val)}`);return;}
   const net=parseFloat((val-ti(p)).toFixed(2));
@@ -5768,6 +5781,7 @@ function confirmRebuySheetReentry(){
   if(isNaN(amt)||amt<=0){ toast('Enter a valid amount'); return; }
   p.addOns.push({amount:amt, type:'reentry', time:new Date()});
   p.addOnTotal += amt;
+  p.prevCashoutTotal = (p.prevCashoutTotal||0) + (p.cashoutAmount||0); // preserve prior cashout
   p.cashoutAmount = null;
   p.currentStack = amt;
   p.status = 'active';
@@ -5869,10 +5883,12 @@ function confirmCOSheet(){
   const val = parseFloat($('co-sheet-input').value);
   if(isNaN(val)||val<0){ toast('Enter a valid amount'); return; }
   // Conservation check: total cashouts can't exceed total buy-ins
+  // Include prevCashoutTotal so re-entrants' prior cashouts stay accounted for
   const totalIn = G.players.reduce((s,q)=>s+ti(q),0);
-  const alreadyCashedOut = G.players
-    .filter(q=>(q.status==='cashed')&&q.id!==p.id)
-    .reduce((s,q)=>s+(q.cashoutAmount||0),0);
+  const alreadyCashedOut = parseFloat(G.players
+    .filter(q=>q.id!==p.id)
+    .reduce((s,q)=>s+(q.cashoutAmount||0)+(q.prevCashoutTotal||0),0)
+    .toFixed(2));
   const remainingChips = parseFloat((totalIn - alreadyCashedOut).toFixed(2));
   if(val > remainingChips + 0.01){
     toast(`⚠️ Only ${fmt(remainingChips)} in chips remain — can't cash out ${fmt(val)}`);

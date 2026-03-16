@@ -333,7 +333,7 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .co-player-list{display:flex;flex-direction:column;gap:6px;max-height:44vh;overflow-y:auto;padding-right:3px}
 .co-player-card{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:11px 14px;cursor:pointer;transition:all .12s;touch-action:manipulation;min-height:52px;display:flex;align-items:center}
 .co-player-card:hover{border-color:var(--brc);background:var(--s3)}
-.co-player-card.selected{border-color:var(--brc);background:var(--cy3)}
+.co-player-card.selected{border-color:var(--cy);background:var(--cy3);border-left:3px solid var(--cy);box-shadow:0 0 0 1px rgba(0,212,255,.18)}
 .co-player-card.cashed{border-color:rgba(57,255,20,.2);background:var(--ag3)}
 .co-player-card.owes{border-color:rgba(255,69,96,.2)}
 .co-row{display:flex;align-items:center;gap:8px;width:100%}
@@ -3242,11 +3242,14 @@ function renderCashOut(){
       badge=`<span class="co-status-badge csb-pending">Playing</span>`;
     }
     const isSel = coSelectedId===p.id;
+    const activeBadge = isSel
+      ? `<span class="co-status-badge" style="background:rgba(0,212,255,.18);color:var(--cy);border:1px solid var(--cy);font-weight:800;letter-spacing:.06em">▶ CASHING</span>`
+      : badge;
     return `<div class="co-player-card ${cardCls}${isSel?' selected':''}" onclick="selectCOPlayer(${p.id})">
       <div class="co-row">
-        <span class="co-name">${p.name}</span>
+        <span class="co-name" style="${isSel?'color:var(--cy);font-weight:700':''}">${p.name}</span>
         <span style="font-size:10px;color:var(--i3);white-space:nowrap"><span class="mono au">${fmt(ti(p))}</span>${p.status==='active'?`→<span class="mono cy">${fmt(p.currentStack)}</span>`:p.status==='cashed'?`→<span class="mono">${fmt(p.cashoutAmount||0)}</span>`:''}</span>
-        ${badge}
+        ${activeBadge}
       </div>
     </div>`;
   }).join('');
@@ -3595,12 +3598,22 @@ function recalcCO(chipTot){
   if(!res||isNaN(val))return;
   res.style.display='block';
   const ne=$('co-net');
+  const ct=$('co-chip-total');if(ct&&chipTot!==undefined)ct.textContent=fmt(val);
+  // Check against pot remaining — catch entries that exceed what's in play
+  const _potRem=parseFloat((G.players.reduce((s,q)=>s+ti(q),0)-parseFloat(G.players.filter(q=>q.id!==p.id).reduce((s,q)=>s+(q.cashoutAmount||0)+(q.prevCashoutTotal||0),0).toFixed(2))).toFixed(2));
+  if(val > _potRem + 0.01){
+    ne.textContent=`⚠️ Over by ${fmt(parseFloat((val-_potRem).toFixed(2)))}`;
+    ne.className='co-net neg';
+    $('co-sub').textContent=`Only ${fmt(_potRem)} in pot`;
+    $('co-detail').textContent=`Entered ${fmt(val)} · Max ${fmt(_potRem)}`;
+    ['co-confirm-win','co-confirm-loss','co-confirm-neutral'].forEach(i=>{const el=$(i);if(el)el.style.display='none';});
+    p._pendingCOValue=val;
+    return;
+  }
   ne.textContent=net===0?'$0.00':signed(net);
   ne.className='co-net '+(net>0?'pos':net<0?'neg':'');
   $('co-sub').textContent=net>0?'Profit 🏆':net<0?'Loss':'Break Even';
   $('co-detail').textContent=`Final value ${fmt(val)} · Invested ${fmt(totalInvested)}${p.addOns.length?` · ${p.addOns.length} add-on${p.addOns.length!==1?'s':''}` :''}`;
-  // Update chip total display to reflect what we're using
-  const ct=$('co-chip-total');if(ct&&chipTot!==undefined)ct.textContent=fmt(val);
   // Show correct confirm button
   if(p.status!=='cashed'){
     $('co-confirm-win').style.display  = net>0  ? 'block' : 'none';

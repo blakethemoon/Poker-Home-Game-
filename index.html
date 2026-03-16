@@ -12,72 +12,85 @@
 <title>Moon's Home Game</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════
+   MOON'S HOME GAME — Professional Dark Theme v2
+   3-Judge System: UX clarity · Visual premium · Mobile-first
+═══════════════════════════════════════ */
 :root{
-  --bg:#06040f;--s1:#0d0a1a;--s2:#131020;--s3:#1a1628;--s4:#211d32;--s5:#2a2540;
-  --i0:#fff;--i1:#e8e2ff;--i2:#9b91c4;--i3:#4e4670;--i4:#2c2848;
-  --cy:#00d4ff;--cy2:#00a8cc;--cy3:rgba(0,212,255,.12);
-  --mg:#ff006e;--mg2:#cc0057;--mg3:rgba(255,0,110,.1);
-  --ag:#39ff14;--ag2:#2acc0f;--ag3:rgba(57,255,20,.1);
-  --au:#e8b84b;--au2:#c49430;--au3:rgba(232,184,75,.1);
-  --neg:#ff4560;--neg3:rgba(255,69,96,.1);
-  --br:rgba(255,255,255,.06);--brc:rgba(0,212,255,.18);--brm:rgba(255,0,110,.18);
+  /* Backgrounds */
+  --bg:#0d0d12;--s1:#141419;--s2:#1b1b22;--s3:#22222b;--s4:#2a2a35;--s5:#31313e;
+  /* Text scale */
+  --i0:#f0f0f6;--i1:#c8c8de;--i2:#8888a8;--i3:#525270;--i4:#323248;
+  /* Blue — info, active, focus (replaces neon cyan) */
+  --cy:#60a5fa;--cy2:#3b82f6;--cy3:rgba(96,165,250,.1);
+  /* Purple — oracle, special */
+  --mg:#a855f7;--mg2:#9333ea;--mg3:rgba(168,85,247,.1);
+  /* Green — wins, primary CTA, money out */
+  --ag:#22c55e;--ag2:#16a34a;--ag3:rgba(34,197,94,.1);
+  /* Amber — money in, add-ons */
+  --au:#f59e0b;--au2:#d97706;--au3:rgba(245,158,11,.1);
+  /* Red — losses, bust, destructive */
+  --neg:#ef4444;--neg3:rgba(239,68,68,.1);
+  /* Borders */
+  --br:rgba(255,255,255,.08);--brc:rgba(96,165,250,.22);--brm:rgba(168,85,247,.22);
+  /* Radius tokens */
   --r4:4px;--r6:6px;--r8:8px;--r10:10px;--r12:12px;--r16:16px;
-  --glow-cy:0 0 20px rgba(0,212,255,.35),0 0 40px rgba(0,212,255,.15);
-  --glow-mg:0 0 20px rgba(255,0,110,.35),0 0 40px rgba(255,0,110,.15);
-  --glow-ag:0 0 20px rgba(57,255,20,.35),0 0 40px rgba(57,255,20,.15);
+  /* Subtle shadow — not neon */
+  --glow-cy:0 0 12px rgba(96,165,250,.15);
+  --glow-mg:0 0 12px rgba(168,85,247,.15);
+  --glow-ag:0 0 12px rgba(34,197,94,.15);
+  /* Aliases for dealer mode */
   --card:var(--s1);--bd:var(--br);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.5}
+body{background:var(--bg);color:var(--i1);font-family:-apple-system,'Inter','Segoe UI',system-ui,sans-serif;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;line-height:1.5}
 
-/* ── BG ── */
+/* ── BG — clean, no neon orbs ── */
 #bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
-.orb{position:absolute;border-radius:50%;animation:drift var(--t,22s) ease-in-out infinite alternate;will-change:transform;mix-blend-mode:screen}
-@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(var(--dx,20px),var(--dy,-15px)) scale(1.08)}}
-.grid-overlay{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.025) 1px,transparent 1px);background-size:48px 48px}
-.scanline{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);pointer-events:none}
+#bg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 10%,rgba(96,165,250,.03),transparent 50%),radial-gradient(ellipse at 85% 90%,rgba(34,197,94,.025),transparent 50%)}
+.orb,.grid-overlay,.scanline{display:none}
 
 /* ── SHELL ── */
 #app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100dvh}
 
-/* ── PULSE KEYFRAMES ── */
+/* ── KEYFRAMES — clean, purposeful only ── */
 @keyframes sweep{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes logopulse{0%,100%{box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 18px rgba(168,85,247,.45)}50%{box-shadow:0 0 0 3px rgba(168,85,247,.95),0 0 36px rgba(168,85,247,.75),0 0 70px rgba(168,85,247,.15)}}
-@keyframes nameglow{0%,100%{text-shadow:0 0 28px rgba(0,212,255,.25)}50%{text-shadow:0 0 50px rgba(0,212,255,.75),0 0 90px rgba(0,212,255,.12)}}
-@keyframes navglow{0%,100%{text-shadow:0 0 8px rgba(0,212,255,.35)}50%{text-shadow:0 0 20px rgba(0,212,255,.95),0 0 40px rgba(0,212,255,.2)}}
-@keyframes liveglow{0%,100%{box-shadow:none}50%{box-shadow:0 0 16px rgba(57,255,20,.25),0 0 32px rgba(57,255,20,.08)}}
-@keyframes cyglow{0%,100%{text-shadow:0 0 12px rgba(0,212,255,.4)}50%{text-shadow:0 0 28px rgba(0,212,255,.95),0 0 56px rgba(0,212,255,.18)}}
-@keyframes agglow{0%,100%{text-shadow:0 0 12px rgba(57,255,20,.35)}50%{text-shadow:0 0 28px rgba(57,255,20,.9),0 0 56px rgba(57,255,20,.14)}}
-@keyframes mgglow{0%,100%{text-shadow:0 0 12px rgba(255,0,110,.3)}50%{text-shadow:0 0 28px rgba(255,0,110,.85),0 0 56px rgba(255,0,110,.12)}}
-@keyframes auglow{0%,100%{text-shadow:0 0 10px rgba(232,184,75,.2)}50%{text-shadow:0 0 22px rgba(232,184,75,.7),0 0 44px rgba(232,184,75,.1)}}
-@keyframes avatarpulse{0%,100%{box-shadow:0 0 10px rgba(0,212,255,.25)}50%{box-shadow:0 0 24px rgba(0,212,255,.7),0 0 48px rgba(0,212,255,.12)}}
-@keyframes tilebreathe{0%,100%{background:var(--s2)}50%{background:rgba(0,212,255,.03)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+@keyframes logopulse{0%,100%{box-shadow:0 0 0 1px rgba(168,85,247,.3)}50%{box-shadow:0 0 0 2px rgba(168,85,247,.5)}}
+/* Stubs — keep referenced names to prevent JS errors, but no-op */
+@keyframes nameglow{from{opacity:1}to{opacity:1}}
+@keyframes navglow{from{opacity:1}to{opacity:1}}
+@keyframes liveglow{from{opacity:1}to{opacity:1}}
+@keyframes cyglow{from{opacity:1}to{opacity:1}}
+@keyframes agglow{from{opacity:1}to{opacity:1}}
+@keyframes mgglow{from{opacity:1}to{opacity:1}}
+@keyframes auglow{from{opacity:1}to{opacity:1}}
+@keyframes avatarpulse{from{opacity:1}to{opacity:1}}
+@keyframes tilebreathe{from{opacity:1}to{opacity:1}}
 @keyframes cardline{0%{background-position:-200% 0}100%{background-position:200% 0}}
-@keyframes wmpulse{0%,100%{opacity:.3}50%{opacity:.65}}
+@keyframes wmpulse{from{opacity:1}to{opacity:1}}
 
 /* ── TOPBAR ── */
-.topbar{height:64px;background:rgba(6,4,15,.92);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 22px;gap:16px;position:sticky;top:0;z-index:300;flex-shrink:0}
-.topbar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cy),transparent);background-size:200%;opacity:.45;animation:sweep 5s linear infinite}
-.wm{display:flex;align-items:center;gap:11px;margin-right:auto}
-.wm-logo{flex-shrink:0;height:48px;width:48px;border-radius:12px;object-fit:contain;background:rgba(168,85,247,.08);box-shadow:0 0 0 2px rgba(168,85,247,.5),0 0 18px rgba(168,85,247,.5);padding:3px;animation:logopulse 2.8s ease-in-out infinite}
-.wm-name{font-family:'Instrument Serif',serif;font-size:24px;color:var(--i0);letter-spacing:.01em;line-height:1;animation:nameglow 3.5s ease-in-out infinite}
-.wm-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:var(--glow-cy);flex-shrink:0;animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(1.4)}}
-.wm-sub{font-size:10px;color:var(--i3);letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+.topbar{height:60px;background:rgba(13,13,18,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--br);display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:300;flex-shrink:0}
+.wm{display:flex;align-items:center;gap:10px;margin-right:auto}
+.wm-logo{flex-shrink:0;height:36px;width:36px;border-radius:10px;object-fit:contain;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.25);padding:4px}
+.wm-name{font-size:20px;font-weight:700;color:var(--i0);letter-spacing:-.01em;line-height:1}
+.wm-dot{display:none}
+.wm-sub{font-size:10px;color:var(--i3);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
 .hs{text-align:right}
-.hs-v{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--i0);line-height:1}
-.hs-l{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--i3);margin-top:3px}
-.live-badge{display:flex;align-items:center;gap:6px;border:1px solid rgba(57,255,20,.25);background:rgba(57,255,20,.06);padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ag);animation:liveglow 2s ease-in-out infinite}
-.ldot{width:5px;height:5px;border-radius:50%;background:var(--ag);box-shadow:var(--glow-ag);animation:blink 2s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.hs-v{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--i0);line-height:1}
+.hs-l{font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--i3);margin-top:2px}
+.live-badge{display:flex;align-items:center;gap:5px;border:1px solid rgba(34,197,94,.2);background:rgba(34,197,94,.06);padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ag)}
+.ldot{width:6px;height:6px;border-radius:50%;background:var(--ag);animation:blink 2s ease-in-out infinite;flex-shrink:0}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
 /* ── NAV ── */
-.nav{background:rgba(6,4,15,.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--br);display:flex;overflow-x:auto;padding:0 18px;scrollbar-width:none;flex-shrink:0;position:sticky;top:64px;z-index:200}
+.nav{background:rgba(13,13,18,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--br);display:flex;overflow-x:auto;padding:0 16px;scrollbar-width:none;flex-shrink:0;position:sticky;top:60px;z-index:200}
 .nav::-webkit-scrollbar{display:none}
-.nvb{flex-shrink:0;padding:16px 20px;background:none;border:none;border-bottom:2px solid transparent;color:var(--i3);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:color .14s,border-color .14s,text-shadow .14s;touch-action:manipulation}
+.nvb{flex-shrink:0;padding:14px 16px;background:none;border:none;border-bottom:2px solid transparent;color:var(--i3);font-family:inherit;font-size:13px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:color .14s,border-color .14s;touch-action:manipulation}
 .nvb:hover{color:var(--i2)}
-.nvb.on{color:var(--cy);border-bottom-color:var(--cy);animation:navglow 2.5s ease-in-out infinite}
+.nvb.on{color:var(--cy);border-bottom-color:var(--cy)}
 
 /* ── CONTENT ── */
 .content{flex:1;padding:22px;max-width:1280px;width:100%;margin:0 auto}
@@ -86,17 +99,13 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 @keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── CARD ── */
-.card{background:var(--s1);border:1px solid var(--br);border-radius:var(--r12);padding:24px;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.14),transparent);background-size:200%;pointer-events:none;animation:cardline 8s linear infinite}
-.card-cyan{border-color:var(--brc);box-shadow:inset 0 0 30px rgba(0,212,255,.04);animation:cycardbreathe 4s ease-in-out infinite}
-.card-magenta{border-color:var(--brm);box-shadow:inset 0 0 30px rgba(255,0,110,.04);animation:mgcardbreathe 4s ease-in-out infinite}
-@keyframes cycardbreathe{0%,100%{box-shadow:inset 0 0 30px rgba(0,212,255,.04)}50%{box-shadow:inset 0 0 40px rgba(0,212,255,.1),0 0 20px rgba(0,212,255,.06)}}
-@keyframes mgcardbreathe{0%,100%{box-shadow:inset 0 0 30px rgba(255,0,110,.04)}50%{box-shadow:inset 0 0 40px rgba(255,0,110,.1),0 0 20px rgba(255,0,110,.06)}}
-.card-cyan::before{background:linear-gradient(90deg,transparent,rgba(0,212,255,.45),transparent);background-size:200%;animation:cardline 5s linear infinite}
-.card-magenta::before{background:linear-gradient(90deg,transparent,rgba(255,0,110,.45),transparent);background-size:200%;animation:cardline 5s linear infinite 1s}
-.chd{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.ctitle{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3)}
+.card{background:var(--s1);border:1px solid var(--br);border-radius:var(--r12);padding:22px;position:relative;overflow:hidden}
+.card-cyan{border-color:var(--brc)}
+.card-magenta{border-color:var(--brm)}
+.chd{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.ctitle{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--i3)}
 .ctitle.cy{color:var(--cy)}
+.ctitle.mg{color:var(--mg)}
 
 /* ── GRID HELPERS ── */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
@@ -112,21 +121,17 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 .mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}
 
 /* ── STAT TILES ── */
-.stile{background:var(--s2);border:1px solid var(--br);border-radius:var(--r10);padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s;animation:tilebreathe 4s ease-in-out infinite}
-.stile:nth-child(2){animation-delay:.8s}.stile:nth-child(3){animation-delay:1.6s}
+.stile{background:var(--s2);border:1px solid var(--br);border-radius:var(--r10);padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
 .stile:hover{border-color:var(--brc)}
 .stile-v{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;color:var(--i0);line-height:1;margin-bottom:7px}
-.stile-v.cy{color:var(--cy);animation:cyglow 3s ease-in-out infinite}
-.stile-v.mg{color:var(--mg);animation:mgglow 3s ease-in-out infinite .5s}
-.stile-v.ag{color:var(--ag);animation:agglow 3s ease-in-out infinite 1s}
-.stile-v.au{color:var(--au);animation:auglow 3s ease-in-out infinite 1.5s}
+.stile-v.cy{color:var(--cy)}.stile-v.mg{color:var(--mg)}.stile-v.ag{color:var(--ag)}.stile-v.au{color:var(--au)}
 .stile-v.neg{color:var(--neg)}
 .stile-l{font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--i3)}
 
 /* ── FORMS ── */
 .lbl{display:block;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--i3);margin-bottom:8px}
 .inp,.sel{width:100%;background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);padding:13px 16px;color:var(--i1);font-family:'Syne',sans-serif;font-size:15px;outline:none;transition:border-color .12s,box-shadow .12s;-webkit-appearance:none;appearance:none;caret-color:var(--cy)}
-.inp::placeholder{color:var(--i4)}.inp:focus,.sel:focus{border-color:var(--brc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.inp::placeholder{color:var(--i4)}.inp:focus,.sel:focus{border-color:var(--brc);box-shadow:0 0 0 3px var(--cy3)}
 .sel{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%234e4670' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer}
 .sel option{background:#13102020}.fg{margin-bottom:16px}
 .inp-sm{padding:10px 13px;font-size:14px}.inp-xs{padding:7px 10px;font-size:13px;border-radius:var(--r6)}
@@ -146,8 +151,8 @@ body{background:var(--bg);color:var(--i1);font-family:'Syne',sans-serif;min-heig
 .btn-neg:hover{background:rgba(255,69,96,.16)}
 .btn-ghost{background:transparent;border-color:transparent;color:var(--i3)}
 .btn-ghost:hover{color:var(--i2);background:var(--s2);border-color:var(--br)}
-.btn-solid-cy{background:var(--cy);border-color:var(--cy);color:#04080a;font-weight:700}
-.btn-solid-cy:hover{background:#1ae0ff;box-shadow:var(--glow-cy)}
+.btn-solid-cy{background:var(--ag);border-color:var(--ag);color:#fff;font-weight:700}
+.btn-solid-cy:hover{background:var(--ag2);border-color:var(--ag2);box-shadow:var(--glow-ag)}
 .btn-sm{padding:9px 18px;font-size:13px}.btn-xs{padding:7px 13px;font-size:12px;border-radius:var(--r6)}.btn-full{width:100%}
 
 /* ── TABLE ── */
@@ -350,8 +355,8 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .co-stack-section{background:var(--s2);border:1px solid var(--brc);border-radius:var(--r10);padding:14px;margin-bottom:12px;position:relative;overflow:hidden}
 .co-stack-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cy),transparent)}
 .co-stack-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cy);margin-bottom:10px}
-.co-known-btn{width:100%;padding:13px 14px;background:rgba(0,212,255,.06);border:1px dashed rgba(0,212,255,.3);border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:all .12s;color:var(--i1);touch-action:manipulation;min-height:52px}
-.co-known-btn:hover{background:rgba(0,212,255,.12);border-color:var(--cy)}
+.co-known-btn{width:100%;padding:13px 14px;background:var(--cy3);border:1px dashed var(--brc);border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;transition:all .12s;color:var(--i1);touch-action:manipulation;min-height:52px}
+.co-known-btn:hover{background:rgba(96,165,250,.18);border-color:var(--cy)}
 .co-known-btn-label{font-size:11px;color:var(--i3);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
 .co-known-btn-val{font-family:'DM Mono',monospace;font-size:17px;font-weight:500;color:var(--cy)}
 .co-divider{display:flex;align-items:center;gap:8px;margin:10px 0}
@@ -371,7 +376,7 @@ tbody tr:hover td{background:rgba(0,212,255,.03)}
 .co-chip-cnt-inp::-webkit-outer-spin-button,.co-chip-cnt-inp::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .co-chip-cnt-inp:focus{background:rgba(0,212,255,.06);color:var(--cy)}
 .co-manual-inp{width:100%;padding:10px 14px;background:var(--s1);border:1px solid var(--br);border-radius:var(--r8);color:var(--i0);font-family:'DM Mono',monospace;font-size:20px;font-weight:500;outline:none;text-align:center;caret-color:var(--cy);transition:border-color .14s}
-.co-manual-inp:focus{border-color:var(--brc);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.co-manual-inp:focus{border-color:var(--brc);box-shadow:0 0 0 3px var(--cy3)}
 .co-manual-inp::placeholder{color:var(--i4);font-size:15px}
 .co-txn-compact{background:var(--s2);border:1px solid var(--br);border-radius:var(--r8);overflow:hidden;margin-bottom:10px}
 .co-txn-toggle{width:100%;padding:9px 13px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;cursor:pointer;color:var(--i3);font-family:'Syne',sans-serif}
@@ -695,9 +700,9 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
 .dock-btn:active { background: var(--s2); }
 .dock-btn .dock-icon { font-size: 20px; line-height: 1; }
 .dock-btn.primary {
-  background: var(--cy);
-  border-color: var(--cy);
-  color: #000;
+  background: var(--ag);
+  border-color: var(--ag);
+  color: #fff;
   font-weight: 800;
 }
 .dock-btn.primary:active { filter: brightness(.88); }
@@ -1383,16 +1388,23 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
               <div class="co-sub" id="co-cashed-sub" style="margin-top:5px"></div>
               <div style="font-size:10px;color:var(--i4);margin-top:4px" id="co-cashed-detail"></div>
             </div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-ghost btn-sm" style="flex:1" id="co-undo-btn">↩ Undo Cash Out</button>
-              <button class="btn btn-cy btn-sm" style="flex:1" id="co-correct-btn">✎ Correct Amount</button>
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <button class="btn btn-ghost btn-sm" style="flex:1" id="co-undo-btn">↩ Undo</button>
+              <button class="btn btn-cy btn-sm" style="flex:1" id="co-correct-btn">✎ Correct</button>
             </div>
+            <button class="btn btn-au btn-sm btn-full" id="co-reenter-btn" style="font-weight:700">↩ Re-Enter Game</button>
             <!-- Correction input — hidden until "Correct" is clicked -->
             <div id="co-correction-wrap" style="display:none;margin-top:10px">
               <input class="co-manual-inp" type="number" id="co-correction-inp" placeholder="$0.00" min="0" step="0.10" style="margin-bottom:8px">
-              <button class="btn btn-ag btn-full" id="co-correction-save">💾 Save Correction</button>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-ag" style="flex:1" id="co-correction-save">💾 Save</button>
+                <button class="btn btn-ghost" onclick="$('co-correction-wrap').style.display='none'">Cancel</button>
+              </div>
             </div>
           </div>
+
+          <!-- Player quick actions: add-on, chips, bust (active only) — ABOVE entry form -->
+          <div id="co-player-actions" style="display:none;margin-bottom:14px"></div>
 
           <!-- ── STEP: Enter Final Stack (active players only) ── -->
           <div id="co-stack-section" class="co-stack-section">
@@ -1442,14 +1454,12 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
             <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">✓ Confirm Payout</button>
           </div>
           <div id="co-confirm-loss" style="display:none;margin-top:10px">
-            <button class="btn btn-neg btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Loss &amp; Settle</button>
+            <button class="btn btn-neg btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Loss</button>
           </div>
           <div id="co-confirm-neutral" style="display:none;margin-top:10px">
             <button class="btn btn-solid-cy btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="confirmCO()">Confirm Cash Out</button>
           </div>
 
-          <!-- Player quick actions: add-on, chips, bust (active only) -->
-          <div id="co-player-actions" style="display:none;margin-top:14px"></div>
         </div>
       </div>
 
@@ -1469,7 +1479,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
         <div style="font-size:15px;font-weight:700;color:var(--ag);margin-bottom:4px">Everyone's cashed out</div>
         <div style="font-size:12px;color:var(--i3);margin-bottom:16px">Ready to wrap up the night?</div>
         <button class="btn btn-ag btn-full" style="font-size:14px;padding:14px;font-weight:700;touch-action:manipulation" onclick="archiveAndClear()">Archive &amp; Clear Table</button>
-        <button class="btn btn-ghost btn-full" style="font-size:13px;padding:12px;margin-top:8px;touch-action:manipulation" onclick="keepPlayingCO()">Keep Playing</button>
+        <button class="btn btn-ghost btn-full" style="font-size:13px;padding:12px;margin-top:8px;touch-action:manipulation" onclick="keepPlayingCO()">Continue Game</button>
       </div>
     </div>
   </div>
@@ -1878,13 +1888,13 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <datalist id="roster-datalist"></datalist>
     </div>
     <div class="fg"><label class="lbl">Buy-In ($)</label><input class="inp" type="number" id="ap-buyin" placeholder="10" min="0.10" step="0.10"></div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
-      <span class="qa-chip" onclick="$('ap-buyin').value=5">$5</span>
-      <span class="qa-chip" onclick="$('ap-buyin').value=10">$10</span>
-      <span class="qa-chip" onclick="$('ap-buyin').value=20">$20</span>
-      <span class="qa-chip" onclick="$('ap-buyin').value=25">$25</span>
-      <span class="qa-chip" onclick="$('ap-buyin').value=50">$50</span>
-      <span class="qa-chip" onclick="$('ap-buyin').value=100">$100</span>
+    <div id="ap-buyin-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      <span class="qa-chip" onclick="apSetBuyin(5,this)">$5</span>
+      <span class="qa-chip" onclick="apSetBuyin(10,this)">$10</span>
+      <span class="qa-chip" onclick="apSetBuyin(20,this)">$20</span>
+      <span class="qa-chip" onclick="apSetBuyin(25,this)">$25</span>
+      <span class="qa-chip" onclick="apSetBuyin(50,this)">$50</span>
+      <span class="qa-chip" onclick="apSetBuyin(100,this)">$100</span>
     </div>
     <div class="fg"><label class="lbl">Seat</label><select class="sel" id="ap-seat"></select></div>
     <div class="flex mt12">
@@ -2205,11 +2215,18 @@ function openQuickAddon(){
   const sl = document.getElementById('qa-player-sel');
   if(sl){
     sl.innerHTML = act.map(p=>`<option value="${p.id}">${esc(p.name)} — ${fmt(p.currentStack)}</option>`).join('');
+    // Smart default: if a player was selected in cashout, pre-select them
+    if(coSelectedId && act.some(p=>p.id===coSelectedId)){
+      sl.value = coSelectedId;
+    }
     $('qa-amount').value = G.settings.defaultBuyin;
     $('qa-type').value = 'rebuy';
+    const tr=$('qa-type-row'),ar=$('qa-amount-row');
+    if(tr)tr.style.display='';if(ar)ar.style.display='';
     om('m-quick-action');
     $('qa-modal-title').textContent = 'Add-On / Re-Buy';
     $('qa-action-btn').textContent = 'Add Chips';
+    $('qa-action-btn').style.cssText = '';
     $('qa-action-btn').onclick = doQuickAddon;
   }
 }
@@ -2991,9 +3008,18 @@ function bustPlayerZero(id){
   settleChecked[p.id]=false;
   addFeed('💀',`${p.name} busted`,`Lost ${fmt(lost)} · Cashed $0`);
   selPlayerId=null;
-  // Keep them selected in cashout so user sees confirmation
-  if(activeTab==='cashout'){ coSelectedId=id; refresh(); renderCashOut(); }
-  else { coSelectedId=null; refresh(); if(activeTab==='players') renderPlayerPanel(); }
+  // Auto-advance to next active player
+  const nxt=G.players.filter(q=>q.status==='active').sort((a,b)=>a.seat-b.seat)[0];
+  if(activeTab==='cashout'){
+    coSelectedId=nxt?nxt.id:id; // advance to next active, or stay to show bust confirmation
+    refresh(); renderCashOut();
+    if(nxt){
+      setTimeout(()=>{
+        const fc=$('co-form-card');
+        if(fc){ const top=fc.getBoundingClientRect().top+window.scrollY-120; window.scrollTo({top,behavior:'smooth'}); }
+      },120);
+    }
+  } else { coSelectedId=null; refresh(); if(activeTab==='players') renderPlayerPanel(); }
   toast(`${p.name} busted — $0`);
 }
 function goToCashOut(id){
@@ -3018,6 +3044,15 @@ function openAdd(presetSeat){
   }
   if(!found){toast('All seats taken');return;}
   $('ap-name').value='';$('ap-buyin').value=G.settings.defaultBuyin;
+  // Highlight the chip that matches the current default buy-in
+  setTimeout(()=>{
+    document.querySelectorAll('#m-add .qa-chip').forEach(btn=>{
+      const v=parseFloat(btn.textContent.replace(/[^0-9.]/g,''));
+      btn.style.background= v===G.settings.defaultBuyin?'var(--ag)':'' ;
+      btn.style.color= v===G.settings.defaultBuyin?'#fff':'' ;
+      btn.style.borderColor= v===G.settings.defaultBuyin?'var(--ag)':'' ;
+    });
+  },0);
 
   // Populate datalist
   const dl=$('roster-datalist');
@@ -3039,6 +3074,13 @@ function openAdd(presetSeat){
 }
 
 function openAddAtSeat(seatNum){ openAdd(seatNum); }
+function apSetBuyin(val,el){
+  $('ap-buyin').value=val;
+  document.querySelectorAll('#ap-buyin-chips .qa-chip').forEach(c=>{
+    c.style.background='';c.style.color='';c.style.borderColor='';
+  });
+  el.style.background='var(--ag)';el.style.color='#fff';el.style.borderColor='var(--ag)';
+}
 function ap_name_change(){
   const inp=$('ap-name');
   const val=inp.value;
@@ -3078,6 +3120,7 @@ function quickAddFromModal(name){
 }
 
 function quickAddFromRoster(name){
+  if(G.players.some(p=>p.name===name&&p.status==='active')){toast(`${name} is already at the table`);return;}
   const freeSeat=Array.from({length:G.settings.seats},(_,i)=>i+1).find(s=>!G.players.some(p=>p.seat===s&&p.status==='active'));
   if(!freeSeat){toast('No open seats');return;}
   G.players.push({id:G.nextId++,name,buyin:G.settings.defaultBuyin,addOns:[],addOnTotal:0,seat:freeSeat,status:'active',currentStack:G.settings.defaultBuyin,cashoutAmount:null,joinedAt:new Date()});
@@ -3286,6 +3329,8 @@ function populateCOForm(p){
       if(open&&corrInp) corrInp.value=(p.cashoutAmount||0).toFixed(2);
     };
     if(corrSave) corrSave.onclick=()=>saveCashedStack(p.id);
+    const reenterBtn=$('co-reenter-btn');
+    if(reenterBtn) reenterBtn.onclick=()=>coReenter(p.id);
 
   } else {
     // ── ACTIVE VIEW ───────────────────────────────────────────────────────
@@ -3325,7 +3370,7 @@ function populateCOForm(p){
     if(qa){
       qa.style.display='block';
       qa.innerHTML=`
-        <div style="padding-top:12px;border-top:1px solid var(--br)">
+        <div>
           <div style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--i3);text-transform:uppercase;margin-bottom:8px">Player Actions</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
             <button class="btn btn-au btn-sm" onclick="coQuickAddon(${p.id})">↺ Add-On / Re-Buy</button>
@@ -3566,7 +3611,9 @@ function recalcCO(chipTot){
 
 function selectCOPlayer(id){
   coSelectedId=id; coEditMode=false;
-  const manual=$('co-manual');if(manual)manual.value='';
+  const p=G.players.find(q=>q.id===id);
+  const manual=$('co-manual');
+  if(manual) manual.value=(p&&p._pendingCOValue!=null)?p._pendingCOValue.toFixed(2):'';
   coChipData={};
   const old=$('co-cashed-edit');if(old)old.remove();
   renderCashOut();
@@ -3578,7 +3625,7 @@ function selectCOPlayer(id){
   // Scroll form into view on all screen sizes so the switch is obvious
   setTimeout(()=>{
     const fc=$('co-form-card');
-    if(fc) fc.scrollIntoView({behavior:'smooth',block:'start'});
+    if(fc){ const top=fc.getBoundingClientRect().top+window.scrollY-120; window.scrollTo({top,behavior:'smooth'}); }
   },80);
 }
 
@@ -3616,7 +3663,7 @@ function confirmCO(){
   if(nxt){
     setTimeout(()=>{
       const fc=$('co-form-card');
-      if(fc) fc.scrollIntoView({behavior:'smooth',block:'start'});
+      if(fc){ const top=fc.getBoundingClientRect().top+window.scrollY-120; window.scrollTo({top,behavior:'smooth'}); }
     },120);
     return;
   }
@@ -3631,6 +3678,21 @@ function uncashPlayer(id){
   addFeed('↩',`${p.name} cash-out undone`,'Back to active');
   coSelectedId=id; refresh(); renderCashOut();
   toast(`${p.name} moved back to active`);
+}
+
+function coReenter(id){
+  const p=G.players.find(q=>q.id===id);if(!p||p.status!=='cashed')return;
+  const buyin=G.settings.defaultBuyin;
+  // Bank the previous cashout so P&L history is preserved
+  p.prevCashoutTotal=(p.prevCashoutTotal||0)+(p.cashoutAmount||0);
+  p.cashoutAmount=null;
+  p.status='active';
+  p.addOns.push({amount:buyin,type:'rebuy',time:new Date()});
+  p.addOnTotal+=buyin; p.currentStack=buyin;
+  settleChecked[id]=false;
+  addFeed('↩',`${p.name} re-entered`,`+${fmt(buyin)} · Back at the table`);
+  coSelectedId=id; refresh(); renderCashOut();
+  toast(`${p.name} re-entered — ${fmt(buyin)}`);
 }
 
 function saveCashedStack(id){
@@ -3722,13 +3784,12 @@ function renderPayout(){
     html+=evens.map(p=>makeRow(p,'Break even','var(--i3)','even')).join('');
   }
 
-  // Session closed summary with archive option
+  // Session closed summary (no duplicate archive button — use the banner above)
   if(sessionClosed){
     const totalWon=winners.reduce((s,p)=>s+(tot(p)-ti(p)),0);
-    html+=`<div style="margin-top:14px;padding:11px;background:var(--ag3);border:1px solid rgba(57,255,20,.18);border-radius:var(--r6);text-align:center">
+    html+=`<div style="margin-top:14px;padding:11px;background:var(--ag3);border:1px solid rgba(34,197,94,.18);border-radius:var(--r6);text-align:center">
       <div style="font-size:11px;font-weight:700;color:var(--ag);margin-bottom:3px">Session Complete 🏁</div>
       <div style="font-size:10px;color:var(--i3)">${cashed.length} players · ${fmt(totalWon)} total winnings</div>
-      <button class="btn btn-ag btn-sm btn-full mt8" onclick="doSaveEnd()">Archive & Clear Table</button>
     </div>`;
   }
 

@@ -995,7 +995,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <!-- Edit buy-in inline form (hidden by default) -->
     <div id="player-sheet-editbuyin" style="display:none;padding:0 16px 16px">
       <label class="lbl">Total invested ($)</label>
-      <input class="inp" type="number" id="player-sheet-buyin-inp" step="0.50" min="0"
+      <input class="inp" type="number" id="player-sheet-buyin-inp" step="0.50" min="0" inputmode="decimal"
         style="font-size:20px;padding:14px;text-align:center">
       <div style="display:flex;gap:8px;margin-top:10px">
         <button class="btn btn-solid-cy btn-full" onclick="confirmEditBuyin()">✓ Save</button>
@@ -1015,7 +1015,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     </div>
     <div style="padding:0 16px 14px">
       <label class="lbl">How much did they walk with?</label>
-      <input class="inp" type="number" id="co-sheet-input" placeholder="$0.00" step="0.50" min="0"
+      <input class="inp" type="number" id="co-sheet-input" placeholder="$0.00" step="0.50" min="0" inputmode="decimal"
         oninput="updateCOSheetPreview()" style="font-size:20px;padding:14px;text-align:center">
     </div>
     <div class="quick-amounts" id="co-sheet-chips"></div>
@@ -1033,7 +1033,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     <div class="bsheet-title" id="rebuy-sheet-title">Add-On / Rebuy</div>
     <div style="padding:0 16px 14px">
       <label class="lbl">Amount</label>
-      <input class="inp" type="number" id="rebuy-sheet-input" placeholder="$0.00" step="0.50" min="0"
+      <input class="inp" type="number" id="rebuy-sheet-input" placeholder="$0.00" step="0.50" min="0" inputmode="decimal"
         style="font-size:20px;padding:14px;text-align:center">
     </div>
     <div class="quick-amounts">
@@ -1854,7 +1854,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
     </div>
     <div class="fg" id="qa-amount-row">
       <label class="lbl">Amount ($)</label>
-      <input class="inp" type="number" id="qa-amount" value="10" min="0.10" step="0.10">
+      <input class="inp" type="number" id="qa-amount" value="10" min="0.10" step="0.10" inputmode="decimal">
     </div>
     <div class="fg" id="qa-type-row">
       <label class="lbl">Type</label>
@@ -1887,7 +1887,7 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <input class="inp" type="text" id="ap-name" placeholder="Type name…" maxlength="24" list="roster-datalist" onkeydown="if(event.key==='Enter')doAddPlayer()" oninput="ap_name_change()">
       <datalist id="roster-datalist"></datalist>
     </div>
-    <div class="fg"><label class="lbl">Buy-In ($)</label><input class="inp" type="number" id="ap-buyin" placeholder="10" min="0.10" step="0.10"></div>
+    <div class="fg"><label class="lbl">Buy-In ($)</label><input class="inp" type="number" id="ap-buyin" placeholder="10" min="0.10" step="0.10" inputmode="decimal"></div>
     <div id="ap-buyin-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
       <span class="qa-chip" onclick="apSetBuyin(5,this)">$5</span>
       <span class="qa-chip" onclick="apSetBuyin(10,this)">$10</span>
@@ -1912,10 +1912,10 @@ hr{border:none;border-top:1px solid var(--br);margin:12px 0}
       <div class="chd"><span class="ctitle cy">Game Settings</span></div>
       <div class="fg"><label class="lbl">Your Name (Host)</label><input class="inp" type="text" id="set-host" placeholder="blake" maxlength="24"></div>
       <div style="display:flex;gap:10px">
-        <div class="fg" style="flex:1"><label class="lbl">Small Blind ($)</label><input class="inp" type="number" id="set-sb" step="0.05"></div>
-        <div class="fg" style="flex:1"><label class="lbl">Big Blind ($)</label><input class="inp" type="number" id="set-bb" step="0.05"></div>
+        <div class="fg" style="flex:1"><label class="lbl">Small Blind ($)</label><input class="inp" type="number" id="set-sb" step="0.05" min="0.01" inputmode="decimal"></div>
+        <div class="fg" style="flex:1"><label class="lbl">Big Blind ($)</label><input class="inp" type="number" id="set-bb" step="0.05" min="0.01" inputmode="decimal"></div>
       </div>
-      <div class="fg"><label class="lbl">Default Buy-In ($)</label><input class="inp" type="number" id="set-bi" step="1"></div>
+      <div class="fg"><label class="lbl">Default Buy-In ($)</label><input class="inp" type="number" id="set-bi" step="1" min="1" inputmode="decimal"></div>
       <div class="fg"><label class="lbl">Seats at the Table</label>
         <select class="sel" id="set-seats">
           <option value="6">6</option><option value="7">7</option><option value="8">8</option>
@@ -2976,6 +2976,7 @@ function doAddon(id){
   p.addOns.push({amount:amt,type:'add-on',time:new Date()});
   p.addOnTotal+=amt;p.currentStack+=amt;
   addFeed('↺',`${p.name} add-on`,`+${fmt(amt)} → ${fmt(p.currentStack)}`);
+  scheduleCloudSave();
   refresh();renderPlayerPanel();toast(`${p.name} +${fmt(amt)}`);
 }
 function doUpdateStack(id){
@@ -2983,6 +2984,7 @@ function doUpdateStack(id){
   if(isNaN(nv)||nv<0){toast('Invalid');return;}
   const p=G.players.find(p=>p.id===id),old=p.currentStack;p.currentStack=nv;
   addFeed('⟳',`${p.name} stack set`,`${fmt(old)} → ${fmt(nv)}`);
+  scheduleCloudSave();
   refresh();renderPlayerPanel();toast(`${p.name}: ${fmt(nv)}`);
 }
 function customConfirm(msg, onYes){
@@ -3676,6 +3678,7 @@ function uncashPlayer(id){
   p.status='active'; p.currentStack=p.cashoutAmount||0; p.cashoutAmount=null;
   settleChecked[id]=false;
   addFeed('↩',`${p.name} cash-out undone`,'Back to active');
+  scheduleCloudSave();
   coSelectedId=id; refresh(); renderCashOut();
   toast(`${p.name} moved back to active`);
 }
@@ -3691,6 +3694,7 @@ function coReenter(id){
   p.addOnTotal+=buyin; p.currentStack=buyin;
   settleChecked[id]=false;
   addFeed('↩',`${p.name} re-entered`,`+${fmt(buyin)} · Back at the table`);
+  scheduleCloudSave();
   coSelectedId=id; refresh(); renderCashOut();
   toast(`${p.name} re-entered — ${fmt(buyin)}`);
 }
@@ -3708,6 +3712,7 @@ function saveCashedStack(id){
   const old=p.cashoutAmount||0;
   p.cashoutAmount=val;
   addFeed('✎',`${p.name} cashout corrected`,`${fmt(old)} → ${fmt(val)}`);
+  scheduleCloudSave();
   const wrap=$('co-correction-wrap');if(wrap)wrap.style.display='none';
   refresh(); renderCashOut();
   toast(`${p.name} updated to ${fmt(val)}`);
@@ -3857,7 +3862,12 @@ function archiveAndClear(){
     if(!confirm(`${activeCt} player${activeCt!==1?'s':''} still active and haven't cashed out. Archive anyway?`))return;
   } else if(diff>0.02){
     const over=(cashedOut+activeStack)>totalIn;
-    if(!confirm(`⚠️ Math doesn't balance — ${fmt(diff)} ${over?'more cashed out than bought in':'unaccounted for'}.\n\nAre you sure you want to archive?`))return;
+    customConfirm(`⚠️ Math doesn't balance — ${fmt(diff)} ${over?'more cashed out than bought in':'unaccounted for'}. Archive anyway?`,()=>{
+      saveHistory();resetGame();
+      goTab('dash',$('nav-dash'));
+      toast('Session archived — gg! 🃏');
+    });
+    return;
   }
 
   saveHistory();resetGame();
@@ -3865,10 +3875,11 @@ function archiveAndClear(){
   toast('Session archived — gg! 🃏');
 }
 function justClear(){
-  if(!confirm('Clear table without saving to history?'))return;
-  resetGame();
-  goTab('dash',$('nav-dash'));
-  toast('Table cleared');
+  customConfirm('Clear table without saving to history?',()=>{
+    resetGame();
+    goTab('dash',$('nav-dash'));
+    toast('Table cleared');
+  });
 }
 
 /* ═══════════════════════════════
@@ -4699,23 +4710,6 @@ function resetGame(){
 }
 function saveHistory(){
   const dateStr=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
-  const hist=JSON.parse(localStorage.getItem('moonsHistory')||'[]');
-  hist.unshift({
-    id:Date.now(),
-    date:dateStr,
-    time:clock(G.start),
-    players:G.players.map(p=>({name:p.name,buyin:ti(p),cashout:p.cashoutAmount,status:p.status})),
-    handsCount:G.hands.length,
-    totalPot:G.players.reduce((s,p)=>s+ti(p),0),
-    biggestPot:G.hands.length?Math.max(...G.hands.map(h=>h.pot)):0
-  });
-  localStorage.setItem('moonsHistory',JSON.stringify(hist.slice(0,50)));
-  scheduleCloudSave();
-  // Stamp lastSeen on each player in roster
-  G.players.forEach(p=>upsertRoster(p.name,{lastSeen:dateStr}));
-}
-function saveHistory(){
-  const dateStr=new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
   const elapsed=sessionStartTime?Math.floor((Date.now()-sessionStartTime.getTime())/1000):0;
   const hist=JSON.parse(localStorage.getItem('moonsHistory')||'[]');
   hist.unshift({
@@ -4898,10 +4892,11 @@ function clearHistory(){
 }
 
 function factoryReset(){
-  if(!confirm('Wipe ALL data — roster, history, settings, everything? This cannot be undone.'))return;
-  ['moonsRoster','moonsInvite','moonsRSVPs','hostPIN','moonsHistory','oracleLog','moonsVersion','moonsSession']
-    .forEach(k=>localStorage.removeItem(k));
-  location.reload();
+  customConfirm('Wipe ALL data — roster, history, settings, everything? This cannot be undone.',()=>{
+    ['moonsRoster','moonsInvite','moonsRSVPs','hostPIN','moonsHistory','oracleLog','moonsVersion','moonsSession']
+      .forEach(k=>localStorage.removeItem(k));
+    location.reload();
+  });
 }
 /* ═══════════════════════════════
    INVITE
@@ -5760,7 +5755,7 @@ function renderDealerPlayerList(){
   if(done.length){
     html += `<div class="dpl-divider">── cashed out / busted ──</div>`;
     done.forEach(p=>{
-      const net = (p.cashoutAmount||0) - ti(p);
+      const net = tot(p) - ti(p);
       const netClass = net>0.01?'up':net<-0.01?'dn':'even';
       const netStr = net>0.01?`+${fmt(net)}`:net<-0.01?`${fmt(net)}`:'even';
       html += `<div class="dpl-row cashed" onclick="openPlayerSheet(${p.id})">
